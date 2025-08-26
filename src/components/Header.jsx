@@ -3,25 +3,21 @@ import { Link } from 'react-router-dom';
 import logoImage from '../imagenes/logoPrincipal.jpg'; // Importar la imagen
 
 const Header = () => {
-    const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [isAboutDropdownOpen, setIsAboutDropdownOpen] = useState(false);
 
-    const toggleMainMenu = () => {
-        setIsMainMenuOpen(!isMainMenuOpen);
-        // Cerrar submenu cuando se cierra el menu principal
-        if (isMainMenuOpen) {
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+        // Cerrar submenu cuando se cierra el menu
+        if (isMobileMenuOpen) {
             setIsAboutDropdownOpen(false);
         }
     };
 
-    const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
-    };
-
     const openAuthModal = () => {
         setShowAuthModal(true);
+        setIsMobileMenuOpen(false); // Cerrar menú al abrir modal
     };
 
     const closeAuthModal = () => {
@@ -39,7 +35,7 @@ const Header = () => {
 
     // Cerrar menú al hacer click en un enlace
     const handleLinkClick = () => {
-        setIsMainMenuOpen(false);
+        setIsMobileMenuOpen(false);
         setIsAboutDropdownOpen(false);
     };
 
@@ -58,93 +54,8 @@ const Header = () => {
                         </Link>
                     </div>
 
-                    {/* Navegación móvil tradicional */}
-                    <nav className={`main-nav ${isMobileMenuOpen ? 'nav-open' : ''}`}>
-                        <ul className="nav-links">
-                            <li>
-                                <Link to="/" className="nav-link" onClick={toggleMobileMenu}>
-                                    <span className="nav-icon">🏠</span>
-                                    Inicio
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/courses" className="nav-link" onClick={toggleMobileMenu}>
-                                    <span className="nav-icon">📚</span>
-                                    Cursos
-                                </Link>
-                            </li>
-                            <li className={`dropdown ${isAboutDropdownOpen ? 'open' : ''}`}>
-                                <button
-                                    className="dropdown-toggle"
-                                    onClick={handleDropdownClick}
-                                    aria-expanded={isAboutDropdownOpen}
-                                >
-                                    <span className="nav-icon">ℹ️</span>
-                                    Acerca de
-                                    <svg
-                                        width="12"
-                                        height="12"
-                                        viewBox="0 0 12 12"
-                                        fill="currentColor"
-                                        style={{
-                                            transform: isAboutDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                                            transition: 'transform 0.2s ease-in-out'
-                                        }}
-                                    >
-                                        <path d="M3 4.5L6 7.5L9 4.5"/>
-                                    </svg>
-                                </button>
-                                <div className="dropdown-menu">
-                                    <a href="#quienes-somos" className="dropdown-item" onClick={toggleMobileMenu}>
-                                        <span className="dropdown-icon">👥</span>
-                                        ¿Quiénes Somos?
-                                    </a>
-                                    <a href="#como-funciona" className="dropdown-item" onClick={toggleMobileMenu}>
-                                        <span className="dropdown-icon">⚙️</span>
-                                        ¿Cómo Funciona?
-                                    </a>
-                                    <a href="#tecnologia" className="dropdown-item" onClick={toggleMobileMenu}>
-                                        <span className="dropdown-icon">🚀</span>
-                                        Tecnología
-                                    </a>
-                                    <a href="#mision-vision" className="dropdown-item" onClick={toggleMobileMenu}>
-                                        <span className="dropdown-icon">🎯</span>
-                                        Misión y Visión
-                                    </a>
-                                </div>
-                            </li>
-                            <li>
-                                <Link to="/contacto" className="nav-link" onClick={toggleMobileMenu}>
-                                    <span className="nav-icon">📧</span>
-                                    Contacto
-                                </Link>
-                            </li>
-                            <li className="mobile-auth-buttons">
-                                <button
-                                    className="auth-button-mobile login"
-                                    onClick={() => { openAuthModal(); toggleMobileMenu(); }}
-                                >
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                                    </svg>
-                                    Iniciar Sesión
-                                </button>
-                                <button
-                                    className="auth-button-mobile register"
-                                    onClick={() => { openAuthModal(); toggleMobileMenu(); }}
-                                >
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                        <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
-                                    </svg>
-                                    Registrarse
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
-
-                    {/* Sección derecha: Botones de autenticación + Menú */}
+                    {/* Botones de autenticación + hamburguesa */}
                     <div className="header-actions">
-                        {/* Botones de autenticación */}
                         <button
                             className="auth-btn login-btn"
                             onClick={openAuthModal}
@@ -159,102 +70,87 @@ const Header = () => {
                             Registrarse
                         </button>
 
-                        {/* Botón del menú principal */}
-                        <button
-                            className={`menu-btn ${isMainMenuOpen ? 'active' : ''}`}
-                            onClick={toggleMainMenu}
-                            aria-expanded={isMainMenuOpen}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"/>
-                            </svg>
-                            Menú
-                        </button>
-
-                        {/* Menú desplegable principal */}
-                        <div className={`main-dropdown-menu ${isMainMenuOpen ? 'open' : ''}`}>
-                            <nav className="main-nav-dropdown">
-                                <ul className="nav-links-dropdown">
-                                    <li>
-                                        <Link to="/" className="nav-link-dropdown" onClick={handleLinkClick}>
-                                            <span className="nav-icon">🏠</span>
-                                            Inicio
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/courses" className="nav-link-dropdown" onClick={handleLinkClick}>
-                                            <span className="nav-icon">📚</span>
-                                            Cursos
-                                        </Link>
-                                    </li>
-                                    <li className={`dropdown-nested ${isAboutDropdownOpen ? 'open' : ''}`}>
-                                        <button
-                                            className="dropdown-toggle-nested"
-                                            onClick={handleDropdownClick}
-                                            aria-expanded={isAboutDropdownOpen}
-                                        >
-                                            <span className="nav-icon">ℹ️</span>
-                                            Acerca de
-                                            <svg
-                                                width="12"
-                                                height="12"
-                                                viewBox="0 0 12 12"
-                                                fill="currentColor"
-                                                style={{
-                                                    transform: isAboutDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                                                    transition: 'transform 0.2s ease-in-out',
-                                                    marginLeft: 'auto'
-                                                }}
-                                            >
-                                                <path d="M3 4.5L6 7.5L9 4.5"/>
-                                            </svg>
-                                        </button>
-                                        <div className="dropdown-submenu">
-                                            <a href="#quienes-somos" className="dropdown-item-nested" onClick={handleLinkClick}>
-                                                <span className="dropdown-icon">👥</span>
-                                                ¿Quiénes Somos?
-                                            </a>
-                                            <a href="#como-funciona" className="dropdown-item-nested" onClick={handleLinkClick}>
-                                                <span className="dropdown-icon">⚙️</span>
-                                                ¿Cómo Funciona?
-                                            </a>
-                                            <a href="#tecnologia" className="dropdown-item-nested" onClick={handleLinkClick}>
-                                                <span className="dropdown-icon">🚀</span>
-                                                Tecnología
-                                            </a>
-                                            <a href="#mision-vision" className="dropdown-item-nested" onClick={handleLinkClick}>
-                                                <span className="dropdown-icon">🎯</span>
-                                                Misión y Visión
-                                            </a>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <Link to="/contacto" className="nav-link-dropdown" onClick={handleLinkClick}>
-                                            <span className="nav-icon">📧</span>
-                                            Contacto
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-
-                        {/* Botón hamburguesa para móvil */}
                         <button
                             className="hamburger-menu"
                             onClick={toggleMobileMenu}
                             aria-label="Abrir menú"
                         >
-                            <span className="hamburger-line"></span>
-                            <span className="hamburger-line"></span>
-                            <span className="hamburger-line"></span>
+                            <span className={`hamburger-line ${isMobileMenuOpen ? 'active' : ''}`}></span>
+                            <span className={`hamburger-line ${isMobileMenuOpen ? 'active' : ''}`}></span>
+                            <span className={`hamburger-line ${isMobileMenuOpen ? 'active' : ''}`}></span>
                         </button>
                     </div>
                 </div>
+
+                {/* Menú hamburguesa (funciona en todas las resoluciones) */}
+                <nav className={`hamburger-nav ${isMobileMenuOpen ? 'nav-open' : ''}`}>
+                    <ul className="nav-links">
+                        <li>
+                            <Link to="/" className="nav-link" onClick={handleLinkClick}>
+                                <span className="nav-icon">🏠</span>
+                                Inicio
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/courses" className="nav-link" onClick={handleLinkClick}>
+                                <span className="nav-icon">📚</span>
+                                Cursos
+                            </Link>
+                        </li>
+                        <li className={`dropdown ${isAboutDropdownOpen ? 'open' : ''}`}>
+                            <button
+                                className="dropdown-toggle"
+                                onClick={handleDropdownClick}
+                                aria-expanded={isAboutDropdownOpen}
+                            >
+                                <span className="nav-icon">ℹ️</span>
+                                Acerca de
+                                <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 12 12"
+                                    fill="currentColor"
+                                    style={{
+                                        transform: isAboutDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.2s ease-in-out',
+                                        marginLeft: 'auto'
+                                    }}
+                                >
+                                    <path d="M3 4.5L6 7.5L9 4.5"/>
+                                </svg>
+                            </button>
+                            <div className="dropdown-menu">
+                                <a href="#quienes-somos" className="dropdown-item" onClick={handleLinkClick}>
+                                    <span className="dropdown-icon">👥</span>
+                                    ¿Quiénes Somos?
+                                </a>
+                                <a href="#como-funciona" className="dropdown-item" onClick={handleLinkClick}>
+                                    <span className="dropdown-icon">⚙️</span>
+                                    ¿Cómo Funciona?
+                                </a>
+                                <a href="#tecnologia" className="dropdown-item" onClick={handleLinkClick}>
+                                    <span className="dropdown-icon">🚀</span>
+                                    Tecnología
+                                </a>
+                                <a href="#mision-vision" className="dropdown-item" onClick={handleLinkClick}>
+                                    <span className="dropdown-icon">🎯</span>
+                                    Misión y Visión
+                                </a>
+                            </div>
+                        </li>
+                        <li>
+                            <Link to="/contacto" className="nav-link" onClick={handleLinkClick}>
+                                <span className="nav-icon">📧</span>
+                                Contacto
+                            </Link>
+                        </li>
+                    </ul>
+                </nav>
             </header>
 
             {/* Overlay para cerrar menú */}
-            {isMainMenuOpen && (
-                <div className="menu-overlay" onClick={toggleMainMenu}></div>
+            {isMobileMenuOpen && (
+                <div className="menu-overlay" onClick={toggleMobileMenu}></div>
             )}
 
             {/* Modal de Autenticación */}
@@ -270,24 +166,10 @@ const Header = () => {
                             </button>
                         </div>
                         <div className="auth-modal-content">
-                            <p>Inicia sesión para acceder a rutas personalizadas de aprendizaje generadas por IA</p>
+                            <p>¡Bienvenido! Inicia sesión en nuestra plataforma de aprendizaje y disfruta de una experiencia personalizada.</p>
                             <div className="auth-buttons">
                                 <button className="auth-btn primary">Iniciar Sesión</button>
                                 <button className="auth-btn secondary">Registrarse</button>
-                            </div>
-                            <div className="auth-features">
-                                <div className="feature-item">
-                                    <span className="feature-icon">🤖</span>
-                                    <span>Rutas personalizadas con IA</span>
-                                </div>
-                                <div className="feature-item">
-                                    <span className="feature-icon">📊</span>
-                                    <span>Seguimiento de progreso</span>
-                                </div>
-                                <div className="feature-item">
-                                    <span className="feature-icon">🎯</span>
-                                    <span>Recomendaciones inteligentes</span>
-                                </div>
                             </div>
                         </div>
                     </div>
