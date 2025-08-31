@@ -8,16 +8,26 @@ const Header = () => {
     const [isAboutDropdownOpen, setIsAboutDropdownOpen] = useState(false);
 
     const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
-        // Cerrar submenu cuando se cierra el menu
-        if (isMobileMenuOpen) {
-            setIsAboutDropdownOpen(false);
-        }
+    // Si el menú se está abriendo, cerrar modal de auth
+    if (!isMobileMenuOpen && showAuthModal) {
+        setShowAuthModal(false);
+    }
+    
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    
+    // Cerrar submenu cuando se cierra el menu
+    if (isMobileMenuOpen) {
+        setIsAboutDropdownOpen(false);
+    }
     };
 
+
     const openAuthModal = () => {
-        setShowAuthModal(true);
-        setIsMobileMenuOpen(false); // Cerrar menú al abrir modal
+    setShowAuthModal(true);
+    setIsMobileMenuOpen(false); // Ya tienes esto
+    
+    // AGREGAR: Cerrar dropdown si está abierto
+    setIsAboutDropdownOpen(false);
     };
 
     const closeAuthModal = () => {
@@ -87,13 +97,13 @@ const Header = () => {
                     <ul className="nav-links">
                         <li>
                             <Link to="/" className="nav-link" onClick={handleLinkClick}>
-                                <span className="nav-icon">🏠</span>
+                                <span className="nav-icon"></span>
                                 Inicio
                             </Link>
                         </li>
                         <li>
                             <Link to="/courses" className="nav-link" onClick={handleLinkClick}>
-                                <span className="nav-icon">📚</span>
+                                <span className="nav-icon"></span>
                                 Cursos
                             </Link>
                         </li>
@@ -103,7 +113,7 @@ const Header = () => {
                                 onClick={handleDropdownClick}
                                 aria-expanded={isAboutDropdownOpen}
                             >
-                                <span className="nav-icon">ℹ️</span>
+                                <span className="nav-icon"></span>
                                 Acerca de
                                 <svg
                                     width="12"
@@ -120,27 +130,27 @@ const Header = () => {
                                 </svg>
                             </button>
                             <div className="dropdown-menu">
-                                <a href="#quienes-somos" className="dropdown-item" onClick={handleLinkClick}>
-                                    <span className="dropdown-icon">👥</span>
-                                    ¿Quiénes Somos?
-                                </a>
-                                <a href="#como-funciona" className="dropdown-item" onClick={handleLinkClick}>
-                                    <span className="dropdown-icon">⚙️</span>
-                                    ¿Cómo Funciona?
-                                </a>
-                                <a href="#tecnologia" className="dropdown-item" onClick={handleLinkClick}>
-                                    <span className="dropdown-icon">🚀</span>
-                                    Tecnología
-                                </a>
-                                <a href="#mision-vision" className="dropdown-item" onClick={handleLinkClick}>
-                                    <span className="dropdown-icon">🎯</span>
-                                    Misión y Visión
-                                </a>
-                            </div>
+                        <Link to="/quienes-somos" className="dropdown-item" onClick={handleLinkClick}>
+                        <span className="dropdown-icon"></span>
+                        ¿Quiénes Somos?
+                        </Link>
+                        <Link to="/como-funciona" className="dropdown-item" onClick={handleLinkClick}>
+                        <span className="dropdown-icon"></span>
+                        ¿Cómo Funciona?
+                        </Link>
+                        <Link to="/tecnologia" className="dropdown-item" onClick={handleLinkClick}>
+                         <span className="dropdown-icon"></span>
+                        Tecnología
+                        </Link>
+                        <Link to="/mision-vision" className="dropdown-item" onClick={handleLinkClick}>
+                        <span className="dropdown-icon"></span>
+                        Misión y Visión
+                        </Link>
+                        </div>
                         </li>
                         <li>
                             <Link to="/contacto" className="nav-link" onClick={handleLinkClick}>
-                                <span className="nav-icon">📧</span>
+                                <span className="nav-icon"></span>
                                 Contacto
                             </Link>
                         </li>
@@ -148,10 +158,16 @@ const Header = () => {
                 </nav>
             </header>
 
-            {/* Overlay para cerrar menú */}
-            {isMobileMenuOpen && (
-                <div className="menu-overlay" onClick={toggleMobileMenu}></div>
-            )}
+            {/* Comentar o eliminar esta sección completa */}
+{/* 
+{isMobileMenuOpen && (
+    <div 
+        className="menu-overlay" 
+        onClick={toggleMobileMenu}
+        style={{zIndex: 1350}}
+    ></div>
+)}
+*/}
 
             {/* Modal de Autenticación */}
             {showAuthModal && (

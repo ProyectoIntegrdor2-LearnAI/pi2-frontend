@@ -6,7 +6,12 @@ import MiPerfil from './pages/MiPerfil';
 import MisCursos from './pages/MisCursos';
 import MisFavoritos from './pages/MisFavoritos';
 import './styles/App.css';
-
+import QuienesSomos from './pages/QuienesSomos';
+import ComoFunciona from './pages/ComoFunciona';
+import Tecnologia from './pages/Tecnologia';
+import MisionVision from './pages/MisionVision';
+import Contacto from './pages/Contacto';
+import './styles/App.css';
 function App() {
     return (
         <Router>
@@ -18,6 +23,11 @@ function App() {
                         <Route path="/mi-perfil" element={<MiPerfil />} />
                         <Route path="/mis-cursos" element={<MisCursos />} />
                         <Route path="/mis-favoritos" element={<MisFavoritos />} />
+                        <Route path="/quienes-somos" element={<QuienesSomos />} />
+                        <Route path="/como-funciona" element={<ComoFunciona />} />
+                        <Route path="/tecnologia" element={<Tecnologia />} />
+                        <Route path="/mision-vision" element={<MisionVision />} />
+                        <Route path="/contacto" element={<Contacto />} />
                     </Routes>
                 </main>
             </div>

@@ -208,7 +208,7 @@ body {
     transition: all 0.3s ease;
     max-height: calc(100vh - 80px);
     overflow-y: auto;
-    z-index: 1002;
+    z-index: 1500;
 }
 
 .hamburger-nav.nav-open {
@@ -390,7 +390,7 @@ body {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 1001;
+    z-index: 1350 !important; /* CAMBIAR de 1400 a 1350 - MENOR que el menú */
     opacity: 0;
     animation: fadeIn 0.3s ease forwards;
 }
@@ -539,7 +539,7 @@ body {
     box-shadow: var(--shadow-md);
     display: flex;
     flex-direction: column;
-    z-index: 998; /* Cambiar de 999 a 998 */
+    z-index: 900; /* Cambiar de 999 a 900 */
     transition: var(--transition);
 }
 

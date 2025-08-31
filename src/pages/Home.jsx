@@ -347,14 +347,7 @@ const Home = ({ onChatToggle }) => {
                         </div>
                     </div>
 
-                    {/* Botón volver arriba */}
-                    <button 
-                        onClick={scrollToTop}
-                        className="back-to-top"
-                        aria-label="Volver arriba"
-                    >
-                        <ChevronUp className="back-to-top-icon" />
-                    </button>
+                    
                 </div>
             </footer>
         </div>
