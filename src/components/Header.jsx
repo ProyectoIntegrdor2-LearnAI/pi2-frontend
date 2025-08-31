@@ -134,13 +134,9 @@ const Header = () => {
                         <span className="dropdown-icon"></span>
                         ¿Quiénes Somos?
                         </Link>
-                        <Link to="/como-funciona" className="dropdown-item" onClick={handleLinkClick}>
+                        <Link to="/preguntas-frecuentes" className="dropdown-item" onClick={handleLinkClick}>
                         <span className="dropdown-icon"></span>
-                        ¿Cómo Funciona?
-                        </Link>
-                        <Link to="/tecnologia" className="dropdown-item" onClick={handleLinkClick}>
-                         <span className="dropdown-icon"></span>
-                        Tecnología
+                        ¿Preguntas Frecuentes?
                         </Link>
                         <Link to="/mision-vision" className="dropdown-item" onClick={handleLinkClick}>
                         <span className="dropdown-icon"></span>
