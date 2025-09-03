@@ -11,6 +11,7 @@ import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
 import MisionVision from './pages/MisionVision';
 import Contacto from './pages/Contacto';
 import './styles/components.css';
+import './styles/AuthModal.css'; 
 function App() {
     return (
         <Router>
