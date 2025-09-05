@@ -25,7 +25,7 @@ const HeaderDashboard = () => {
         {/* Menú desktop */}
         <nav className="nav-links">
           <Link to="/perfil">Perfil</Link>
-          <Link to="/mis-cursos">Mis Cursos</Link>
+          <Link to="/visualizador-rutas">Mis Rutas</Link>
           <Link to="/mis-favoritos">Mis Favoritos</Link>
           <button onClick={handleLogout} className="logout-btn">
             Cerrar Sesión
@@ -46,8 +46,8 @@ const HeaderDashboard = () => {
             <Link to="/perfil" onClick={() => setIsMobileMenuOpen(false)}>
               Perfil
             </Link>
-            <Link to="/mis-cursos" onClick={() => setIsMobileMenuOpen(false)}>
-              Mis Cursos
+            <Link to="/visualizador-rutas" onClick={() => setIsMobileMenuOpen(false)}>
+              Mis Rutas
             </Link>
             <Link to="/mis-favoritos" onClick={() => setIsMobileMenuOpen(false)}>
               Mis Favoritos

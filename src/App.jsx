@@ -20,7 +20,7 @@ import Contacto from "./pages/Contacto";
 // Páginas privadas (usuario logueado)
 import Dashboard from "./pages/Dashboard";
 import MiPerfil from "./pages/MiPerfil";
-import MisCursos from "./pages/MisCursos";
+import VisualizadorRutas from "./pages/VisualizadorRutas";
 import MisFavoritos from "./pages/MisFavoritos";
 
 // Estilos
@@ -28,6 +28,11 @@ import "./styles/App.css";
 import "./styles/components.css";
 import "./styles/AuthModal.css";
 import "./styles/Dashboard.css";
+import './styles/QuienesSomos.css';
+import './styles/MisionVision.css';
+import './styles/Contacto.css';
+import './styles/PreguntasFrecuentes.css';
+import './styles/VisualizadorRutas.css';
 
 function AppContent() {
   const location = useLocation();
@@ -36,15 +41,30 @@ function AppContent() {
   const isDashboardRoute =
     location.pathname.startsWith("/dashboard") ||
     location.pathname.startsWith("/mi-perfil") ||
-    location.pathname.startsWith("/mis-cursos") ||
+    location.pathname.startsWith("/visualizador-rutas") ||
     location.pathname.startsWith("/mis-favoritos");
+
+  // Detectar páginas que deben ocupar toda la altura (sin padding-top)
+  const isFullPageRoute = 
+    location.pathname === "/quienes-somos" ||
+    location.pathname === "/mision-vision" ||
+    location.pathname === "/contacto";
+
+  // Generar clase CSS para main-content
+  const getMainContentClass = () => {
+    let classes = "main-content";
+    if (isFullPageRoute) {
+      classes += " full-page";
+    }
+    return classes;
+  };
 
   return (
     <div className="App">
       {/* Header dinámico */}
       {isDashboardRoute ? <HeaderDashboard /> : <HeaderPublic />}
 
-      <main className="main-content">
+      <main className={getMainContentClass()}>
         <Routes>
           {/* Rutas públicas */}
           <Route path="/" element={<Home />} />
@@ -56,7 +76,7 @@ function AppContent() {
           {/* Rutas privadas */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/mi-perfil" element={<MiPerfil />} />
-          <Route path="/mis-cursos" element={<MisCursos />} />
+          <Route path="/visualizador-rutas" element={<VisualizadorRutas />} />
           <Route path="/mis-favoritos" element={<MisFavoritos />} />
         </Routes>
       </main>
@@ -71,7 +91,3 @@ export default function App() {
     </Router>
   );
 }
-//     login,
-//     register,
-//     logout,
-//   }; 

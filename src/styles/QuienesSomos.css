@@ -1,0 +1,187 @@
+/* Agregar estos estilos al final de tu QuienesSomos.css existente */
+
+/* About Content Grid */
+.about-content-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 4rem;
+    margin-top: 3rem;
+}
+
+.about-description {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.description-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--primary-color);
+    transition: var(--transition);
+}
+
+.description-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.description-card h3 {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.description-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0;
+}
+
+.description-card strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* About Features */
+.about-features {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.feature-highlights {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.highlight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--background-secondary);
+    border-radius: var(--radius-lg);
+    transition: var(--transition);
+}
+
+.highlight-item:hover {
+    background: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.highlight-icon {
+    width: 40px;
+    height: 40px;
+    color: var(--accent-color);
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+}
+
+.highlight-content h4 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.highlight-content p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Tech Specs */
+.tech-specs {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+}
+
+.tech-specs h4 {
+    color: var(--primary-color);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.tech-specs ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tech-specs li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.tech-specs li:last-child {
+    border-bottom: none;
+}
+
+.tech-specs li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+/* Responsive para nuevo layout */
+@media (max-width: 1024px) {
+    .about-content-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-content-grid {
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .description-card,
+    .tech-specs {
+        padding: 1.5rem;
+    }
+
+    .highlight-item {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+
+    .highlight-icon {
+        margin-top: 0;
+        align-self: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .description-card,
+    .tech-specs,
+    .highlight-item {
+        padding: 1rem;
+    }
+
+    .tech-specs h4 {
+        font-size: 1rem;
+    }
+
+    .tech-specs li {
+        font-size: 0.8rem;
+        padding: 0.5rem 0;
+    }
+}

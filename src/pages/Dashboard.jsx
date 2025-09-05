@@ -263,7 +263,7 @@ function Dashboard() {
                 <span className="nav-icon"></span>
                 <span>Inicio</span>
               </li>
-              <li onClick={() => handleNavigation('/mis-cursos')} className="nav-item">
+              <li onClick={() => handleNavigation('/visualizador-rutas')} className="nav-item">
                 <span className="nav-icon"></span>
                 <span>Mis Cursos</span>
               </li>

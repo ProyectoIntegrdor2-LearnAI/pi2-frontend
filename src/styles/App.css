@@ -713,25 +713,33 @@ body {
     max-width: 800px;
 }
 
+/* Corregir el color del título principal del hero */
 .hero-title {
     font-size: 3.5rem;
     font-weight: 800;
     line-height: 1.1;
     margin-bottom: 1.5rem;
+    color: #ffffff; /* Cambiar a blanco puro para mejor contraste */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Añadir sombra para mejor legibilidad */
 }
 
+/* Asegurar que el texto con clase brand-highlight también sea visible */
 .brand-highlight {
-    background: linear-gradient(135deg, #037F8C 0%, #038C4C 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%); /* Usar verdes más brillantes */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    text-shadow: none; /* Quitar sombra para gradientes de texto */
 }
 
+/* Mejorar también la descripción del hero */
 .hero-description {
     font-size: 1.25rem;
     margin-bottom: 2rem;
-    opacity: 0.9;
+    opacity: 0.95; /* Aumentar opacidad de 0.9 a 0.95 */
     line-height: 1.7;
+    color: rgba(255, 255, 255, 0.95); /* Hacer el blanco más sólido */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Añadir sutil sombra */
 }
 
 .hero-stats {
@@ -1175,20 +1183,14 @@ body {
     font-size: 3rem;
     font-weight: 800;
     margin-bottom: 1.5rem;
-    color: var(--text-primary);
+    color: var(#ffffff);
     line-height: 1.1;
 }
 
-.text-gradient {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
 
 .cta-enhanced-description {
     font-size: 1.25rem;
-    color: var(--text-secondary);
+    color: var(#10b981);
     margin-bottom: 2.5rem;
     line-height: 1.7;
     max-width: 600px;

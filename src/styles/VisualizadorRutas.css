@@ -1,0 +1,1693 @@
+/* Selector de rutas en grid horizontal */
+.ruta-selector {
+  margin-bottom: 2rem;
+}
+
+.rutas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.ruta-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.ruta-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
+}
+
+.ruta-card.active {
+  border-color: var(--primary-color);
+  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  box-shadow: var(--shadow-lg);
+}
+
+.ruta-info h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.ruta-info p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.ruta-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+}
+
+.nivel {
+  background: var(--primary-color);
+  color: white;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.estimacion {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.progreso-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progreso-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.progreso-texto {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Visualizador de ruta centrado */
+.ruta-visualizador {
+  margin-bottom: 2rem;
+}
+
+.course-map-container {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.course-path {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.course-step {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* Línea conectora horizontal */
+.path-connector {
+  width: 60px;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  margin: 0 1rem;
+}
+
+/* Nodo del curso - Solo la burbuja */
+.course-bubble {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--node-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 4px solid white;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.course-bubble:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.course-bubble.bloqueado {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.course-bubble.bloqueado:hover {
+  transform: none;
+}
+
+.course-icon {
+  font-size: 1.8rem;
+  color: white;
+  font-weight: bold;
+  z-index: 2;
+}
+
+.course-number {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  background: var(--primary-color);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border: 2px solid white;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Progreso circular para burbujas en progreso */
+.bubble-progress {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+/* Estadísticas de progreso */
+.progress-stats {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Panel flotante del curso */
+.panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.course-panel {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  color: white;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.panel-header h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.panel-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: var(--transition);
+}
+
+.panel-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.panel-content {
+  padding: 1.5rem;
+}
+
+.course-details {
+  margin-bottom: 1.5rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.value.status {
+  text-transform: capitalize;
+  color: var(--primary-color);
+}
+
+.panel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.action-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.9rem;
+}
+
+.action-btn.primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  background: var(--primary-dark);
+}
+
+.action-btn.success {
+  background: var(--success-color);
+  color: white;
+}
+
+.action-btn.success:hover {
+  background: #1e7e34;
+}
+
+.action-btn.secondary {
+  background: var(--text-light);
+  color: var(--text-primary);
+}
+
+.action-btn.secondary:hover {
+  background: var(--text-secondary);
+  color: white;
+}
+
+/* Botones de acción en cada curso */
+.course-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.external-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.external-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.complete-btn {
+  background: var(--success-color);
+  color: white;
+}
+
+.complete-btn:hover {
+  background: #1e7e34;
+  transform: translateY(-1px);
+}
+
+.continue-btn {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.continue-btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+/* Panel de confirmación */
+.panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.confirmation-panel {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 400px;
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  color: white;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.panel-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.panel-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: var(--transition);
+}
+
+.panel-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.panel-content {
+  padding: 1.5rem;
+}
+
+.course-summary {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.course-summary h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.course-summary p {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.panel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.success-btn {
+  background: var(--success-color);
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.success-btn:hover {
+  background: #1e7e34;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.secondary-btn {
+  background: var(--text-light);
+  color: var(--text-primary);
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.secondary-btn:hover {
+  background: var(--text-secondary);
+  color: white;
+}
+.course-bubble.completado {
+  background: var(--success-color);
+  animation: none;
+}
+
+.course-bubble.en-progreso {
+  background: var(--secondary-color);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.course-bubble.disponible {
+  background: var(--primary-color);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.course-bubble.bloqueado {
+  background: var(--text-light);
+  animation: none;
+}
+
+/* Animación de pulso para cursos activos */
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1); 
+    box-shadow: var(--shadow-md);
+  }
+  50% { 
+    transform: scale(1.05); 
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .rutas-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .course-path {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .path-connector {
+    width: 4px;
+    height: 40px;
+    margin: 0;
+  }
+  
+  .course-bubble {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .course-icon {
+    font-size: 1.4rem;
+  }
+  
+  .course-number {
+    width: 20px;
+    height: 20px;
+    font-size: 0.6rem;
+    bottom: -6px;
+    right: -6px;
+  }
+  
+  .progress-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .course-panel {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .panel-actions {
+    gap: 0.5rem;
+  }
+  
+  .action-btn {
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .course-map-container {
+    padding: 2rem 1rem;
+    min-height: 300px;
+  }
+  
+  .course-bubble {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .course-icon {
+    font-size: 1.2rem;
+  }
+  
+  .course-number {
+    width: 18px;
+    height: 18px;
+    font-size: 0.5rem;
+    bottom: -4px;
+    right: -4px;
+  }
+  
+  .progress-stats {
+    gap: 0.5rem;
+  }
+  
+  .stat-number {
+    font-size: 1.2rem;
+  }
+  
+  .panel-content {
+    padding: 1rem;
+  }
+  
+  .panel-header {
+    padding: 1rem;
+  }
+  
+  .panel-header h3 {
+    font-size: 1rem;
+  }
+}
+/* Ruta activa destacada */
+.stat-card.active-route {
+  border-color: var(--primary-color);
+  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.stat-card.active-route::before {
+  background: var(--primary-color);
+}
+
+/* Mapa de aprendizaje estilo dashboard */
+.learning-path-map {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.path-step {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  position: relative;
+  opacity: 0;
+  animation: fadeInUp 0.6s forwards;
+}
+
+.path-step:nth-child(1) { animation-delay: 0.1s; }
+.path-step:nth-child(2) { animation-delay: 0.2s; }
+.path-step:nth-child(3) { animation-delay: 0.3s; }
+.path-step:nth-child(4) { animation-delay: 0.4s; }
+.path-step:nth-child(5) { animation-delay: 0.5s; }
+.path-step:nth-child(6) { animation-delay: 0.6s; }
+
+/* Línea conectora vertical */
+.connector-line {
+  position: absolute;
+  left: 40px;
+  top: 80px;
+  width: 3px;
+  height: 60px;
+  background: linear-gradient(180deg, var(--node-color, var(--border-color)) 0%, var(--border-color) 100%);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+/* Nodo del curso */
+.course-node {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  transition: var(--transition);
+}
+
+.course-node:hover {
+  transform: translateX(8px);
+}
+
+.course-node.bloqueado {
+  opacity: 0.6;
+}
+
+.course-node.bloqueado:hover {
+  transform: none;
+}
+
+.node-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--node-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  border: 4px solid white;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.course-node:hover .node-circle {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.course-node.bloqueado .node-circle:hover {
+  transform: none;
+}
+
+.node-icon {
+  font-size: 1.8rem;
+  color: white;
+  font-weight: bold;
+}
+
+/* Progreso circular para nodos en progreso */
+.node-progress {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid transparent;
+}
+
+/* Info del curso */
+.course-info {
+  flex: 1;
+  background: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.course-node:hover .course-info {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.course-info h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.course-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.duration {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.platform {
+  background: var(--primary-color);
+  color: white;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.completed-date {
+  font-size: 0.85rem;
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+/* Animaciones igual al dashboard */
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .learning-path-map {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+  
+  .path-step {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .connector-line {
+    display: none;
+  }
+  
+  .node-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .node-icon {
+    font-size: 1.4rem;
+  }
+  
+  .course-info {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .node-circle {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .node-icon {
+    font-size: 1.2rem;
+  }
+  
+  .course-info {
+    padding: 1rem;
+  }
+  
+  .course-info h4 {
+    font-size: 1rem;
+  }
+}
+
+/* Estilos específicos para estados de curso */
+.course-node.completado .node-circle {
+  background: var(--success-color);
+  animation: none;
+}
+
+.course-node.en-progreso .node-circle {
+  background: var(--secondary-color);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.course-node.disponible .node-circle {
+  background: var(--primary-color);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.course-node.bloqueado .node-circle {
+  background: var(--text-light);
+  animation: none;
+}
+
+/* Animación de pulso para cursos activos */
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1); 
+    box-shadow: var(--shadow-md);
+  }
+  50% { 
+    transform: scale(1.05); 
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* Efectos hover mejorados igual al dashboard */
+.course-node:hover .course-info {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}/* MisCursos.css - Estilo estilo Duolingo para rutas de aprendizaje */
+
+/* Variables CSS */
+:root {
+  --primary-color: #6a0dad;
+  --primary-light: #8a2be2;
+  --primary-dark: #5a0a9a;
+  --secondary-color: #007bff;
+  --success-color: #28a745;
+  --warning-color: #ff9800;
+  --danger-color: #dc3545;
+  
+  --bg-main: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  
+  --text-primary: #2d3748;
+  --text-secondary: #718096;
+  --text-light: #a0aec0;
+  
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset y base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* Container principal */
+.mis-cursos-container {
+  min-height: 100vh;
+  background: var(--bg-main);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estado de carga */
+.mis-cursos-container.loading {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Header */
+.mis-cursos-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-2px);
+}
+
+.header-info h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header-info p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Layout principal */
+.mis-cursos-content {
+  display: flex;
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* Sidebar de rutas */
+.rutas-sidebar {
+  width: 320px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  height: fit-content;
+  position: sticky;
+  top: 2rem;
+}
+
+.rutas-sidebar h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.rutas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ruta-item {
+  padding: 1.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--bg-card);
+}
+
+.ruta-item:hover {
+  border-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.ruta-item.activa {
+  border-color: var(--primary-color);
+  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  box-shadow: var(--shadow-md);
+}
+
+.ruta-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.ruta-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+}
+
+.nivel {
+  background: var(--primary-color);
+  color: white;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.estimacion {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.progreso-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progreso-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.progreso-texto {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.nueva-ruta-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.nueva-ruta-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--success-color) 0%, #1e7e34 100%);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.nueva-ruta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Vista principal */
+.ruta-principal {
+  flex: 1;
+  min-height: 600px;
+}
+
+.no-ruta-seleccionada {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* Header de ruta */
+.ruta-header {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.ruta-info-principal h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.ruta-info-principal p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.ruta-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat .label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat .value {
+  font-size: 1.1rem;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.iniciar-ruta-btn {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.iniciar-ruta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Mapa de cursos estilo Duolingo */
+.cursos-mapa {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  min-height: 600px;
+}
+
+.mapa-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  position: relative;
+  padding: 2rem 0;
+}
+
+.curso-nodo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  opacity: 0;
+  animation: fadeInUp 0.6s forwards;
+  max-width: 350px;
+  width: 100%;
+}
+
+.curso-nodo.completado {
+  --node-color: var(--success-color);
+}
+
+.curso-nodo.en-progreso {
+  --node-color: var(--secondary-color);
+}
+
+.curso-nodo.disponible {
+  --node-color: var(--primary-color);
+}
+
+.curso-nodo.bloqueado {
+  --node-color: var(--text-light);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Línea conectora */
+.conector-linea {
+  position: absolute;
+  width: 4px;
+  height: 60px;
+  background: linear-gradient(180deg, var(--node-color) 0%, var(--border-color) 100%);
+  top: 80px;
+  z-index: 1;
+  border-radius: 2px;
+}
+
+/* Círculo del curso */
+.curso-circulo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--node-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  z-index: 2;
+  border: 4px solid white;
+  box-shadow: var(--shadow-md);
+}
+
+.curso-circulo:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.curso-nodo.bloqueado .curso-circulo {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.curso-nodo.bloqueado .curso-circulo:hover {
+  transform: none;
+}
+
+.curso-icon {
+  font-size: 1.8rem;
+  color: white;
+  font-weight: bold;
+}
+
+/* Progreso circular para cursos en progreso */
+.progreso-circular {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  pointer-events: none;
+}
+
+.progreso-circular circle {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* Info del curso */
+.curso-info {
+  text-align: center;
+  margin-top: 1rem;
+  background: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.curso-info:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.curso-info h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.curso-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.duracion {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.plataforma {
+  background: var(--primary-color);
+  color: white;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.progreso-texto {
+  font-size: 0.85rem;
+  color: var(--secondary-color);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.completado-fecha {
+  font-size: 0.8rem;
+  color: var(--success-color);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.continuar-curso-btn {
+  background: var(--node-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.9rem;
+}
+
+.continuar-curso-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  filter: brightness(1.1);
+}
+
+/* Panel de progreso general */
+.progreso-general {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.progreso-general h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.progreso-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  border: 1px solid rgba(106, 13, 173, 0.1);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Responsividad */
+@media (max-width: 1200px) {
+  .mis-cursos-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .rutas-sidebar {
+    width: 100%;
+    position: static;
+  }
+  
+  .rutas-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .mis-cursos-content {
+    padding: 1rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .header-info h1 {
+    font-size: 2rem;
+  }
+  
+  .ruta-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .ruta-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .curso-info {
+    padding: 1rem;
+  }
+  
+  .progreso-stats {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cursos-mapa {
+    padding: 1rem;
+  }
+  
+  .mapa-container {
+    gap: 2rem;
+  }
+  
+  .curso-circulo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .progreso-circular svg {
+    width: 68px;
+    height: 68px;
+  }
+  
+  .progreso-circular circle {
+    r: 28;
+    cx: 34;
+    cy: 34;
+  }
+  
+  .curso-icon {
+    font-size: 1.4rem;
+  }
+  
+  .conector-linea {
+    height: 40px;
+    top: 60px;
+  }
+  
+  .rutas-lista {
+    grid-template-columns: 1fr;
+  }
+  
+  .ruta-stats {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+/* Animaciones adicionales */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.curso-nodo.disponible .curso-circulo {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.curso-nodo.en-progreso .curso-circulo {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+/* Efectos hover mejorados */
+.ruta-item:hover {
+  transform: translateY(-4px);
+}
+
+.curso-info:hover {
+  transform: translateY(-2px);
+}
+
+/* Gradientes animados */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.iniciar-ruta-btn, .nueva-ruta-btn {
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}

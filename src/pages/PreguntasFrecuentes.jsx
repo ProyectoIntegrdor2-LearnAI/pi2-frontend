@@ -1,197 +1,284 @@
-import React from 'react';
-import { Users, Award, Target, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { Send, ChevronDown, ChevronUp, Search, Brain, BookOpen, Shield, Zap, Users, Globe } from 'lucide-react';
 
-const QuienesSomos = () => {
+const PreguntasFrecuentes = ({ onChatToggle }) => {
+    const [chatMessages, setChatMessages] = useState([
+        {
+            id: 1,
+            type: 'ai',
+            content: '¡Hola! ¿Tienes alguna pregunta sobre LearnIA? Puedo ayudarte a resolverla.',
+            timestamp: new Date()
+        }
+    ]);
+    const [inputMessage, setInputMessage] = useState('');
+    const [isChatMinimized, setIsChatMinimized] = useState(false);
+    const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeCategory, setActiveCategory] = useState('all');
+    const [openFAQ, setOpenFAQ] = useState(null);
+
+    const toggleChat = () => {
+        const newMinimizedState = !isChatMinimized;
+        setIsChatMinimized(newMinimizedState);
+
+        if (onChatToggle) {
+            onChatToggle(newMinimizedState);
+        }
+
+        window.dispatchEvent(new CustomEvent('chatToggle', {
+            detail: { minimized: newMinimizedState }
+        }));
+    };
+
+    const toggleMobileChat = () => {
+        setIsMobileChatOpen(!isMobileChatOpen);
+    };
+
+    const handleSendMessage = () => {
+        if (!inputMessage.trim()) return;
+
+        const newUserMessage = {
+            id: Date.now(),
+            type: 'user',
+            content: inputMessage,
+            timestamp: new Date()
+        };
+
+        setChatMessages(prev => [...prev, newUserMessage]);
+
+        setTimeout(() => {
+            const aiResponses = [
+                "Te ayudo a encontrar la respuesta. ¿Tu pregunta está relacionada con el funcionamiento de la IA, registro de usuarios, o alguna funcionalidad específica?",
+                "Revisa la sección de preguntas frecuentes. Si no encuentras tu respuesta, puedo ayudarte con información más específica.",
+                "Para preguntas técnicas sobre nuestros algoritmos o integración con plataformas, estaré encantado de explicarte.",
+                "¿Necesitas ayuda con alguna funcionalidad específica de LearnIA? Puedo guiarte paso a paso.",
+                "Si tu pregunta no está en las FAQs, contáctanos y nuestro equipo te responderá pronto."
+            ];
+            const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+            
+            const aiResponse = {
+                id: Date.now() + 1,
+                type: 'ai',
+                content: randomResponse,
+                timestamp: new Date()
+            };
+            setChatMessages(prev => [...prev, aiResponse]);
+        }, 1000);
+
+        setInputMessage('');
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSendMessage();
+        }
+    };
+
+    const faqData = [
+        // Preguntas Generales
+        {
+            category: 'general',
+            question: '¿Qué es LearnIA?',
+            answer: 'LearnIA es una plataforma inteligente que utiliza inteligencia artificial y web scraping para generar rutas de aprendizaje personalizadas. Automatizamos la curación de contenido educativo de múltiples plataformas como Coursera, edX, Udemy y Khan Academy para crear experiencias de aprendizaje únicas adaptadas a tus objetivos y nivel.'
+        },
+        {
+            category: 'general',
+            question: '¿Cómo funciona la personalización de rutas?',
+            answer: 'Nuestros algoritmos de machine learning analizan tus objetivos, nivel de conocimiento, preferencias de aprendizaje e historial para generar rutas personalizadas. Utilizamos procesamiento de lenguaje natural (NLP) para entender el contenido y similarity learning para identificar relaciones entre temas y crear secuencias óptimas de aprendizaje.'
+        },
+        {
+            category: 'general',
+            question: '¿Qué plataformas educativas están integradas?',
+            answer: 'Actualmente procesamos contenido de más de 4 plataformas principales incluyendo Coursera, edX, Udemy y Khan Academy. Nuestro sistema de web scraping actualiza automáticamente la información cada 6 horas para mantener el catálogo actualizado con más de 10,000 recursos educativos.'
+        },
+        
+        // Funcionalidades
+        {
+            category: 'funcionalidades',
+            question: '¿Cómo puedo crear mi primera ruta de aprendizaje?',
+            answer: 'Después de registrarte, usa nuestro chat de IA para describir tus objetivos de aprendizaje. Por ejemplo: "Quiero aprender desarrollo web" o "Necesito mejorar en análisis de datos". La IA procesará tu consulta y generará una ruta personalizada con recursos secuenciados según tus necesidades.'
+        },
+        {
+            category: 'funcionalidades',
+            question: '¿Puedo modificar las rutas generadas?',
+            answer: 'Sí, puedes personalizar las rutas agregando o eliminando recursos, marcando contenido como completado, y ajustando la secuencia según tus preferencias. El sistema aprende de estos cambios para mejorar futuras recomendaciones.'
+        },
+        {
+            category: 'funcionalidades',
+            question: '¿Cómo funciona el seguimiento de progreso?',
+            answer: 'Puedes marcar recursos como completados, ver tu avance en tiempo real con gráficos y estadísticas, acceder a tu historial de aprendizaje y recibir recomendaciones basadas en tu progreso. Todo se sincroniza automáticamente en tu perfil.'
+        },
+        
+        // Técnicas
+        {
+            category: 'tecnicas',
+            question: '¿Qué tecnologías de IA utilizan?',
+            answer: 'Utilizamos procesamiento de lenguaje natural (NLP) para clasificación automática de contenido, machine learning para recomendaciones personalizadas, similarity learning para identificar relaciones entre temas, y embeddings semánticos para búsqueda inteligente. Todo desplegado en una arquitectura cloud nativa en AWS.'
+        },
+        {
+            category: 'tecnicas',
+            question: '¿Cómo aseguran la calidad del contenido?',
+            answer: 'Nuestros algoritmos de IA clasifican automáticamente el contenido por calidad, relevancia y nivel de dificultad. Además, el sistema aprende continuamente de la interacción de usuarios y feedback para mejorar las recomendaciones y filtrar contenido de baja calidad.'
+        },
+        {
+            category: 'tecnicas',
+            question: '¿Con qué frecuencia se actualiza el contenido?',
+            answer: 'Nuestro sistema de web scraping automatizado actualiza el catálogo cada 6 horas, asegurando que siempre tengas acceso al contenido más reciente de las plataformas integradas. Los nuevos recursos se procesan automáticamente con IA para clasificación y etiquetado.'
+        },
+        
+        // Cuenta y Privacidad
+        {
+            category: 'cuenta',
+            question: '¿Cómo me registro en LearnIA?',
+            answer: 'El registro es simple: proporciona tu nombre, email y crea una contraseña segura. Después de verificar tu email, completa tu perfil con tus intereses y objetivos de aprendizaje para que la IA pueda generar mejores recomendaciones desde el primer día.'
+        },
+        {
+            category: 'cuenta',
+            question: '¿Qué datos recopilan y cómo los protegen?',
+            answer: 'Recopilamos únicamente datos necesarios para personalizar tu experiencia: perfil básico, objetivos de aprendizaje, progreso y preferencias. Todos los datos están cifrados en tránsito y en reposo, cumplimos con estándares de seguridad estrictos y nunca compartimos información personal con terceros.'
+        },
+        {
+            category: 'cuenta',
+            question: '¿Puedo eliminar mi cuenta y datos?',
+            answer: 'Sí, puedes eliminar tu cuenta en cualquier momento desde la configuración de perfil. Al hacerlo, todos tus datos personales serán eliminados permanentemente de nuestros sistemas dentro de 30 días, cumpliendo con regulaciones de privacidad.'
+        },
+        
+        // Soporte
+        {
+            category: 'soporte',
+            question: '¿Qué hago si encuentro un error en la plataforma?',
+            answer: 'Reporta cualquier error a través del chat de IA, el formulario de contacto, o directamente a nuestro email de soporte. Incluye detalles sobre qué estabas haciendo cuando ocurrió el error y capturas de pantalla si es posible. Nuestro equipo responde en menos de 24 horas.'
+        },
+        {
+            category: 'soporte',
+            question: '¿Ofrecen soporte técnico?',
+            answer: 'Sí, ofrecemos soporte técnico a través de múltiples canales: chat de IA 24/7 para preguntas básicas, formulario de contacto para consultas específicas, y email de soporte para problemas técnicos complejos. También tenemos documentación detallada y tutoriales.'
+        },
+        {
+            category: 'soporte',
+            question: '¿Planean agregar más plataformas educativas?',
+            answer: 'Sí, estamos constantemente evaluando nuevas plataformas educativas para integrar. Nuestro roadmap incluye la expansión a más fuentes de contenido y la posible integración con LMS universitarios. Si tienes sugerencias de plataformas, contáctanos.'
+        }
+    ];
+
+    const categories = [
+        { id: 'all', name: 'Todas', icon: Globe },
+        { id: 'general', name: 'General', icon: BookOpen },
+        { id: 'funcionalidades', name: 'Funcionalidades', icon: Zap },
+        { id: 'tecnicas', name: 'Técnicas', icon: Brain },
+        { id: 'cuenta', name: 'Cuenta y Privacidad', icon: Shield },
+        { id: 'soporte', name: 'Soporte', icon: Users }
+    ];
+
+    const filteredFAQs = faqData.filter(faq => {
+        const matchesCategory = activeCategory === 'all' || faq.category === activeCategory;
+        const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
+
+    const toggleFAQ = (index) => {
+        setOpenFAQ(openFAQ === index ? null : index);
+    };
+
     return (
-        <div className="quienes-somos-page">
+        <div className="home-page">
+            {/* Overlay para cerrar chat en móvil */}
+            {isMobileChatOpen && <div className="chat-overlay active" onClick={toggleMobileChat}></div>}
+            
+            {/* Chat de IA Fijo */}
+            <div className={`fixed-ai-chat ${isChatMinimized ? 'minimized' : ''} ${isMobileChatOpen ? 'mobile-open' : ''}`}>
+                <div className="chat-toggle" onClick={toggleChat}>
+                    <div className="ai-avatar">IA</div>
+                    {!isChatMinimized && (
+                        <div className="chat-header-info">
+                            <div className="chat-title">LearnIA Assistant</div>
+                            <div className="chat-subtitle">Resuelve tus dudas</div>
+                        </div>
+                    )}
+                </div>
+
+                {!isChatMinimized && (
+                    <>
+                        <div className="chat-messages">
+                            {chatMessages.map(message => (
+                                <div key={message.id} className={`chat-message ${message.type}`}>
+                                    {message.content}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="chat-input-container">
+                            <input
+                                type="text"
+                                placeholder="Haz tu pregunta..."
+                                value={inputMessage}
+                                onChange={(e) => setInputMessage(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                className="chat-input"
+                            />
+                            <button onClick={handleSendMessage} className="chat-send">
+                                <Send size={16} />
+                            </button>
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* Botón flotante para móvil */}
+            <button className="mobile-chat-toggle" onClick={toggleMobileChat}>
+                IA
+            </button>
+
             {/* Hero Section */}
-            <section className="about-hero-section">
-                <div className="section-container">
-                    <div className="about-hero-content">
-                        <h1 className="about-hero-title">
-                            Conoce al equipo detrás de <span className="brand-highlight">LearnIA</span>
+            <section className="hero-section">
+                <div className="hero-container-full">
+                    <div className="hero-content-centered">
+                        <h1 className="hero-title">
+                            Preguntas <span className="brand-highlight">Frecuentes</span>
                         </h1>
-                        <p className="about-hero-description">
-                            Somos cinco estudiantes de Ingeniería de Sistemas de la Universidad Pontificia Bolivariana 
-                            con una pasión compartida por la tecnología y la educación. Nuestro objetivo es revolucionar 
-                            la forma en que las personas acceden al conocimiento.
+                        <p className="hero-description">
+                            Encuentra respuestas rápidas a las preguntas más comunes sobre LearnIA, 
+                            nuestra tecnología de IA y cómo funciona la plataforma.
                         </p>
+                        
                     </div>
                 </div>
             </section>
 
-            {/* Nuestra Historia */}
-            <section className="our-story-section">
+            {/* FAQ Section */}
+            <section className="cursos-section">
                 <div className="section-container">
-                    <h2 className="section-title">Nuestra Historia</h2>
-                    <div className="story-content">
-                        <div className="story-text">
-                            <p>
-                                LearnIA nació como nuestro Proyecto Integrador II en el semestre 2025-1. Lo que comenzó 
-                                como un requisito académico se convirtió en una misión personal: democratizar el acceso 
-                                a la educación de calidad.
-                            </p>
-                            <p>
-                                Observamos que los estudiantes perdían tiempo navegando entre múltiples plataformas 
-                                educativas sin una guía clara. Decidimos crear una solución inteligente que 
-                                combina inteligencia artificial con web scraping para personalizar el aprendizaje.
-                            </p>
-                            <p>
-                                Hoy, LearnIA procesa más de 10,000 recursos educativos de plataformas como Coursera, 
-                                edX, Udemy y Khan Academy, generando rutas de aprendizaje únicas para cada usuario.
-                            </p>
-                        </div>
-                        <div className="story-stats">
-                            <div className="stat-card">
-                                <div className="stat-number">5</div>
-                                <div className="stat-label">Desarrolladores</div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-number">10+</div>
-                                <div className="stat-label">Semanas de Desarrollo</div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-number">∞</div>
-                                <div className="stat-label">Posibilidades</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Nuestro Equipo */}
-            <section className="team-section">
-                <div className="section-container">
-                    <h2 className="section-title">Nuestro Equipo</h2>
-                    <div className="team-grid">
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>JC</span>
-                            </div>
-                            <h3>Juan Andrés Contreras</h3>
-                            <p className="member-role">Full Stack Developer</p>
-                            <p className="member-bio">
-                                Especialista en desarrollo frontend y experiencia de usuario. 
-                                Apasionado por crear interfaces intuitivas y funcionales.
-                            </p>
-                        </div>
-
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>KL</span>
-                            </div>
-                            <h3>Karen Nicol Dayanna Lizarazo</h3>
-                            <p className="member-role">Scrum Master & UX Designer</p>
-                            <p className="member-bio">
-                                Líder del equipo y especialista en metodologías ágiles. 
-                                Garantiza que el proyecto avance según los objetivos establecidos.
-                            </p>
-                        </div>
-
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>RL</span>
-                            </div>
-                            <h3>Raúl Ferney Lozano</h3>
-                            <p className="member-role">Product Owner & Backend Developer</p>
-                            <p className="member-bio">
-                                Visionario del producto y arquitecto de sistemas. 
-                                Define las funcionalidades clave y la infraestructura del proyecto.
-                            </p>
-                        </div>
-
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>MP</span>
-                            </div>
-                            <h3>María Angelica Parra</h3>
-                            <p className="member-role">AI/ML Engineer</p>
-                            <p className="member-bio">
-                                Especialista en inteligencia artificial y machine learning. 
-                                Desarrolla los algoritmos que personalizan el aprendizaje.
-                            </p>
-                        </div>
-
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>JP</span>
-                            </div>
-                            <h3>Jerson Arley Porras</h3>
-                            <p className="member-role">DevOps & Data Engineer</p>
-                            <p className="member-bio">
-                                Experto en infraestructura cloud y procesamiento de datos. 
-                                Mantiene la plataforma escalable y eficiente.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Nuestros Valores */}
-            <section className="values-section">
-                <div className="section-container">
-                    <h2 className="section-title">Nuestros Valores</h2>
-                    <div className="values-grid">
-                        <div className="value-card">
-                            <Users className="value-icon" />
-                            <h3>Colaboración</h3>
-                            <p>Creemos en el poder del trabajo en equipo y la sinergia de diferentes perspectivas para crear soluciones innovadoras.</p>
-                        </div>
-
-                        <div className="value-card">
-                            <Award className="value-icon" />
-                            <h3>Excelencia</h3>
-                            <p>Nos esforzamos por entregar la mejor calidad en cada línea de código y cada funcionalidad que desarrollamos.</p>
-                        </div>
-
-                        <div className="value-card">
-                            <Target className="value-icon" />
-                            <h3>Innovación</h3>
-                            <p>Buscamos constantemente nuevas formas de mejorar la educación mediante tecnologías emergentes.</p>
-                        </div>
-
-                        <div className="value-card">
-                            <Heart className="value-icon" />
-                            <h3>Impacto Social</h3>
-                            <p>Nuestro objetivo es democratizar la educación y hacer que el aprendizaje de calidad sea accesible para todos.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Universidad */}
-            <section className="university-section">
-                <div className="section-container">
-                    <div className="university-content">
-                        <div className="university-text">
-                            <h2>Universidad Pontificia Bolivariana</h2>
-                            <h3>Facultad de Ingeniería de Sistemas e Informática</h3>
-                            <p>
-                                Este proyecto es desarrollado como parte del Proyecto Integrador II del programa 
-                                de Ingeniería de Sistemas e Informática de la UPB Seccional Bucaramanga.
-                            </p>
-                            <p>
-                                Bajo la supervisión de la <strong>Ingeniera Danith Solórzano Escobar</strong>, 
-                                hemos aplicado los conocimientos adquiridos durante nuestra carrera para crear 
-                                una solución real que impacte positivamente en la educación.
-                            </p>
-                            <div className="project-details">
-                                <div className="detail-item">
-                                    <strong>Período:</strong> Julio - Septiembre 2025
+                    
+                    {/* Lista de FAQs */}
+                    <div className="faq-list">
+                        {filteredFAQs.length > 0 ? (
+                            filteredFAQs.map((faq, index) => (
+                                <div key={index} className={`faq-item ${openFAQ === index ? 'open' : ''}`}>
+                                    <div className="faq-question" onClick={() => toggleFAQ(index)}>
+                                        <h3>{faq.question}</h3>
+                                        {openFAQ === index ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                                    </div>
+                                    {openFAQ === index && (
+                                        <div className="faq-answer">
+                                            <p>{faq.answer}</p>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="detail-item">
-                                    <strong>Metodología:</strong> Scrum con sprints de 2 semanas
-                                </div>
-                                <div className="detail-item">
-                                    <strong>Tecnologías:</strong> React.js, FastAPI, AWS, MongoDB, IA/ML
-                                </div>
+                            ))
+                        ) : (
+                            <div className="no-results">
+                                <Brain size={48} color="var(--text-secondary)" />
+                                <h3>No se encontraron resultados</h3>
+                                <p>Intenta con otros términos de búsqueda o pregúntale directamente a nuestro asistente de IA.</p>
                             </div>
-                        </div>
+                        )}
                     </div>
+
+                  
                 </div>
             </section>
         </div>
     );
 };
 
-export default QuienesSomos;
+export default PreguntasFrecuentes;
