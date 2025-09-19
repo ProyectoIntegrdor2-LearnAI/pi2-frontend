@@ -1,195 +1,114 @@
+
 import React from 'react';
-import { Users, Award, Target, Heart } from 'lucide-react';
+import { Brain, Users, Target, ChevronUp } from 'lucide-react';
 
 const QuienesSomos = () => {
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
     return (
-        <div className="quienes-somos-page">
-            {/* Hero Section */}
-            <section className="about-hero-section">
-                <div className="section-container">
-                    <div className="about-hero-content">
-                        <h1 className="about-hero-title">
-                            Conoce al equipo detrás de <span className="brand-highlight">LearnIA</span>
+        <div className="home-page">
+
+            {/* Hero Section - Acerca de LearnIA */}
+            <section className="hero-section">
+                <div className="hero-container-full">
+                    <div className="hero-content-centered">
+                        <h1 className="hero-title">
+                            Acerca de <span className="brand-highlight">LearnIA</span>
                         </h1>
-                        <p className="about-hero-description">
-                            Somos cinco estudiantes de Ingeniería de Sistemas de la Universidad Pontificia Bolivariana 
-                            con una pasión compartida por la tecnología y la educación. Nuestro objetivo es revolucionar 
-                            la forma en que las personas acceden al conocimiento.
+                        <p className="hero-description">
+                            Una plataforma inteligente que utiliza inteligencia artificial y web scraping 
+                            para generar rutas de aprendizaje personalizadas, automatizando la curación 
+                            de contenido educativo de múltiples plataformas.
                         </p>
-                    </div>
-                </div>
-            </section>
-
-            {/* Nuestra Historia */}
-            <section className="our-story-section">
-                <div className="section-container">
-                    <h2 className="section-title">Nuestra Historia</h2>
-                    <div className="story-content">
-                        <div className="story-text">
-                            <p>
-                                LearnIA nació como nuestro Proyecto Integrador II en el semestre 2025-1. Lo que comenzó 
-                                como un requisito académico se convirtió en una misión personal: democratizar el acceso 
-                                a la educación de calidad.
-                            </p>
-                            <p>
-                                Observamos que los estudiantes perdían tiempo navegando entre múltiples plataformas 
-                                educativas sin una guía clara. Decidimos crear una solución inteligente que 
-                                combina inteligencia artificial con web scraping para personalizar el aprendizaje.
-                            </p>
-                            <p>
-                                Hoy, LearnIA procesa más de 10,000 recursos educativos de plataformas como Coursera, 
-                                edX, Udemy y Khan Academy, generando rutas de aprendizaje únicas para cada usuario.
-                            </p>
-                        </div>
-                        <div className="story-stats">
-                            <div className="stat-card">
-                                <div className="stat-number">5</div>
-                                <div className="stat-label">Desarrolladores</div>
+                        <div className="hero-stats">
+                            <div className="stat-item">
+                                <span className="stat-number">4+</span>
+                                <span className="stat-label">Plataformas Integradas</span>
                             </div>
-                            <div className="stat-card">
-                                <div className="stat-number">10+</div>
-                                <div className="stat-label">Semanas de Desarrollo</div>
+                            <div className="stat-item">
+                                <span className="stat-number">10K+</span>
+                                <span className="stat-label">Recursos Procesados</span>
                             </div>
-                            <div className="stat-card">
-                                <div className="stat-number">∞</div>
-                                <div className="stat-label">Posibilidades</div>
+                            <div className="stat-item">
+                                <span className="stat-number">24/7</span>
+                                <span className="stat-label">Actualización Automática</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Nuestro Equipo */}
-            <section className="team-section">
+            {/* Qué es LearnIA - Sección Principal */}
+            <section className="cursos-section">
                 <div className="section-container">
-                    <h2 className="section-title">Nuestro Equipo</h2>
-                    <div className="team-grid">
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>JC</span>
+                    <h2 className="section-title">¿Qué es LearnIA?</h2>
+                    <p className="section-subtitle">
+                        Democratizamos el acceso a rutas de aprendizaje personalizadas mediante 
+                        la automatización inteligente de la curación de contenido educativo
+                    </p>
+                    
+                    <div className="about-content-grid">
+                        <div className="about-description">
+                            <div className="description-card">
+                                <h3>Nuestra Plataforma</h3>
+                                <p>
+                                    LearnIA es una plataforma web inteligente que democratiza el acceso a rutas 
+                                    de aprendizaje personalizadas. Mediante técnicas avanzadas de inteligencia 
+                                    artificial y web scraping, procesamos contenido educativo de múltiples 
+                                    plataformas para crear experiencias de aprendizaje únicas.
+                                </p>
                             </div>
-                            <h3>Juan Andrés Contreras</h3>
-                            <p className="member-role">Full Stack Developer</p>
-                            <p className="member-bio">
-                                Especialista en desarrollo frontend y experiencia de usuario. 
-                                Apasionado por crear interfaces intuitivas y funcionales.
-                            </p>
-                        </div>
 
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>KL</span>
+                            <div className="description-card">
+                                <h3>Tecnología de IA</h3>
+                                <p>
+                                    Utilizamos <strong>procesamiento de lenguaje natural (NLP)</strong> y 
+                                    <strong>machine learning</strong> para transformar datos educativos dispersos 
+                                    en rutas coherentes. Nuestros algoritmos de <strong>similarity learning</strong> 
+                                    analizan automáticamente el contenido e identifican relaciones entre temas.
+                                </p>
                             </div>
-                            <h3>Karen Nicol Dayanna Lizarazo</h3>
-                            <p className="member-role">Scrum Master & UX Designer</p>
-                            <p className="member-bio">
-                                Líder del equipo y especialista en metodologías ágiles. 
-                                Garantiza que el proyecto avance según los objetivos establecidos.
-                            </p>
+
                         </div>
 
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>RL</span>
-                            </div>
-                            <h3>Raúl Ferney Lozano</h3>
-                            <p className="member-role">Product Owner & Backend Developer</p>
-                            <p className="member-bio">
-                                Visionario del producto y arquitecto de sistemas. 
-                                Define las funcionalidades clave y la infraestructura del proyecto.
-                            </p>
-                        </div>
-
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>MP</span>
-                            </div>
-                            <h3>María Angelica Parra</h3>
-                            <p className="member-role">AI/ML Engineer</p>
-                            <p className="member-bio">
-                                Especialista en inteligencia artificial y machine learning. 
-                                Desarrolla los algoritmos que personalizan el aprendizaje.
-                            </p>
-                        </div>
-
-                        <div className="team-member">
-                            <div className="member-avatar">
-                                <span>JP</span>
-                            </div>
-                            <h3>Jerson Arley Porras</h3>
-                            <p className="member-role">DevOps & Data Engineer</p>
-                            <p className="member-bio">
-                                Experto en infraestructura cloud y procesamiento de datos. 
-                                Mantiene la plataforma escalable y eficiente.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Nuestros Valores */}
-            <section className="values-section">
-                <div className="section-container">
-                    <h2 className="section-title">Nuestros Valores</h2>
-                    <div className="values-grid">
-                        <div className="value-card">
-                            <Users className="value-icon" />
-                            <h3>Colaboración</h3>
-                            <p>Creemos en el poder del trabajo en equipo y la sinergia de diferentes perspectivas para crear soluciones innovadoras.</p>
-                        </div>
-
-                        <div className="value-card">
-                            <Award className="value-icon" />
-                            <h3>Excelencia</h3>
-                            <p>Nos esforzamos por entregar la mejor calidad en cada línea de código y cada funcionalidad que desarrollamos.</p>
-                        </div>
-
-                        <div className="value-card">
-                            <Target className="value-icon" />
-                            <h3>Innovación</h3>
-                            <p>Buscamos constantemente nuevas formas de mejorar la educación mediante tecnologías emergentes.</p>
-                        </div>
-
-                        <div className="value-card">
-                            <Heart className="value-icon" />
-                            <h3>Impacto Social</h3>
-                            <p>Nuestro objetivo es democratizar la educación y hacer que el aprendizaje de calidad sea accesible para todos.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Universidad */}
-            <section className="university-section">
-                <div className="section-container">
-                    <div className="university-content">
-                        <div className="university-text">
-                            <h2>Universidad Pontificia Bolivariana</h2>
-                            <h3>Facultad de Ingeniería de Sistemas e Informática</h3>
-                            <p>
-                                Este proyecto es desarrollado como parte del Proyecto Integrador II del programa 
-                                de Ingeniería de Sistemas e Informática de la UPB Seccional Bucaramanga.
-                            </p>
-                            <p>
-                                Bajo la supervisión de la <strong>Ingeniera Danith Solórzano Escobar</strong>, 
-                                hemos aplicado los conocimientos adquiridos durante nuestra carrera para crear 
-                                una solución real que impacte positivamente en la educación.
-                            </p>
-                            <div className="project-details">
-                                <div className="detail-item">
-                                    <strong>Período:</strong> Julio - Septiembre 2025
+                        <div className="about-features">
+                            <div className="feature-highlights">
+                                <div className="highlight-item">
+                                    <Brain className="highlight-icon" />
+                                    <div className="highlight-content">
+                                        <h4>Clasificación Automática</h4>
+                                        <p>NLP para categorizar contenido por temática y nivel de dificultad</p>
+                                    </div>
                                 </div>
-                                <div className="detail-item">
-                                    <strong>Metodología:</strong> Scrum con sprints de 2 semanas
+
+                                <div className="highlight-item">
+                                    <Target className="highlight-icon" />
+                                    <div className="highlight-content">
+                                        <h4>Recomendaciones Personalizadas</h4>
+                                        <p>Algoritmos de ML que aprenden de preferencias y objetivos del usuario</p>
+                                    </div>
                                 </div>
-                                <div className="detail-item">
-                                    <strong>Tecnologías:</strong> React.js, FastAPI, AWS, MongoDB, IA/ML
+
+                                <div className="highlight-item">
+                                    <Users className="highlight-icon" />
+                                    <div className="highlight-content">
+                                        <h4>Análisis de Dependencias</h4>
+                                        <p>Identificación automática de prerrequisitos y secuencias óptimas</p>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </section>
+
+            
         </div>
     );
 };

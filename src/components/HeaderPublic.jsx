@@ -1,11 +1,10 @@
-// src/components/Header.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logoImage from '../imagenes/logoPrincipal.jpg';
 import logoImageMini from '../imagenes/logoMini.jpg';
 import AuthModal from './AuthModal';
 
-const Header = () => {
+const HeaderPublic = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [authMode, setAuthMode] = useState('login');
@@ -104,12 +103,6 @@ const Header = () => {
                                 Inicio
                             </Link>
                         </li>
-                        <li>
-                            <Link to="/courses" className="nav-link" onClick={handleLinkClick}>
-                                <span className="nav-icon"></span>
-                                Cursos
-                            </Link>
-                        </li>
                         <li className={`dropdown ${isAboutDropdownOpen ? 'open' : ''}`}>
                             <button
                                 className="dropdown-toggle"
@@ -167,4 +160,4 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default HeaderPublic;

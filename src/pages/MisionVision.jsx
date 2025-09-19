@@ -1,281 +1,206 @@
+
 import React from 'react';
-import { Target, Eye, Heart, Users, Globe, Award, Lightbulb, Rocket } from 'lucide-react';
+import { Brain, Target, Users, Lightbulb, Globe, BookOpen, TrendingUp, Award, Zap } from 'lucide-react';
 
 const MisionVision = () => {
     return (
-        <div className="mision-vision-page">
+        <div className="home-page">
+
             {/* Hero Section */}
-            <section className="mv-hero-section">
-                <div className="section-container">
-                    <h1 className="section-title">Nuestra Misión y Visión</h1>
-                    <p className="section-subtitle">
-                        Los principios y objetivos que guían cada decisión en LearnIA 
-                        hacia un futuro donde la educación personalizada sea accesible para todos
-                    </p>
-                </div>
-            </section>
-
-            {/* Misión */}
-            <section className="mission-section">
-                <div className="section-container">
-                    <div className="mission-content">
-                        <div className="mission-icon-container">
-                            <Target className="mission-icon" />
-                        </div>
-                        <div className="mission-text">
-                            <h2>Nuestra Misión</h2>
-                            <p className="mission-statement">
-                                Democratizar el acceso a rutas de aprendizaje personalizadas y de calidad 
-                                mediante la automatización inteligente de la curación de contenido educativo, 
-                                proporcionando a los usuarios una plataforma unificada que optimice su tiempo 
-                                de aprendizaje y maximice su efectividad educativa.
-                            </p>
-                            
-                            <div className="mission-pillars">
-                                <div className="pillar">
-                                    <Users className="pillar-icon" />
-                                    <h3>Accesibilidad Universal</h3>
-                                    <p>Hacer que la educación personalizada esté disponible para cualquier persona, independientemente de su ubicación o recursos económicos.</p>
-                                </div>
-                                
-                                <div className="pillar">
-                                    <Lightbulb className="pillar-icon" />
-                                    <h3>Innovación Educativa</h3>
-                                    <p>Utilizar las tecnologías más avanzadas de IA para revolucionar la forma en que las personas aprenden y crecen.</p>
-                                </div>
-                                
-                                <div className="pillar">
-                                    <Heart className="pillar-icon" />
-                                    <h3>Impacto Positivo</h3>
-                                    <p>Contribuir al desarrollo personal y profesional de individuos, creando un efecto multiplicador en sus comunidades.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Visión */}
-            <section className="vision-section">
-                <div className="section-container">
-                    <div className="vision-content">
-                        <div className="vision-text">
-                            <h2>Nuestra Visión</h2>
-                            <p className="vision-statement">
-                                Ser la plataforma de referencia mundial para la generación automática de rutas 
-                                de aprendizaje personalizadas, transformando la manera en que las personas acceden 
-                                y consumen contenido educativo digital a través de inteligencia artificial y 
-                                tecnologías cloud nativas.
-                            </p>
-                            
-                            <div className="vision-goals">
-                                <div className="goal">
-                                    <Globe className="goal-icon" />
-                                    <h3>Alcance Global</h3>
-                                    <p>Convertir a LearnIA en la plataforma educativa IA líder mundial, sirviendo a millones de usuarios en todos los continentes.</p>
-                                </div>
-                                
-                                <div className="goal">
-                                    <Rocket className="goal-icon" />
-                                    <h3>Innovación Continua</h3>
-                                    <p>Mantenernos a la vanguardia tecnológica, incorporando las últimas innovaciones en IA, ML y educación digital.</p>
-                                </div>
-                                
-                                <div className="goal">
-                                    <Award className="goal-icon" />
-                                    <h3>Estándar de Excelencia</h3>
-                                    <p>Establecer nuevos estándares de calidad en personalización educativa y experiencia de usuario.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="vision-icon-container">
-                            <Eye className="vision-icon" />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Valores */}
-            <section className="values-section">
-                <div className="section-container">
-                    <h2 className="section-title">Nuestros Valores Fundamentales</h2>
-                    <div className="values-grid">
-                        <div className="value-card">
-                            <Users className="value-icon" />
-                            <h3>Usuario Primero</h3>
-                            <p>
-                                Cada decisión de producto se toma pensando en el beneficio y la experiencia 
-                                del usuario. Sus necesidades y feedback guían nuestro desarrollo.
-                            </p>
-                        </div>
-
-                        <div className="value-card">
-                            <Lightbulb className="value-icon" />
-                            <h3>Innovación Responsable</h3>
-                            <p>
-                                Adoptamos tecnologías emergentes de manera ética y responsable, 
-                                considerando siempre el impacto a largo plazo en la sociedad.
-                            </p>
-                        </div>
-
-                        <div className="value-card">
-                            <Award className="value-icon" />
-                            <h3>Excelencia Técnica</h3>
-                            <p>
-                                Nos comprometemos con los más altos estándares de calidad en código, 
-                                arquitectura, seguridad y rendimiento del sistema.
-                            </p>
-                        </div>
-
-                        <div className="value-card">
-                            <Heart className="value-icon" />
-                            <h3>Transparencia</h3>
-                            <p>
-                                Operamos con total transparencia sobre cómo funciona nuestra IA, 
-                                qué datos utilizamos y cómo protegemos la privacidad.
-                            </p>
-                        </div>
-
-                        <div className="value-card">
-                            <Globe className="value-icon" />
-                            <h3>Inclusividad</h3>
-                            <p>
-                                Diseñamos para la diversidad, asegurando que LearnIA sea accesible 
-                                y útil para personas de diferentes culturas, capacidades y contextos.
-                            </p>
-                        </div>
-
-                        <div className="value-card">
-                            <Rocket className="value-icon" />
-                            <h3>Mejora Continua</h3>
-                            <p>
-                                Nunca nos conformamos. Iteramos constantemente basándonos en datos, 
-                                feedback y nuevas oportunidades de mejora.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Impacto Esperado */}
-            <section className="impact-section">
-                <div className="section-container">
-                    <h2 className="section-title">Impacto Esperado</h2>
-                    <div className="impact-content">
-                        <div className="impact-stats">
-                            <div className="impact-stat">
-                                <div className="stat-number">1M+</div>
-                                <div className="stat-label">Usuarios activos objetivo para 2027</div>
-                            </div>
-                            <div className="impact-stat">
-                                <div className="stat-number">50%</div>
-                                <div className="stat-label">Reducción en tiempo de búsqueda de cursos</div>
-                            </div>
-                            <div className="impact-stat">
-                                <div className="stat-number">3x</div>
-                                <div className="stat-label">Mejora en tasas de completación de cursos</div>
-                            </div>
-                            <div className="impact-stat">
-                                <div className="stat-number">100K+</div>
-                                <div className="stat-label">Recursos educativos procesados objetivo</div>
-                            </div>
-                        </div>
-                        
-                        <div className="impact-description">
-                            <h3>Transformando Vidas a Través del Aprendizaje</h3>
-                            <p>
-                                Nuestro objetivo va más allá de la tecnología. Queremos crear un impacto 
-                                real en la vida de las personas, ayudándolas a:
-                            </p>
-                            <ul className="impact-list">
-                                <li>Desarrollar nuevas habilidades de manera más eficiente</li>
-                                <li>Ahorrar tiempo y energía en la búsqueda de contenido educativo</li>
-                                <li>Acceder a educación de calidad independientemente de su ubicación</li>
-                                <li>Encontrar rutas de aprendizaje adaptadas a sus objetivos únicos</li>
-                                <li>Mantenerse actualizados en un mundo en constante cambio</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Roadmap */}
-            <section className="roadmap-section">
-                <div className="section-container">
-                    <h2 className="section-title">Hoja de Ruta hacia Nuestra Visión</h2>
-                    <div className="roadmap-timeline">
-                        <div className="timeline-item">
-                            <div className="timeline-year">2025</div>
-                            <div className="timeline-content">
-                                <h3>Fundación Sólida</h3>
-                                <p>Lanzamiento de LearnIA v1.0 con funcionalidades core y validación del modelo de negocio</p>
-                                <ul>
-                                    <li>Procesamiento de 10K+ recursos</li>
-                                    <li>IA de recomendaciones básica</li>
-                                    <li>Primeros 1,000 usuarios</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div className="timeline-item">
-                            <div className="timeline-year">2026</div>
-                            <div className="timeline-content">
-                                <h3>Expansión y Mejora</h3>
-                                <p>Escalamiento del sistema y mejoras basadas en feedback de usuarios</p>
-                                <ul>
-                                    <li>10+ plataformas integradas</li>
-                                    <li>IA conversacional avanzada</li>
-                                    <li>App móvil nativa</li>
-                                    <li>100K usuarios activos</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div className="timeline-item">
-                            <div className="timeline-year">2027</div>
-                            <div className="timeline-content">
-                                <h3>Liderazgo Global</h3>
-                                <p>Posicionamiento como plataforma líder en educación personalizada con IA</p>
-                                <ul>
-                                    <li>1M+ usuarios globales</li>
-                                    <li>Análisis predictivo avanzado</li>
-                                    <li>Partnerships estratégicos</li>
-                                    <li>Expansión internacional</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div className="timeline-item">
-                            <div className="timeline-year">2028+</div>
-                            <div className="timeline-content">
-                                <h3>Innovación Disruptiva</h3>
-                                <p>Nuevas tecnologías y formatos de aprendizaje que redefinan la educación digital</p>
-                                <ul>
-                                    <li>Realidad aumentada/virtual</li>
-                                    <li>IA generativa personalizada</li>
-                                    <li>Ecosistema educativo completo</li>
-                                    <li>Impacto social medible</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Compromiso */}
-            <section className="commitment-section">
-                <div className="section-container">
-                    <div className="commitment-content">
-                        <h2>Nuestro Compromiso</h2>
-                        <p className="commitment-text">
-                            Como equipo de LearnIA, nos comprometemos a mantener estos principios 
-                            en cada línea de código, cada decisión de producto y cada interacción 
-                            con nuestros usuarios. Nuestra misión no es solo tecnológica, sino profundamente humana: 
-                            empoderar a las personas para que alcancen su máximo potencial a través del aprendizaje.
+            <section className="hero-section">
+                <div className="hero-container-full">
+                    <div className="hero-content-centered">
+                        <h1 className="hero-title">
+                            Nuestra <span className="brand-highlight">Misión y Visión</span>
+                        </h1>
+                        <p className="hero-description">
+                            Comprometidos con democratizar el acceso a la educación personalizada 
+                            mediante inteligencia artificial y tecnologías innovadoras.
                         </p>
-                        <div className="commitment-signature">
-                            <p><strong>Equipo LearnIA</strong></p>
-                            <p>Universidad Pontificia Bolivariana - Bucaramanga</p>
+                        <div className="hero-stats">
+                            <div className="stat-item">
+                                <span className="stat-number">2025</span>
+                                <span className="stat-label">Año de Fundación</span>
+                            </div>
+                            <div className="stat-item">
+                                <span className="stat-number">UPB</span>
+                                <span className="stat-label">Universidad Origen</span>
+                            </div>
+                            <div className="stat-item">
+                                <span className="stat-number">∞</span>
+                                <span className="stat-label">Potencial Educativo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Misión Section */}
+            <section className="cursos-section">
+                <div className="section-container">
+                    <h2 className="section-title">Nuestra Misión</h2>
+                    <p className="section-subtitle">
+                        Democratizar el acceso a rutas de aprendizaje personalizadas y de calidad
+                    </p>
+                    
+                    <div className="about-content-grid">
+                        <div className="about-description">
+                            <div className="description-card">
+                                <h3>¿Qué Hacemos?</h3>
+                                <p>
+                                    <strong>Democratizamos el acceso</strong> a rutas de aprendizaje personalizadas 
+                                    y de calidad mediante la automatización inteligente de la curación de contenido 
+                                    educativo, proporcionando a los usuarios una plataforma unificada que 
+                                    <strong>optimice su tiempo de aprendizaje</strong> y maximice su efectividad educativa.
+                                </p>
+                            </div>
+
+                            <div className="description-card">
+                                <h3>¿Cómo lo Hacemos?</h3>
+                                <p>
+                                    A través de <strong>tecnologías de IA avanzadas</strong>, procesamos y analizamos 
+                                    contenido educativo de múltiples plataformas, creando experiencias de aprendizaje 
+                                    <strong>personalizadas y coherentes</strong> que se adaptan a los objetivos, 
+                                    nivel y preferencias de cada usuario.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="about-features">
+                            <div className="feature-highlights">
+                                <div className="highlight-item">
+                                    <Globe className="highlight-icon" />
+                                    <div className="highlight-content">
+                                        <h4>Democratización</h4>
+                                        <p>Hacer accesible la educación personalizada a todas las personas</p>
+                                    </div>
+                                </div>
+
+                                <div className="highlight-item">
+                                    <Target className="highlight-icon" />
+                                    <div className="highlight-content">
+                                        <h4>Optimización</h4>
+                                        <p>Maximizar la efectividad del tiempo dedicado al aprendizaje</p>
+                                    </div>
+                                </div>
+
+                                <div className="highlight-item">
+                                    <Brain className="highlight-icon" />
+                                    <div className="highlight-content">
+                                        <h4>Personalización</h4>
+                                        <p>Adaptar el contenido a las necesidades específicas de cada usuario</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Visión Section */}
+            <section className="cursos-section" style={{backgroundColor: 'var(--background-secondary)'}}>
+                <div className="section-container">
+                    <h2 className="section-title">Nuestra Visión</h2>
+                    <p className="section-subtitle">
+                        Ser la plataforma de referencia para la generación automática de rutas de aprendizaje
+                    </p>
+                    
+                    <div className="about-content-grid">
+                        <div className="about-description">
+                            <div className="description-card">
+                                <h3>Visión 2030</h3>
+                                <p>
+                                    Ser <strong>la plataforma de referencia</strong> para la generación automática 
+                                    de rutas de aprendizaje personalizadas, transformando la manera en que las 
+                                    personas acceden y consumen contenido educativo digital a través de 
+                                    <strong>inteligencia artificial y tecnologías cloud nativas</strong>.
+                                </p>
+                            </div>
+
+                            <div className="description-card">
+                                <h3>Impacto Global</h3>
+                                <p>
+                                    Aspiramos a <strong>transformar la educación digital</strong> a nivel global, 
+                                    creando un ecosistema donde el aprendizaje sea más eficiente, accesible y 
+                                    personalizado para millones de estudiantes en todo el mundo.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="about-features">
+                            <div className="feature-highlights">
+                                <div className="highlight-item">
+                                    <TrendingUp className="highlight-icon" />
+                                    <div className="highlight-content">
+                                        <h4>Liderazgo Tecnológico</h4>
+                                        <p>Ser pioneros en IA aplicada a educación personalizada</p>
+                                    </div>
+                                </div>
+
+                                <div className="highlight-item">
+                                    <Globe className="highlight-icon" />
+                                    <div className="highlight-content">
+                                        <h4>Alcance Global</h4>
+                                        <p>Impactar la educación digital a nivel mundial</p>
+                                    </div>
+                                </div>
+
+                                <div className="highlight-item">
+                                    <Lightbulb className="highlight-icon" />
+                                    <div className="highlight-content">
+                                        <h4>Transformación</h4>
+                                        <p>Revolucionar la forma de consumir contenido educativo</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Valores Section */}
+            <section className="cursos-section">
+                <div className="section-container">
+                    <h2 className="section-title">Nuestros Valores</h2>
+                    <p className="section-subtitle">
+                        Los principios que guían nuestro trabajo y decisiones cada día
+                    </p>
+                    
+                    <div className="valores-grid">
+                        <div className="valor-card">
+                            <Users className="valor-icon" />
+                            <h3>Democratización</h3>
+                            <p>Creemos que la educación personalizada debe estar al alcance de todos, sin barreras económicas o geográficas.</p>
+                        </div>
+
+                        <div className="valor-card">
+                            <Brain className="valor-icon" />
+                            <h3>Innovación</h3>
+                            <p>Aplicamos las últimas tecnologías de IA para crear soluciones educativas que antes parecían imposibles.</p>
+                        </div>
+
+                        <div className="valor-card">
+                            <Award className="valor-icon" />
+                            <h3>Calidad</h3>
+                            <p>Nos comprometemos con la excelencia en cada algoritmo, interfaz y experiencia que creamos.</p>
+                        </div>
+
+                        <div className="valor-card">
+                            <Target className="valor-icon" />
+                            <h3>Personalización</h3>
+                            <p>Entendemos que cada persona aprende de manera única y adaptamos nuestros recursos en consecuencia.</p>
+                        </div>
+
+                        <div className="valor-card">
+                            <BookOpen className="valor-icon" />
+                            <h3>Transparencia</h3>
+                            <p>Somos claros sobre cómo funcionan nuestros algoritmos y cómo procesamos la información educativa.</p>
+                        </div>
+
+                        <div className="valor-card">
+                            <Zap className="valor-icon" />
+                            <h3>Eficiencia</h3>
+                            <p>Optimizamos cada proceso para maximizar el valor del tiempo que nuestros usuarios dedican al aprendizaje.</p>
                         </div>
                     </div>
                 </div>

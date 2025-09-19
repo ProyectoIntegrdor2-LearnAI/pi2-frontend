@@ -510,3 +510,38 @@
         height: 35px;
     }
 }
+
+/* Contenedor del logo y marca */
+.auth-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* espacio entre logo y texto */
+}
+
+/* Logo dentro del modal */
+.auth-modal-logo {
+  width: 120px;      /* ancho fijo */
+  height: auto;     /* mantiene proporción */
+  border-radius: 8px; /* opcional, bordes redondeados */
+  object-fit: contain; /* se asegura que no se deforme */
+}
+
+/* Texto al lado del logo */
+.auth-brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-brand-name {
+  font-size: 1.25rem; /* tamaño moderado */
+  font-weight: bold;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.auth-brand-tagline {
+  font-size: 0.85rem;
+  color: var(--text-muted, #666);
+  margin: 0;
+}
