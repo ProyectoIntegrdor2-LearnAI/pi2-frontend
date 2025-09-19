@@ -1,0 +1,168 @@
+/* Overlay para cerrar el chat al hacer clic fuera */
+.chat-float-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  z-index: 1099;
+}
+/* Burbuja flotante del chat */
+.chat-bubble-float {
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 70% 30%, #a259c4 0%, #68148C 70%, #3F0259 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 32px 0 rgba(104,20,140,0.25), 0 2px 8px #0003;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1000;
+  transition: box-shadow 0.25s cubic-bezier(.4,2,.6,1), transform 0.18s cubic-bezier(.4,2,.6,1), background 0.2s;
+  animation: chat-bounce 1.2s infinite alternate cubic-bezier(.4,2,.6,1);
+}
+.chat-bubble-float:hover {
+  background: radial-gradient(circle at 70% 30%, #c084fc 0%, #68148C 60%, #3F0259 100%);
+  box-shadow: 0 16px 40px 0 rgba(104,20,140,0.35), 0 4px 16px #0004;
+  transform: translateY(-6px) scale(1.08);
+  animation: none;
+}
+@keyframes chat-bounce {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-8px) scale(1.04); }
+}
+.ai-bubble-icon {
+  font-weight: bold;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+}
+
+/* Chat flotante */
+.fixed-ai-chat-float {
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  width: 340px;
+  max-width: 95vw;
+  max-height: 80vh;
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px #0003;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: chat-fade-in 0.2s;
+}
+@keyframes chat-fade-in {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #3F0259 60%, #68148C 100%);
+  color: #fff;
+  padding: 0.7rem 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.chat-close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  line-height: 1;
+}
+.chat-messages {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background: #f9f9fb;
+  min-height: 120px;
+  max-height: 45vh;
+}
+.chat-input-container {
+  display: flex;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  background: #fff;
+  border-top: 1px solid #eee;
+}
+.chat-input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 1.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  margin-right: 0.5rem;
+  outline: none;
+}
+.chat-send {
+  background: linear-gradient(90deg, #3F0259 60%, #68148C 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.chat-send:hover {
+  background: linear-gradient(90deg, #68148C 60%, #3F0259 100%);
+}
+/* Estilos para el chat de vista previa (ChatIAPreview) */
+.chat-preview-access-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  background: #f9f9fb;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px #0001;
+  margin: 1rem 0;
+}
+.chat-preview-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.chat-preview-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+}
+.chat-preview-desc {
+  color: #555;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.chat-preview-btn {
+  background: linear-gradient(90deg, #3F0259 60%, #68148C 100%);
+  color: #fff;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 4px #0002;
+  transition: background 0.2s;
+}
+.chat-preview-btn:hover {
+  background: linear-gradient(90deg, #68148C 60%, #3F0259 100%);
+}

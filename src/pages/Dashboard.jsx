@@ -18,13 +18,7 @@ function Dashboard() {
     currentLevel: "Principiante"
   });
   const [recentCourses, setRecentCourses] = useState([]);
-  const [chatMessages, setChatMessages] = useState([
-    { text: "¡Hola! Soy LearnIA, tu asistente inteligente. ¿Qué te gustaría aprender hoy? Puedo ayudarte a encontrar la ruta perfecta.", isBot: true, timestamp: new Date() }
-  ]);
-  const [chatInput, setChatInput] = useState("");
-  const [chatLoading, setChatLoading] = useState(false);
-  const [conversationId, setConversationId] = useState(null);
-  const [chatOpen, setChatOpen] = useState(false);
+
   
   const navigate = useNavigate();
 
@@ -145,54 +139,7 @@ function Dashboard() {
     navigate(route);
   };
 
-  const toggleChat = () => {
-    setChatOpen(!chatOpen);
-  };
 
-  // RF-019: Interfaz de chat con IA
-  const handleChatSubmit = async (e) => {
-    e.preventDefault();
-    if (!chatInput.trim() || chatLoading) return;
-
-    const userMessage = { 
-      text: chatInput, 
-      isBot: false, 
-      timestamp: new Date() 
-    };
-    setChatMessages(prev => [...prev, userMessage]);
-    setChatLoading(true);
-
-    try {
-      const response = await apiServices.chat.sendMessage(chatInput, conversationId);
-      
-      if (!conversationId && response.conversationId) {
-        setConversationId(response.conversationId);
-      }
-
-      const botResponse = { 
-        text: response.message, 
-        isBot: true, 
-        timestamp: new Date() 
-      };
-      
-      setChatMessages(prev => [...prev, botResponse]);
-      
-    } catch (error) {
-      console.error('Error en chat:', error);
-      
-      const errorResponse = { 
-        text: "Lo siento, hubo un error procesando tu mensaje. Por favor intenta de nuevo.", 
-        isBot: true, 
-        timestamp: new Date(),
-        isError: true
-      };
-      
-      setChatMessages(prev => [...prev, errorResponse]);
-    } finally {
-      setChatLoading(false);
-      setChatInput("");
-    }
-  };
 
   const handleLogout = () => {
     apiServices.auth.logout();
@@ -291,8 +238,7 @@ function Dashboard() {
         </div>
       </aside>
 
-      {/* Overlay para cerrar chat al hacer clic fuera */}
-      {chatOpen && <div className="chat-overlay" onClick={toggleChat}></div>}
+
 
       {/* Overlay para cerrar sidebar al hacer clic fuera */}
       {sidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar}></div>}
@@ -434,88 +380,8 @@ function Dashboard() {
         </section>
       </main>
 
-      {/* Botón flotante del chat - Solo visible en móvil */}
-      <button 
-        className="chat-float-btn"
-        onClick={toggleChat}
-        aria-label="Abrir chat con IA"
-      >
-        <div className="chat-btn-content">
-          <div className="ai-avatar">IA</div>
-        </div>
-      </button>
+  {/* ChatIA real (logueado) */}
 
-{/* Chatbot - Siempre visible en desktop, controlado en móvil */}
-<div className={`chatbot-container ${chatOpen ? 'open' : 'mobile-hidden'}`}>
-  <div className="chat-widget">
-    <div className="chat-header">
-      <div className="chat-header-content">
-        <div className="ai-avatar-header">IA</div>
-        <div className="chat-title">
-          <strong>LearnIA Assistant</strong>
-          <p>Pregúntame sobre cualquier tema</p>
-        </div>
-      </div>
-      {/* Botón cerrar solo visible en móvil */}
-      <button 
-        className="chat-close-btn"
-        onClick={toggleChat}
-        aria-label="Cerrar chat"
-      >
-        ✕
-      </button>
-    </div>
-    
-    <div className="chat-body">
-      {chatMessages.map((message, index) => (
-        <div 
-          key={index} 
-          className={`chat-message ${message.isBot ? 'bot-message' : 'user-message'} ${message.isError ? 'error-message' : ''}`}
-        >
-          {message.isBot && (
-            <div className="message-avatar">IA</div>
-          )}
-          <div className="message-content">{message.text}</div>
-        </div>
-      ))}
-      {chatLoading && (
-        <div className="chat-message bot-message loading-message">
-          <div className="message-avatar">IA</div>
-          <div className="typing-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-      )}
-    </div>
-    
-    <div className="chat-footer">
-      <input 
-        type="text" 
-        value={chatInput}
-        onChange={(e) => setChatInput(e.target.value)}
-        placeholder="¿Qué te gustaría aprender?" 
-        maxLength={500}
-        disabled={chatLoading}
-        onKeyPress={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleChatSubmit(e);
-          }
-        }}
-      />
-      <button 
-        onClick={handleChatSubmit} 
-        disabled={!chatInput.trim() || chatLoading}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-</div>
     </div>
   );
 }

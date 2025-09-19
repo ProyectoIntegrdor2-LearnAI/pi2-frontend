@@ -1,78 +1,11 @@
-import React, { useState } from 'react';
-import { Send, ChevronDown, ChevronUp, Search, Brain, BookOpen, Shield, Zap, Users, Globe } from 'lucide-react';
 
-const PreguntasFrecuentes = ({ onChatToggle }) => {
-    const [chatMessages, setChatMessages] = useState([
-        {
-            id: 1,
-            type: 'ai',
-            content: '¡Hola! ¿Tienes alguna pregunta sobre LearnIA? Puedo ayudarte a resolverla.',
-            timestamp: new Date()
-        }
-    ]);
-    const [inputMessage, setInputMessage] = useState('');
-    const [isChatMinimized, setIsChatMinimized] = useState(false);
-    const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+import React, { useState } from 'react';
+import { ChevronDown, ChevronUp, Search, Brain, BookOpen, Shield, Zap, Users, Globe } from 'lucide-react';
+
+const PreguntasFrecuentes = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('all');
     const [openFAQ, setOpenFAQ] = useState(null);
-
-    const toggleChat = () => {
-        const newMinimizedState = !isChatMinimized;
-        setIsChatMinimized(newMinimizedState);
-
-        if (onChatToggle) {
-            onChatToggle(newMinimizedState);
-        }
-
-        window.dispatchEvent(new CustomEvent('chatToggle', {
-            detail: { minimized: newMinimizedState }
-        }));
-    };
-
-    const toggleMobileChat = () => {
-        setIsMobileChatOpen(!isMobileChatOpen);
-    };
-
-    const handleSendMessage = () => {
-        if (!inputMessage.trim()) return;
-
-        const newUserMessage = {
-            id: Date.now(),
-            type: 'user',
-            content: inputMessage,
-            timestamp: new Date()
-        };
-
-        setChatMessages(prev => [...prev, newUserMessage]);
-
-        setTimeout(() => {
-            const aiResponses = [
-                "Te ayudo a encontrar la respuesta. ¿Tu pregunta está relacionada con el funcionamiento de la IA, registro de usuarios, o alguna funcionalidad específica?",
-                "Revisa la sección de preguntas frecuentes. Si no encuentras tu respuesta, puedo ayudarte con información más específica.",
-                "Para preguntas técnicas sobre nuestros algoritmos o integración con plataformas, estaré encantado de explicarte.",
-                "¿Necesitas ayuda con alguna funcionalidad específica de LearnIA? Puedo guiarte paso a paso.",
-                "Si tu pregunta no está en las FAQs, contáctanos y nuestro equipo te responderá pronto."
-            ];
-            const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-            
-            const aiResponse = {
-                id: Date.now() + 1,
-                type: 'ai',
-                content: randomResponse,
-                timestamp: new Date()
-            };
-            setChatMessages(prev => [...prev, aiResponse]);
-        }, 1000);
-
-        setInputMessage('');
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleSendMessage();
-        }
-    };
 
     const faqData = [
         // Preguntas Generales

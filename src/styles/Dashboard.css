@@ -1123,7 +1123,8 @@ body {
     height: 32px;
     font-size: 0.9rem;
   }
-} (max-width: 1024px) {
+}
+@media (max-width: 1024px) {
   /* En tablets, el chat se oculta y aparece el botón flotante */
   .dashboard-main {
     margin-right: 0; /* Eliminar el margen derecho */

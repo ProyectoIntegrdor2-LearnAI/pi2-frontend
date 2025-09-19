@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logoImage from "../imagenes/logoPrincipal.jpg";
+import apiServices from '../services/apiServices';
 
 const AuthModal = ({ showAuthModal, closeAuthModal, initialTab = 'login' }) => {
     const [activeTab, setActiveTab] = useState(initialTab);
@@ -56,43 +57,41 @@ const AuthModal = ({ showAuthModal, closeAuthModal, initialTab = 'login' }) => {
         }
 
         try {
-            const endpoint = activeTab === 'login' ? '/api/auth/login' : '/api/auth/register';
-            const payload = activeTab === 'login'
-                ? { email: formData.email, password: formData.password }
-                : { cedula: formData.cedula, name: formData.name, email: formData.email, password: formData.password };
-
-            const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (res.ok) {
-                const data = await res.json().catch(() => ({}));
-                if (data.token) {
-                    try { localStorage.setItem('authToken', data.token); } catch (e) { }
-                }
-
-                if (activeTab === 'register') {
-                    setActiveTab('login');
-                    alert('Cuenta creada con éxito. Por favor inicia sesión.');
-                } else {
-                    if (closeAuthModal) closeAuthModal();
-                    navigate('/dashboard');
-                }
-
-                return;
+            let data;
+            if (activeTab === 'login') {
+                data = await apiServices.auth.login({
+                    email: formData.email,
+                    password: formData.password
+                });
             } else {
-                const text = await res.text().catch(() => '');
-                throw new Error('Respuesta API no OK');
+                data = await apiServices.auth.register({
+                    cedula: formData.cedula,
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password
+                });
             }
+
+            if (data && data.token) {
+                try { localStorage.setItem('token', data.token); } catch (e) { }
+            }
+
+            if (activeTab === 'register') {
+                setActiveTab('login');
+                alert('Cuenta creada con éxito. Por favor inicia sesión.');
+            } else {
+                if (closeAuthModal) closeAuthModal();
+                navigate('/dashboard');
+            }
+            return;
         } catch (apiErr) {
+            // Fallback local para pruebas
             console.warn('Error en API de autenticación, activando fallback local:', apiErr);
             const fakeUser = { email: 'test@correo.com', password: '12345' };
 
             if (activeTab === 'login') {
                 if (formData.email === fakeUser.email && formData.password === fakeUser.password) {
-                    try { localStorage.setItem('authToken', 'local-dev-token'); } catch (e) { }
+                    try { localStorage.setItem('token', 'local-dev-token'); } catch (e) { }
                     if (closeAuthModal) closeAuthModal();
                     navigate('/dashboard');
                     return;

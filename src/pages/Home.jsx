@@ -9,67 +9,6 @@ const Home = ({ onChatToggle }) => {
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [authInitialTab, setAuthInitialTab] = useState('login');
 
-    const [chatMessages, setChatMessages] = useState([
-        {
-            id: 1,
-            type: 'ai',
-            content: '¡Hola! Soy LearnIA, tu asistente inteligente. ¿Qué te gustaría aprender hoy? Puedo ayudarte a encontrar la ruta perfecta.',
-            timestamp: new Date()
-        }
-    ]);
-    const [inputMessage, setInputMessage] = useState('');
-    const [isChatMinimized, setIsChatMinimized] = useState(false);
-    const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
-
-    const toggleChat = () => {
-        const newMinimizedState = !isChatMinimized;
-        setIsChatMinimized(newMinimizedState);
-
-        if (onChatToggle) {
-            onChatToggle(newMinimizedState);
-        }
-
-        window.dispatchEvent(new CustomEvent('chatToggle', {
-            detail: { minimized: newMinimizedState }
-        }));
-    };
-
-    const toggleMobileChat = () => {
-        setIsMobileChatOpen(!isMobileChatOpen);
-    };
-
-    const handleSendMessage = () => {
-        if (!inputMessage.trim()) return;
-
-        const newUserMessage = {
-            id: Date.now(),
-            type: 'user',
-            content: inputMessage,
-            timestamp: new Date()
-        };
-
-        setChatMessages(prev => [...prev, newUserMessage]);
-
-        // Simular respuesta de IA
-        setTimeout(() => {
-            const aiResponse = {
-                id: Date.now() + 1,
-                type: 'ai',
-                content: `Interesante pregunta sobre "${inputMessage}". Para darte una ruta personalizada, necesitarías crear una cuenta. ¿Te gustaría registrarte para acceder a recomendaciones personalizadas con IA?`,
-                timestamp: new Date()
-            };
-            setChatMessages(prev => [...prev, aiResponse]);
-        }, 1000);
-
-        setInputMessage('');
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleSendMessage();
-        }
-    };
-
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
@@ -96,51 +35,10 @@ const Home = ({ onChatToggle }) => {
                 initialTab={authInitialTab}
             />
 
-            {/* Overlay para cerrar chat en móvil */}
-            {isMobileChatOpen && <div className="chat-overlay active" onClick={toggleMobileChat}></div>}
 
-            {/* Chat de IA Fijo */}
-            <div className={`fixed-ai-chat ${isChatMinimized ? 'minimized' : ''} ${isMobileChatOpen ? 'mobile-open' : ''}`}>
-                <div className="chat-toggle">
-                    <div className="ai-avatar">IA</div>
-                    <div className="chat-header-info">
-                        <div className="chat-title">LearnIA Assistant</div>
-                        <div className="chat-subtitle">Pregúntame sobre cualquier tema</div>
-                    </div>
-                </div>
+            {/* Chat de IA centralizado */}
+            {/* ChatIA solo vista previa (no logueado) */}
 
-                {!isChatMinimized && (
-                    <>
-                        <div className="chat-messages">
-                            {chatMessages.map(message => (
-                                <div key={message.id} className={`chat-message ${message.type}`}>
-                                    {message.content}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="chat-input-container">
-                            <input
-                                type="text"
-                                placeholder="¿Qué te gustaría aprender?"
-                                value={inputMessage}
-                                onChange={(e) => setInputMessage(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                className="chat-input"
-                            />
-                            <button onClick={handleSendMessage} className="chat-send">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                    <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </>
-                )}
-            </div>
-
-            {/* Botón flotante para móvil */}
-            <button className="mobile-chat-toggle" onClick={toggleMobileChat}>
-                IA
-            </button>
 
             {/* Sección Hero/Introductoria */}
             <section className="hero-section">

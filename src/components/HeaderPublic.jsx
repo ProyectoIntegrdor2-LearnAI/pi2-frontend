@@ -103,12 +103,6 @@ const HeaderPublic = () => {
                                 Inicio
                             </Link>
                         </li>
-                        <li>
-                            <Link to="/courses" className="nav-link" onClick={handleLinkClick}>
-                                <span className="nav-icon"></span>
-                                Cursos
-                            </Link>
-                        </li>
                         <li className={`dropdown ${isAboutDropdownOpen ? 'open' : ''}`}>
                             <button
                                 className="dropdown-toggle"

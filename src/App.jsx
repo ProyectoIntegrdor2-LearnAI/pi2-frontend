@@ -1,3 +1,4 @@
+import FloatingChatSwitcher from "./components/FloatingChatSwitcher";
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -12,6 +13,7 @@ import HeaderDashboard from "./components/HeaderDashboard";
 
 // Páginas públicas
 import Home from "./pages/Home";
+import AuthModal from "./components/AuthModal";
 import QuienesSomos from "./pages/QuienesSomos";
 import PreguntasFrecuentes from "./pages/PreguntasFrecuentes";
 import MisionVision from "./pages/MisionVision";
@@ -36,6 +38,18 @@ import './styles/VisualizadorRutas.css';
 
 function AppContent() {
   const location = useLocation();
+  const [showAuthModal, setShowAuthModal] = React.useState(false);
+  const [authInitialTab, setAuthInitialTab] = React.useState('login');
+
+  // Permitir abrir el modal desde cualquier parte con un evento global
+  React.useEffect(() => {
+    const handler = (e) => {
+      setAuthInitialTab(e.detail && e.detail.tab ? e.detail.tab : 'login');
+      setShowAuthModal(true);
+    };
+    window.addEventListener('openAuthModal', handler);
+    return () => window.removeEventListener('openAuthModal', handler);
+  }, []);
 
   // Detectar si está en dashboard o páginas privadas
   const isDashboardRoute =
@@ -69,6 +83,7 @@ function AppContent() {
           {/* Rutas públicas */}
           <Route path="/" element={<Home />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
+
           <Route path="/preguntas-frecuentes" element={<PreguntasFrecuentes />} />
           <Route path="/mision-vision" element={<MisionVision />} />
           <Route path="/contacto" element={<Contacto />} />
@@ -80,6 +95,12 @@ function AppContent() {
           <Route path="/mis-favoritos" element={<MisFavoritos />} />
         </Routes>
       </main>
+      <AuthModal
+        showAuthModal={showAuthModal}
+        closeAuthModal={() => setShowAuthModal(false)}
+        initialTab={authInitialTab}
+      />
+      <FloatingChatSwitcher />
     </div>
   );
 }

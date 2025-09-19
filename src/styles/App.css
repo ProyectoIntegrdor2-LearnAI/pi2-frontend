@@ -52,14 +52,12 @@ body {
 .main-content {
     flex: 1;
     padding-top: 80px;
-    padding-right: 0; /* Cambiar de 320px a 0 */
+    padding-right: 0 !important;
     transition: var(--transition);
     min-height: calc(100vh - 80px); /* Añadir esta línea */
 }
 
-.main-content.chat-minimized {
-    padding-right: 60px;
-}
+
 
 /* Header Styles - Versión Simplificada */
 .header {
@@ -851,30 +849,7 @@ body {
     margin: 0 auto;
 }
 
-.cta-content h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: var(--text-primary);
-}
 
-.cta-content p {
-    font-size: 1.125rem;
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-}
-
-.cta-primary.large {
-    padding: 1.25rem 2.5rem;
-    font-size: 1.125rem;
-}
-
-.cta-secondary.large {
-    padding: 1.25rem 2.5rem;
-    font-size: 1.125rem;
-    color: var(--text-primary);
-    border-color: var(--border-color);
-}
 
 .cta-secondary.large:hover {
     background: var(--background-tertiary);

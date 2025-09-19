@@ -1,77 +1,8 @@
-import React, { useState } from 'react';
-import { Brain, Users, Target, Send, ChevronUp } from 'lucide-react';
 
-const QuienesSomos = ({ onChatToggle }) => {
-    const [chatMessages, setChatMessages] = useState([
-        {
-            id: 1,
-            type: 'ai',
-            content: '¡Hola! Soy LearnIA Assistant. ¿Te gustaría saber más sobre nuestra plataforma y tecnología de IA?',
-            timestamp: new Date()
-        }
-    ]);
-    const [inputMessage, setInputMessage] = useState('');
-    const [isChatMinimized, setIsChatMinimized] = useState(false);
-    const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+import React from 'react';
+import { Brain, Users, Target, ChevronUp } from 'lucide-react';
 
-    const toggleChat = () => {
-        const newMinimizedState = !isChatMinimized;
-        setIsChatMinimized(newMinimizedState);
-
-        if (onChatToggle) {
-            onChatToggle(newMinimizedState);
-        }
-
-        window.dispatchEvent(new CustomEvent('chatToggle', {
-            detail: { minimized: newMinimizedState }
-        }));
-    };
-
-    const toggleMobileChat = () => {
-        setIsMobileChatOpen(!isMobileChatOpen);
-    };
-
-    const handleSendMessage = () => {
-        if (!inputMessage.trim()) return;
-
-        const newUserMessage = {
-            id: Date.now(),
-            type: 'user',
-            content: inputMessage,
-            timestamp: new Date()
-        };
-
-        setChatMessages(prev => [...prev, newUserMessage]);
-
-        // Simular respuesta de IA específica sobre LearnIA
-        setTimeout(() => {
-            const aiResponses = [
-                "Nuestra IA utiliza procesamiento de lenguaje natural para crear rutas personalizadas basadas en tus objetivos de aprendizaje.",
-                "Procesamos más de 10,000 recursos de plataformas como Coursera, edX, Udemy y Khan Academy para encontrar el mejor contenido para ti.",
-                "El sistema aprende de tus preferencias y progreso para mejorar constantemente las recomendaciones.",
-                "¿Te interesa alguna tecnología específica? Puedo ayudarte a encontrar la ruta de aprendizaje perfecta.",
-                "Como proyecto de la UPB, aplicamos metodologías ágiles y las últimas tecnologías en IA para democratizar la educación."
-            ];
-            const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-            
-            const aiResponse = {
-                id: Date.now() + 1,
-                type: 'ai',
-                content: randomResponse,
-                timestamp: new Date()
-            };
-            setChatMessages(prev => [...prev, aiResponse]);
-        }, 1000);
-
-        setInputMessage('');
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleSendMessage();
-        }
-    };
-
+const QuienesSomos = () => {
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
@@ -81,52 +12,6 @@ const QuienesSomos = ({ onChatToggle }) => {
 
     return (
         <div className="home-page">
-            {/* Overlay para cerrar chat en móvil */}
-            {isMobileChatOpen && <div className="chat-overlay active" onClick={toggleMobileChat}></div>}
-            
-            {/* Chat de IA Fijo - Mismo que Home */}
-            <div className={`fixed-ai-chat ${isChatMinimized ? 'minimized' : ''} ${isMobileChatOpen ? 'mobile-open' : ''}`}>
-                <div className="chat-toggle" onClick={toggleChat}>
-                    <div className="ai-avatar">IA</div>
-                    {!isChatMinimized && (
-                        <div className="chat-header-info">
-                            <div className="chat-title">LearnIA Assistant</div>
-                            <div className="chat-subtitle">Pregúntame sobre la plataforma</div>
-                        </div>
-                    )}
-                    
-                </div>
-
-                {!isChatMinimized && (
-                    <>
-                        <div className="chat-messages">
-                            {chatMessages.map(message => (
-                                <div key={message.id} className={`chat-message ${message.type}`}>
-                                    {message.content}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="chat-input-container">
-                            <input
-                                type="text"
-                                placeholder="Pregunta sobre LearnIA..."
-                                value={inputMessage}
-                                onChange={(e) => setInputMessage(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                className="chat-input"
-                            />
-                            <button onClick={handleSendMessage} className="chat-send">
-                                <Send size={16} />
-                            </button>
-                        </div>
-                    </>
-                )}
-            </div>
-
-            {/* Botón flotante para móvil */}
-            <button className="mobile-chat-toggle" onClick={toggleMobileChat}>
-                IA
-            </button>
 
             {/* Hero Section - Acerca de LearnIA */}
             <section className="hero-section">
