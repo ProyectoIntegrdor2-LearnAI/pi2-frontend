@@ -127,13 +127,16 @@ const rutasSimuladas = [
 ];
 
 function VisualizadorRutas() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rutas, setRutas] = useState(rutasSimuladas);
   const [rutaSeleccionada, setRutaSeleccionada] = useState(null);
   const [userProfile, setUserProfile] = useState({ name: "", email: "" }); // AGREGADO: Estado del perfil
 
-  
+  // Estado y función para el chat flotante
+  const [chatOpen, setChatOpen] = useState(false);
+  const toggleChat = () => setChatOpen((open) => !open);
+
   // Estados para el panel del curso
   const [panelAbierto, setPanelAbierto] = useState(false);
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
@@ -296,35 +299,41 @@ function VisualizadorRutas() {
 
   return (
     <div className="dashboard-wrapper">
-      {/* Header corregido */}
+      {/* Header */}
       <header className="dashboard-header">
-        <div className="header-content">
-          <div className="dashboard-logo">
-            <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
-          </div>
-          <div className="user-info" onClick={toggleSidebar}>
-            <img src={avatarIcon} alt="Avatar" className="user-avatar" />
-            {userProfile?.name && <span className="user-name">{userProfile.name}</span>}
+        <div className="header-container">
+          
+          {/* Sección izquierda: Avatar/Menú + Logo */}
+          <div className="header-left">
+            {/* Avatar del usuario que actúa como botón de menú */}
+            <div className="user-info" onClick={toggleSidebar}>
+              <img src={avatarIcon} alt="Avatar" className="user-avatar" />
+              {userProfile?.name && <span className="user-name">{userProfile.name}</span>}
+            </div>
+
+            {/* Logo LearnIA */}
+            <div className="logo-section">
+              <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Sidebar corregido */}
+      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="sidebar-content">
           <div className="user-profile-sidebar">
             <img src={avatarIcon} alt="Avatar" className="sidebar-avatar" />
-            {userProfile?.name && <h3 className="sidebar-user-name">{userProfile.name}</h3>}
-            {userProfile?.email && <p className="sidebar-user-email">{userProfile.email}</p>}
+        
           </div>
           
           <nav className="sidebar-nav">
             <ul>
-              <li onClick={() => handleNavigation('/dashboard')} className="nav-item">
+              <li onClick={() => handleNavigation('/dashboard')} className="nav-item active">
                 <span className="nav-icon"></span>
                 <span>Inicio</span>
               </li>
-              <li onClick={() => handleNavigation('/visualizador-rutas')} className="nav-item active">
+              <li onClick={() => handleNavigation('/visualizador-rutas')} className="nav-item">
                 <span className="nav-icon"></span>
                 <span>Mis Cursos</span>
               </li>

@@ -119,6 +119,13 @@ body {
   max-width: 100%;
 }
 
+/* Contenedor izquierdo con logo y menú de perfil */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .dashboard-logo {
   display: flex;
   align-items: center;

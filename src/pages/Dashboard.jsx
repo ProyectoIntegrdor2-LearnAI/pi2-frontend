@@ -7,6 +7,7 @@ import "../styles/Dashboard.css";
 
 function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
@@ -139,11 +140,13 @@ function Dashboard() {
     navigate(route);
   };
 
-
-
-  const handleLogout = () => {
-    apiServices.auth.logout();
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await apiServices.auth.logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   };
 
   // RF-028: Marcar recurso como completado
@@ -185,13 +188,20 @@ function Dashboard() {
     <div className="dashboard-wrapper">
       {/* Header */}
       <header className="dashboard-header">
-        <div className="header-content">
-          <div className="dashboard-logo">
-            <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
-          </div>
-          <div className="user-info" onClick={toggleSidebar}>
-            <img src={avatarIcon} alt="Avatar" className="user-avatar" />
-            {userProfile?.name && <span className="user-name">{userProfile.name}</span>}
+        <div className="header-container">
+          
+          {/* Sección izquierda: Avatar/Menú + Logo */}
+          <div className="header-left">
+            {/* Avatar del usuario que actúa como botón de menú */}
+            <div className="user-info" onClick={toggleSidebar}>
+              <img src={avatarIcon} alt="Avatar" className="user-avatar" />
+              {userProfile?.name && <span className="user-name">{userProfile.name}</span>}
+            </div>
+
+            {/* Logo LearnIA */}
+            <div className="logo-section">
+              <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
+            </div>
           </div>
         </div>
       </header>
@@ -237,8 +247,6 @@ function Dashboard() {
           </div>
         </div>
       </aside>
-
-
 
       {/* Overlay para cerrar sidebar al hacer clic fuera */}
       {sidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar}></div>}

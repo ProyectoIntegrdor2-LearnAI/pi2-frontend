@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-//import logoImageMini from "../imagenes/logoMini.jpg";
+import logoImage from "../imagenes/logoPrincipal.jpg"; // Asegúrate de tener la ruta correcta
 import apiServices from "../services/apiServices";
 
 const HeaderDashboard = () => {
@@ -10,7 +10,7 @@ const HeaderDashboard = () => {
   const handleLogout = async () => {
     try {
       await apiServices.auth.logout();
-      navigate("/"); // Redirige al inicio al cerrar sesión
+      navigate("/");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
@@ -19,10 +19,25 @@ const HeaderDashboard = () => {
   return (
     <header className="dashboard-header">
       <div className="header-container">
-       
         
+        {/* Sección izquierda: Botón menú + Logo */}
+        <div className="header-left">
+          {/* Botón menú móvil */}
+          <button
+            className="menu-toggle"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Abrir menú"
+          >
+            ☰
+          </button>
 
-        {/* Menú desktop */}
+          {/* Logo LearnIA */}
+          <div className="logo-section">
+            <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
+          </div>
+        </div>
+
+        {/* Navegación desktop */}
         <nav className="nav-links">
           <Link to="/perfil">Perfil</Link>
           <Link to="/visualizador-rutas">Mis Rutas</Link>
@@ -31,14 +46,6 @@ const HeaderDashboard = () => {
             Cerrar Sesión
           </button>
         </nav>
-
-        {/* Botón menú móvil */}
-        <button
-          className="menu-toggle"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          ☰
-        </button>
 
         {/* Menú móvil */}
         {isMobileMenuOpen && (
