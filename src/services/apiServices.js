@@ -1,9 +1,22 @@
 // src/services/apiServices.js
+
+// Configuración de URLs base
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+const CHAT_API_URL = process.env.REACT_APP_CHAT_API_URL || API_BASE_URL;
+const LEARNING_PATH_API_URL = process.env.REACT_APP_LEARNING_PATH_API_URL || API_BASE_URL;
+const MOCK_API = process.env.REACT_APP_MOCK_API === 'true';
+
+// Helper para construir URLs completas
+const buildUrl = (endpoint, baseUrl = API_BASE_URL) => {
+  if (endpoint.startsWith('http')) return endpoint;
+  return `${baseUrl}${endpoint}`;
+};
+
 const apiServices = {
   // 🔹 Servicio de autenticación
   auth: {
     login: async (credentials) => {
-      const response = await fetch("/api/users/login", {
+      const response = await fetch(buildUrl("/api/users/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
@@ -14,7 +27,7 @@ const apiServices = {
     },
 
     register: async (userData) => {
-      const response = await fetch("/api/users/register", {
+      const response = await fetch(buildUrl("/api/users/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
@@ -35,7 +48,7 @@ const apiServices = {
   user: {
     getProfile: async (userId) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/users/${userId}`, {
+      const response = await fetch(buildUrl(`/api/users/${userId}`), {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error("Error obteniendo perfil");
@@ -44,7 +57,7 @@ const apiServices = {
 
     getProgress: async (userId) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/users/${userId}/progress`, {
+      const response = await fetch(buildUrl(`/api/users/${userId}/progress`), {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error("Error obteniendo progreso");
@@ -53,7 +66,7 @@ const apiServices = {
 
     markResourceCompleted: async (userId, resourceId) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/users/${userId}/progress`, {
+      const response = await fetch(buildUrl(`/api/users/${userId}/progress`), {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ resourceId }),
@@ -144,7 +157,7 @@ const apiServices = {
   chat: {
     sendMessage: async (message, sessionId) => {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/chat/session", {
+      const response = await fetch(buildUrl("/api/chat/session", CHAT_API_URL), {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -158,7 +171,7 @@ const apiServices = {
 
     getSession: async (id) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/chat/session/${id}`, {
+      const response = await fetch(buildUrl(`/api/chat/session/${id}`, CHAT_API_URL), {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error("Error obteniendo sesión de chat");
@@ -166,7 +179,7 @@ const apiServices = {
     },
     updateSession: async (id, data) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/chat/session/${id}`, {
+      const response = await fetch(buildUrl(`/api/chat/session/${id}`, CHAT_API_URL), {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(data),
@@ -176,7 +189,7 @@ const apiServices = {
     },
     deleteSession: async (id) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/chat/session/${id}`, {
+      const response = await fetch(buildUrl(`/api/chat/session/${id}`, CHAT_API_URL), {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -188,7 +201,7 @@ const apiServices = {
   learningPath: {
     generate: async (data) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/generate-learning-path`, {
+      const response = await fetch(buildUrl(`/api/generate-learning-path`, LEARNING_PATH_API_URL), {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(data),
@@ -198,7 +211,7 @@ const apiServices = {
     },
     update: async (pathId, data) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/learning-path/${pathId}`, {
+      const response = await fetch(buildUrl(`/api/learning-path/${pathId}`, LEARNING_PATH_API_URL), {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(data),
@@ -208,7 +221,7 @@ const apiServices = {
     },
     clone: async (pathId) => {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/learning-path/${pathId}/clone`, {
+      const response = await fetch(buildUrl(`/api/learning-path/${pathId}/clone`, LEARNING_PATH_API_URL), {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });

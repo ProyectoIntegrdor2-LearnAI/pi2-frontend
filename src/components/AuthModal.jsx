@@ -1,7 +1,7 @@
 // src/components/AuthModal.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logoImage from "../imagenes/logoPrincipal.jpg";
+import logoImage from "../imagenes/logoPrincipal.png";
 import apiServices from '../services/apiServices';
 
 const AuthModal = ({ showAuthModal, closeAuthModal, initialTab = 'login' }) => {
@@ -30,7 +30,8 @@ const AuthModal = ({ showAuthModal, closeAuthModal, initialTab = 'login' }) => {
             email: '',
             password: '',
             confirmPassword: '',
-            acceptTerms: false
+            acceptTerms: false,
+            selectedAvatar: 'avatar1'
         });
         setShowPassword(false);
         setShowConfirmPassword(false);
@@ -73,7 +74,9 @@ const AuthModal = ({ showAuthModal, closeAuthModal, initialTab = 'login' }) => {
             }
 
             if (data && data.token) {
-                try { localStorage.setItem('token', data.token); } catch (e) { }
+                try { 
+                    localStorage.setItem('token', data.token);
+                } catch (e) { }
             }
 
             if (activeTab === 'register') {

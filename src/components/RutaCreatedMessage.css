@@ -1,0 +1,244 @@
+/* Mensaje de Ruta Creada - Estilos */
+.ruta-created-message {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+  border: 2px solid #28a745;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 8px 24px rgba(40, 167, 69, 0.15);
+  animation: slideInUp 0.4s ease-out;
+  max-width: 500px;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.success-icon {
+  font-size: 2rem;
+  animation: bounce 0.6s ease-out;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.message-header h3 {
+  color: #28a745;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.message-content {
+  margin-bottom: 1.5rem;
+}
+
+.ruta-preview {
+  background: rgba(106, 13, 173, 0.05);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(106, 13, 173, 0.1);
+}
+
+.ruta-preview h4 {
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.ruta-preview p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.ruta-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #555;
+  border: 1px solid #e0e0e0;
+}
+
+.detail-item .icon {
+  font-size: 1rem;
+}
+
+.cursos-preview {
+  background: rgba(0, 123, 255, 0.05);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(0, 123, 255, 0.1);
+}
+
+.cursos-preview h5 {
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+}
+
+.cursos-preview ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cursos-preview li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.cursos-preview li:not(:last-child) {
+  border-bottom: 1px solid rgba(0, 123, 255, 0.1);
+}
+
+.curso-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #007bff;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.curso-titulo {
+  flex: 1;
+  font-weight: 500;
+}
+
+.more-courses {
+  color: #666;
+  font-style: italic;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.more-courses .curso-numero {
+  background: #6c757d;
+}
+
+.message-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6a0dad 0%, #8a2be2 100%);
+  color: white;
+  flex: 1;
+  justify-content: center;
+  min-width: 160px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #5a0a9a 0%, #7a1bd2 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(106, 13, 173, 0.3);
+}
+
+.btn-secondary {
+  background: #f8f9fa;
+  color: #333;
+  border: 1px solid #dee2e6;
+  flex: 0 0 auto;
+}
+
+.btn-secondary:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+/* Responsividad */
+@media (max-width: 480px) {
+  .ruta-created-message {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
+  
+  .message-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .ruta-details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .detail-item {
+    justify-content: center;
+  }
+  
+  .message-actions {
+    flex-direction: column;
+  }
+  
+  .btn-primary, .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}

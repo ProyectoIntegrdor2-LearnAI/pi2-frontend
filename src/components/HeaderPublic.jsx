@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logoImage from '../imagenes/logoPrincipal.jpg';
-import logoImageMini from '../imagenes/logoMini.jpg';
+import logoImage from '../imagenes/logoPrincipal.png';
+import logoImageMini from '../imagenes/logoMini.png';
 import AuthModal from './AuthModal';
 
 const HeaderPublic = () => {

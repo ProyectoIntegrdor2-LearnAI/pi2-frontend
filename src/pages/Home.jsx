@@ -195,7 +195,7 @@ const Home = ({ onChatToggle }) => {
                             <div className="project-info">
                                 <p><strong>Automatización Total:</strong><br />Actualizaciones cada 6 horas sin intervención manual</p>
                                 <p><strong>IA Avanzada:</strong><br />Modelos de recomendación que evolucionan contigo</p>
-                                <p><strong>Multiplataforma:</strong><br />Lo mejor de Coursera, edX, Udemy y más en un lugar</p>
+                                <p><strong>Multiplataforma:</strong><br />Lo mejor de Coursera, Platzi, Udemy y más en un lugar</p>
                                 <p><strong>Escalable:</strong><br />Arquitectura cloud nativa que crece contigo</p>
                             </div>
                         </div>
@@ -222,21 +222,7 @@ const Home = ({ onChatToggle }) => {
 
                     <div className="footer-bottom">
                         <div className="footer-copyright">
-                            <p>© 2025 LearnIA - Proyecto Integrador II. Universidad Pontificia Bolivariana.</p>
-                        </div>
-                        <div className="footer-team">
-                            <span className="team-label">Equipo de Desarrollo:</span>
-                            <div className="team-members">
-                                <span>Juan Andrés Contreras</span>
-                                <span>•</span>
-                                <span>Karen Lizarazo</span>
-                                <span>•</span>
-                                <span>Raúl Lozano</span>
-                                <span>•</span>
-                                <span>María Parra</span>
-                                <span>•</span>
-                                <span>Jerson Porras</span>
-                            </div>
+                            <p>© 2025 LearnIA.</p>
                         </div>
                     </div>
                 </div>

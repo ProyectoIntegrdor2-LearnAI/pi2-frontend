@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import iconoUsuario from '../imagenes/iconoUsuario.png';
 
 const MenuPerfil = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const userName = "Usuario"; // Esto vendría de un contexto o estado global
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -23,11 +23,13 @@ const MenuPerfil = () => {
                 aria-label="Abrir menú de perfil"
             >
                 <div className="avatar">
-          <span className="avatar-text">
-            {userName.charAt(0).toUpperCase()}
-          </span>
+                    <img 
+                        src={iconoUsuario} 
+                        alt="Avatar de usuario"
+                        className="avatar-image"
+                    />
                 </div>
-                <span className="username">{userName}</span>
+                <span className="username">Usuario</span>
                 <svg
                     className={`dropdown-arrow ${isMenuOpen ? 'arrow-up' : ''}`}
                     width="12"

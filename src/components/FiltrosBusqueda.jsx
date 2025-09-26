@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import cursosData from '../data/cursosData.json';
 
-const FiltrosBusqueda = () => {
+const FiltrosBusqueda = ({ onSearchResults }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('todas');
     const [selectedLevel, setSelectedLevel] = useState('todos');
     const [selectedPrice, setSelectedPrice] = useState('todos');
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
 
     const categorias = [
         { value: 'todas', label: 'Todas las categorías' },
@@ -30,10 +32,50 @@ const FiltrosBusqueda = () => {
         { value: 'pago', label: 'De pago' },
     ];
 
+    // Función para filtrar cursos
+    const filterCourses = (courses, term, category, level, price) => {
+        return courses.filter(curso => {
+            // Filtro por término de búsqueda
+            const matchesSearch = !term || 
+                curso.titulo.toLowerCase().includes(term.toLowerCase()) ||
+                curso.descripcion.toLowerCase().includes(term.toLowerCase()) ||
+                curso.instructor.toLowerCase().includes(term.toLowerCase());
+
+            // Filtro por categoría
+            const matchesCategory = category === 'todas' || curso.categoria === category;
+
+            // Filtro por nivel
+            const matchesLevel = level === 'todos' || curso.nivel === level;
+
+            // Filtro por precio
+            const matchesPrice = price === 'todos' || curso.precio === price;
+
+            return matchesSearch && matchesCategory && matchesLevel && matchesPrice;
+        });
+    };
+
+    // Ejecutar búsqueda automáticamente cuando cambian los filtros
+    useEffect(() => {
+        const results = filterCourses(cursosData, searchTerm, selectedCategory, selectedLevel, selectedPrice);
+        setSearchResults(results);
+        
+        // Guardar resultados en localStorage
+        localStorage.setItem('search-results', JSON.stringify({
+            results,
+            filters: { searchTerm, selectedCategory, selectedLevel, selectedPrice },
+            timestamp: new Date().toISOString()
+        }));
+
+        // Notificar al componente padre si se proporciona callback
+        if (onSearchResults) {
+            onSearchResults(results);
+        }
+    }, [searchTerm, selectedCategory, selectedLevel, selectedPrice, onSearchResults]);
+
     const handleSearch = (e) => {
         e.preventDefault();
-        // Aquí implementarías la lógica de búsqueda
-        console.log('Buscando:', { searchTerm, selectedCategory, selectedLevel, selectedPrice });
+        // La búsqueda ya se ejecuta automáticamente con useEffect
+        console.log('Resultados encontrados:', searchResults.length);
     };
 
     const clearFilters = () => {
@@ -157,6 +199,18 @@ const FiltrosBusqueda = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Indicador de resultados */}
+            <div className="search-results-info">
+                {searchTerm || selectedCategory !== 'todas' || selectedLevel !== 'todos' || selectedPrice !== 'todos' ? (
+                    <p className="results-count">
+                        {searchResults.length === 0 ? 
+                            'No se encontraron cursos' : 
+                            `Se encontraron ${searchResults.length} curso${searchResults.length !== 1 ? 's' : ''}`
+                        }
+                    </p>
+                ) : null}
             </div>
         </div>
     );
