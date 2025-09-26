@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
 import avatarIcon from '../imagenes/iconoUsuario.png';
-import logoImage from '../imagenes/logoPrincipal.jpg';
+import logoImage from '../imagenes/logoPrincipal.png';
 import "../styles/Dashboard.css";
 import "../styles/MiPerfil.css";
 
@@ -82,7 +82,8 @@ function MiPerfil() {
       // const profile = await apiServices.user.getProfile();
       // setPerfilData(profile);
       // setFormData(profile);
-      setFormData(perfilData);
+      const savedAvatar = localStorage.getItem('userAvatar') || 'avatar1';
+      setFormData({...perfilData, avatar: savedAvatar});
     } catch (error) {
       console.error('Error cargando perfil:', error);
     } finally {
@@ -233,21 +234,6 @@ function MiPerfil() {
     }
   };
 
-  // Subir avatar
-  const handleAvatarUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFormData(prev => ({
-          ...prev,
-          avatar: e.target.result
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   // Eliminar cuenta
   const deleteAccount = async () => {
     if (window.confirm("¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.")) {
@@ -261,12 +247,9 @@ function MiPerfil() {
   };
 
   const tabs = [
-    { id: "perfil", label: "Información Personal", icon: "👤" },
-    { id: "configuracion", label: "Configuración", icon: "⚙️" },
-    { id: "notificaciones", label: "Notificaciones", icon: "🔔" },
-    { id: "privacidad", label: "Privacidad", icon: "🔒" },
-    { id: "aprendizaje", label: "Preferencias", icon: "📚" },
-    { id: "estadisticas", label: "Estadísticas", icon: "📊" }
+    { id: "perfil", label: "Información Personal", icon: "" },
+    { id: "configuracion", label: "Configuración", icon: "" },
+    { id: "estadisticas", label: "Estadísticas", icon: "" }
   ];
 
   return (
@@ -302,10 +285,6 @@ function MiPerfil() {
               <li onClick={() => handleNavigation('/visualizador-rutas')} className="nav-item">
                 <span className="nav-icon"></span>
                 <span>Mis Cursos</span>
-              </li>
-              <li onClick={() => handleNavigation('/catalogo')} className="nav-item">
-                <span className="nav-icon"></span>
-                <span>Explorar Cursos</span>
               </li>
               <li onClick={() => handleNavigation('/mis-favoritos')} className="nav-item">
                 <span className="nav-icon"></span>
@@ -377,24 +356,10 @@ function MiPerfil() {
                   <div className="avatar-section">
                     <div className="avatar-container">
                       <img 
-                        src={formData.avatar || avatarIcon} 
+                        src={avatarIcon} 
                         alt="Avatar" 
                         className="profile-avatar"
                       />
-                      {editMode && (
-                        <div className="avatar-upload">
-                          <input
-                            type="file"
-                            id="avatar-input"
-                            accept="image/*"
-                            onChange={handleAvatarUpload}
-                            style={{ display: 'none' }}
-                          />
-                          <label htmlFor="avatar-input" className="upload-btn">
-                            Cambiar Foto
-                          </label>
-                        </div>
-                      )}
                     </div>
                   </div>
 

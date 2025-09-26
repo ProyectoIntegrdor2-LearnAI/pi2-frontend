@@ -1,3 +1,1398 @@
+/* ===== INTERFAZ TIPO DUOLINGO PARA RUTAS DE APRENDIZAJE ===== */
+
+/* Mapa de Aprendizaje */
+.learning-path-map {
+  background: var(--bg-card, #ffffff);
+  border-radius: var(--radius-lg, 16px);
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1));
+}
+
+.learning-path-map h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #333);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.path-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Step del camino */
+.path-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  opacity: 0;
+  animation: fadeInUp 0.6s forwards;
+  transition: all 0.3s ease;
+}
+
+.path-step:nth-child(1) { animation-delay: 0.1s; }
+.path-step:nth-child(2) { animation-delay: 0.2s; }
+.path-step:nth-child(3) { animation-delay: 0.3s; }
+.path-step:nth-child(4) { animation-delay: 0.4s; }
+.path-step:nth-child(5) { animation-delay: 0.5s; }
+.path-step:nth-child(6) { animation-delay: 0.6s; }
+
+/* Línea conectora */
+.connector-line {
+  position: absolute;
+  left: 60px;
+  top: 120px;
+  width: 4px;
+  height: 80px;
+  background: var(--border-color, #e0e0e0);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+/* Nodo del curso */
+.course-node {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
+}
+
+.node-circle {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 6px solid white;
+  box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.15));
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.node-circle:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-xl, 0 12px 32px rgba(0,0,0,0.2));
+}
+
+.node-circle.disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.node-circle.disabled:hover {
+  transform: none;
+}
+
+.node-icon {
+  font-size: 2.5rem;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.node-number {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: var(--primary-color, #6a0dad);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: 3px solid white;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.15));
+}
+
+/* Estados específicos de nodos */
+.node-circle.completado {
+  background: var(--success-color, #28a745);
+  animation: none;
+}
+
+.node-circle.omitido {
+  background: var(--warning-color, #ffc107);
+  animation: none;
+}
+
+.node-circle.en-progreso {
+  background: var(--secondary-color, #007bff);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.node-circle.disponible {
+  background: var(--primary-color, #6a0dad);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.node-circle.meta {
+  background: linear-gradient(135deg, #FFD700, #FFA000);
+  border-color: #FFD700;
+  animation: pulse 2s infinite;
+  transform: scale(1.15);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.node-circle.bloqueado {
+  background: var(--text-light, #a0aec0);
+  animation: none;
+}
+
+/* Tarjeta de información del curso */
+.course-info-card {
+  flex: 1;
+  background: var(--bg-card, #ffffff);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.5rem;
+  border: 2px solid var(--border-color, #e0e0e0);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.1));
+}
+
+.path-step:hover .course-info-card {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,0.15));
+  border-color: var(--primary-light, #8a2be2);
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.course-header h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  line-height: 1.3;
+  margin: 0;
+  flex: 1;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-badge.completado {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.omitido {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.en-progreso {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-badge.disponible {
+  background: #e2e3ff;
+  color: #5a0dad;
+}
+
+.status-badge.meta {
+  background: linear-gradient(135deg, #FFD700, #FFA000);
+  color: #B8860B;
+  font-weight: bold;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+.status-badge.bloqueado {
+  background: #f8f9fa;
+  color: #6c757d;
+}
+
+.course-description {
+  font-size: 0.95rem;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+/* Grid de metadatos */
+.course-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #666);
+}
+
+.meta-icon {
+  font-size: 1rem;
+}
+
+/* Información de completado/omitido/retomado */
+.completion-info, .skip-info, .retake-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.completion-info {
+  background: #d4edda;
+  color: #155724;
+}
+
+.skip-info {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.retake-info {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+/* Acciones tipo Duolingo */
+.course-actions-duolingo {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.action-btn.primary {
+  background: var(--primary-color, #6a0dad);
+  color: white;
+  flex: 1;
+  justify-content: center;
+  min-width: 120px;
+}
+
+.action-btn.primary:hover {
+  background: var(--primary-dark, #5a0a9a);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(106, 13, 173, 0.3));
+}
+
+.secondary-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn.success {
+  background: var(--success-color, #28a745);
+  color: white;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  justify-content: center;
+}
+
+.action-btn.success:hover {
+  background: #218838;
+  transform: scale(1.1);
+}
+
+.action-btn.warning {
+  background: var(--warning-color, #ffc107);
+  color: #333;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  justify-content: center;
+}
+
+.action-btn.warning:hover {
+  background: #e0a800;
+  transform: scale(1.1);
+}
+
+/* Acciones adicionales para diferentes estados */
+.blocked-actions, .completed-actions, .skipped-actions {
+  margin-top: 1rem;
+}
+
+.blocked-actions {
+  text-align: center;
+}
+
+.blocked-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-surface, #f8f9fa);
+  border-radius: var(--radius-md, 8px);
+  color: var(--text-secondary, #666);
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color, #e0e0e0);
+  margin-bottom: 0.5rem;
+}
+
+.blocked-hint {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.blocked-hint small {
+  color: var(--text-secondary, #666);
+  font-style: italic;
+  background: rgba(106, 13, 173, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.8rem;
+}
+
+.completed-actions, .skipped-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.action-btn.secondary {
+  background: var(--text-light, #a0aec0);
+  color: var(--text-primary, #333);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.action-btn.secondary:hover {
+  background: var(--text-secondary, #718096);
+  color: white;
+  border-color: var(--text-secondary, #718096);
+}
+
+.blocked-icon {
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+
+/* Modal de Confirmación */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+  padding: 1rem;
+}
+
+.confirmation-modal {
+  background: var(--bg-card, #ffffff);
+  border-radius: var(--radius-lg, 16px);
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-xl, 0 20px 40px rgba(0,0,0,0.3));
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--primary-color, #6a0dad) 0%, var(--primary-light, #8a2be2) 100%);
+  color: white;
+}
+
+.modal-header h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.modal-content {
+  padding: 2rem 1.5rem;
+}
+
+.course-summary h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.course-summary p {
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--bg-surface, #f8f9fa);
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-btn.success {
+  background: var(--success-color, #28a745);
+  color: white;
+}
+
+.modal-btn.success:hover {
+  background: #218838;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(40, 167, 69, 0.3));
+}
+
+.modal-btn.warning {
+  background: var(--warning-color, #ffc107);
+  color: #333;
+}
+
+.modal-btn.warning:hover {
+  background: #e0a800;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(255, 193, 7, 0.3));
+}
+
+.modal-btn.primary {
+  background: var(--primary-color, #6a0dad);
+  color: white;
+}
+
+.modal-btn.primary:hover {
+  background: var(--primary-dark, #5a0a9a);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(106, 13, 173, 0.3));
+}
+
+.modal-btn.secondary {
+  background: var(--text-light, #a0aec0);
+  color: var(--text-primary, #333);
+}
+
+.modal-btn.secondary:hover {
+  background: var(--text-secondary, #718096);
+  color: white;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 0 0 rgba(106, 13, 173, 0.7);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 0 10px rgba(106, 13, 173, 0);
+  }
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .learning-path-map {
+    padding: 1rem;
+  }
+  
+  .path-step {
+    gap: 1rem;
+  }
+  
+  .node-circle {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .node-icon {
+    font-size: 1.8rem;
+  }
+  
+  .node-number {
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+  }
+  
+  .course-info-card {
+    padding: 1rem;
+  }
+  
+  .course-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .course-actions-duolingo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .secondary-actions {
+    justify-content: center;
+  }
+  
+  .connector-line {
+    left: 40px;
+    top: 80px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .path-container {
+    gap: 0.5rem;
+  }
+  
+  .node-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .node-icon {
+    font-size: 1.5rem;
+  }
+  
+  .course-meta-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .confirmation-modal {
+    margin: 1rem;
+    max-width: none;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+
+/* ===== ESTILOS ANTERIORES MANTENIDOS ===== */
+
+/* Estadísticas mejoradas */
+.route-stats {
+  margin-top: 3rem;
+  background: var(--bg-card, #ffffff);
+  border-radius: var(--radius-lg, 16px);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.1));
+}
+
+.route-stats h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #333);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-item {
+  background: var(--bg-surface, #f8f9fa);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.5rem;
+  text-align: center;
+  border: 2px solid var(--border-color, #e0e0e0);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-color, #6a0dad);
+  transition: all 0.3s ease;
+}
+
+.stat-item.completados::before {
+  background: var(--success-color, #28a745);
+}
+
+.stat-item.omitidos::before {
+  background: var(--warning-color, #ffc107);
+}
+
+.stat-item.disponibles::before {
+  background: var(--primary-color, #6a0dad);
+}
+
+.stat-item.bloqueados::before {
+  background: var(--text-light, #a0aec0);
+}
+
+.stat-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md, 0 8px 20px rgba(0,0,0,0.15));
+  border-color: var(--primary-light, #8a2be2);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #333);
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  opacity: 0.7;
+}
+
+/* Resumen de progreso */
+.progress-summary {
+  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.5rem;
+  border: 2px solid var(--primary-light, #8a2be2);
+  margin-bottom: 2rem;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.progress-info h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  margin: 0;
+}
+
+.progress-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.progress-details span {
+  color: var(--text-secondary, #666);
+  font-size: 0.9rem;
+}
+
+.progress-percentage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color, #6a0dad) !important;
+}
+
+.progress-bar-large {
+  width: 100%;
+  height: 12px;
+  background: var(--border-color, #e0e0e0);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill-large {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color, #6a0dad) 0%, var(--primary-light, #8a2be2) 100%);
+  border-radius: 6px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Información de origen chat */
+.chat-origin-info {
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(106, 13, 173, 0.05) 100%);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.5rem;
+  border: 2px solid rgba(0, 123, 255, 0.2);
+  text-align: center;
+}
+
+.chat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--secondary-color, #007bff) 0%, var(--primary-color, #6a0dad) 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-lg, 12px);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.15));
+}
+
+.chat-icon {
+  font-size: 1.2rem;
+}
+
+.chat-origin-info p {
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Route Selector Styles */
+.route-selector {
+  margin-bottom: 2rem;
+}
+
+.route-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.route-tab {
+  flex: 1;
+  min-width: 280px;
+  background: var(--bg-card, #ffffff);
+  border: 2px solid var(--border-color, #e0e0e0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.1));
+}
+
+.route-tab:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15));
+  border-color: var(--primary-light, #8a2be2);
+}
+
+.route-tab.active {
+  border-color: var(--primary-color, #6a0dad);
+  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.15));
+}
+
+.route-tab-content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.route-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--border-color, #e0e0e0);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar.small {
+  height: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color, #6a0dad) 0%, var(--primary-light, #8a2be2) 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-color, #6a0dad);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Route Detail Styles */
+.route-detail {
+  background: var(--bg-card, #ffffff);
+  border-radius: var(--radius-lg, 12px);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.1));
+  margin-bottom: 2rem;
+}
+
+.route-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--border-color, #e0e0e0);
+}
+
+.route-info h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #333);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.route-description {
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.route-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+/* Progress Circle Styles */
+.route-progress-circle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.progress-circle-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-circle-svg {
+  transform: rotate(-90deg);
+}
+
+.progress-circle-stroke {
+  transition: stroke-dashoffset 1s ease-in-out;
+}
+
+.progress-circle-container .progress-text {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-percent {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color, #6a0dad);
+}
+
+/* Timeline Styles */
+.courses-timeline {
+  margin-bottom: 3rem;
+}
+
+.courses-timeline h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #333);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.courses-timeline h3::before {
+  content: "📚";
+  font-size: 1.2rem;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-connector {
+  position: absolute;
+  left: -2rem;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.timeline-dot {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 2;
+}
+
+.timeline-line {
+  width: 2px;
+  flex: 1;
+  background: var(--border-color, #e0e0e0);
+  margin-top: 1rem;
+}
+
+.timeline-content {
+  padding-left: 1rem;
+}
+
+.course-card-timeline {
+  background: var(--bg-surface, #f8f9fa);
+  border-radius: var(--radius-md, 8px);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color, #e0e0e0);
+  transition: all 0.3s ease;
+}
+
+.course-card-timeline:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1));
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.course-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.course-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.course-status.completado {
+  background: #d4edda;
+  color: #155724;
+}
+
+.course-status.en-progreso {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.course-status.meta {
+  background: linear-gradient(135deg, #FFD700, #FFA000);
+  color: #B8860B;
+  font-weight: bold;
+  animation: shimmer 2s infinite;
+}
+
+.course-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.course-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.course-meta span {
+  color: var(--text-secondary, #666);
+}
+
+.course-progress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.course-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-external,
+.btn-certificate {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-external {
+  background: var(--primary-color, #6a0dad);
+  color: white;
+}
+
+.btn-external:hover {
+  background: var(--primary-dark, #5a0b8a);
+  transform: translateY(-1px);
+}
+
+.btn-certificate {
+  background: var(--accent-color, #ffd700);
+  color: var(--text-primary, #333);
+}
+
+.btn-certificate:hover {
+  background: #ffed4e;
+  transform: translateY(-1px);
+}
+
+/* Route Stats Styles */
+.route-stats {
+  margin-top: 3rem;
+}
+
+.route-stats h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #333);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.route-stats h3::before {
+  content: "📊";
+  font-size: 1.2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-item {
+  background: var(--bg-surface, #f8f9fa);
+  border-radius: var(--radius-md, 8px);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border: 1px solid var(--border-color, #e0e0e0);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1));
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color, #6a0dad);
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .route-header {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .route-progress-circle {
+    justify-content: flex-start;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .route-tabs {
+    flex-direction: column;
+  }
+  
+  .route-tab {
+    min-width: unset;
+  }
+  
+  .route-detail {
+    padding: 1.5rem;
+  }
+  
+  .route-info h2 {
+    font-size: 1.5rem;
+  }
+  
+  .route-meta {
+    grid-template-columns: 1fr;
+  }
+  
+  .timeline {
+    padding-left: 1.5rem;
+  }
+  
+  .timeline-connector {
+    left: -1.5rem;
+  }
+  
+  .timeline-dot {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
+  }
+  
+  .course-header {
+    flex-direction: column;
+    align-items: start;
+    gap: 0.5rem;
+  }
+  
+  .course-meta {
+    grid-template-columns: 1fr;
+  }
+  
+  .course-actions {
+    justify-content: stretch;
+  }
+  
+  .btn-external,
+  .btn-certificate {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .stat-item {
+    padding: 1.5rem 1rem;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .route-detail {
+    padding: 1rem;
+  }
+  
+  .course-card-timeline {
+    padding: 1rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .progress-circle-container {
+    transform: scale(0.8);
+  }
+  
+  .route-progress-circle {
+    justify-content: center;
+  }
+}
+
+/* ===== ESTILOS ORIGINALES MANTENIDOS ===== */
+
 /* Selector de rutas en grid horizontal */
 .ruta-selector {
   margin-bottom: 2rem;
@@ -221,13 +1616,13 @@
   display: block;
   font-size: 2rem;
   font-weight: 700;
-  color: var(--primary-color);
+  color: white;
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: white;
   font-weight: 500;
 }
 
@@ -1354,6 +2749,71 @@ body {
   --node-color: var(--primary-color);
 }
 
+.curso-nodo.meta {
+  --node-color: #FFD700;
+  transform: scale(1.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.curso-nodo.meta::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(45deg);
+  animation: shine 3s infinite;
+  z-index: 1;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  50% { transform: translateX(50%) translateY(50%) rotate(45deg); }
+  100% { transform: translateX(200%) translateY(200%) rotate(45deg); }
+}
+
+.curso-nodo.meta .curso-icono {
+  animation: bounce 2s infinite;
+  z-index: 2;
+  position: relative;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.meta-celebration {
+  margin-top: 15px;
+  text-align: center;
+  z-index: 2;
+  position: relative;
+}
+
+.celebration-text {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #FF6B35;
+  margin-bottom: 5px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.celebration-subtext {
+  font-size: 0.9em;
+  color: #333;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
 .curso-nodo.bloqueado {
   --node-color: var(--text-light);
 }
@@ -1539,14 +2999,14 @@ body {
 .stat-number {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--primary-color);
+  color: white;
   display: block;
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: white;
   font-weight: 500;
 }
 

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
 import avatarIcon from '../imagenes/iconoUsuario.png';
-import logoImage from '../imagenes/logoPrincipal.jpg';
+import logoImage from '../imagenes/logoPrincipal.png';
+import cursosData from '../data/cursosData.json';
 import "../styles/Dashboard.css";
 import "../styles/MisFavoritos.css";
 
@@ -169,7 +170,7 @@ const cursosFavoritosSimulados = [
 function MisFavoritos() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [cursosFavoritos, setCursosFavoritos] = useState(cursosFavoritosSimulados);
+  const [cursosFavoritos, setCursosFavoritos] = useState([]);
   const [userProfile, setUserProfile] = useState({ name: "", email: "" });
   const [filtroCategoria, setFiltroCategoria] = useState("Todas");
   const [filtroNivel, setFiltroNivel] = useState("Todos");
@@ -180,7 +181,49 @@ function MisFavoritos() {
 
   useEffect(() => {
     loadUserProfile();
+    loadFavoritesCourses();
   }, []);
+
+  // Cargar cursos favoritos desde localStorage
+  const loadFavoritesCourses = () => {
+    try {
+      const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const favoritesCourses = cursosData
+        .filter(curso => favoriteIds.includes(curso.id))
+        .map(curso => ({
+          ...curso,
+          // Adaptar formato para compatibilidad con el componente existente
+          plataforma: "LearnIA",
+          estudiantes: "0",
+          precio: curso.precio === 'gratis' ? 'Gratis' : '$99.99',
+          precioOriginal: curso.precio === 'gratis' ? 'Gratis' : '$199.99',
+          descuento: curso.precio === 'gratis' ? 0 : 50,
+          imagen: curso.imagen || 'https://via.placeholder.com/300x200?text=Curso',
+          url: `/curso/${curso.id}`,
+          categoria: curso.categoria,
+          tags: [curso.categoria, curso.nivel],
+          fechaAgregado: new Date().toISOString().split('T')[0],
+          ultimaActualizacion: new Date().toISOString().split('T')[0],
+          idioma: "Español",
+          certificado: true,
+          accesoVitalicio: true,
+          videoHoras: parseInt(curso.duracion.split(' ')[0]) || 8,
+          articulos: 5,
+          recursosDescargables: 3,
+          rating: curso.calificacion
+        }));
+      
+      // Si no hay favoritos, usar algunos cursos simulados como ejemplo
+      if (favoritesCourses.length === 0) {
+        setCursosFavoritos(cursosFavoritosSimulados.slice(0, 2)); // Solo mostrar 2 ejemplos
+      } else {
+        setCursosFavoritos(favoritesCourses);
+      }
+    } catch (error) {
+      console.error('Error cargando favoritos:', error);
+      setCursosFavoritos(cursosFavoritosSimulados.slice(0, 2));
+    }
+  };
 
   const loadUserProfile = async () => {
     try {
@@ -240,7 +283,17 @@ function MisFavoritos() {
     });
 
   const removerDeFavoritos = (cursoId) => {
+    // Remover del estado local
     setCursosFavoritos(prev => prev.filter(curso => curso.id !== cursoId));
+    
+    // Remover del localStorage
+    try {
+      const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const updatedFavorites = favoriteIds.filter(id => id !== cursoId);
+      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+    } catch (error) {
+      console.error('Error actualizando favoritos:', error);
+    }
   };
 
   const irAlCurso = (url) => {
@@ -262,7 +315,7 @@ function MisFavoritos() {
         <div className="header-container">
           <div className="header-left">
             <div className="user-info" onClick={toggleSidebar}>
-              <img src={avatarIcon} alt="Avatar" className="user-avatar" />
+              <img src={avatarIcon} alt="Usuario" className="sidebar-avatar" />
               {userProfile?.name && <span className="user-name">{userProfile.name}</span>}
             </div>
             <div className="logo-section">
@@ -276,7 +329,7 @@ function MisFavoritos() {
       <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="sidebar-content">
           <div className="user-profile-sidebar">
-            <img src={avatarIcon} alt="Avatar" className="sidebar-avatar" />
+            <img src={avatarIcon} alt="Usuario" className="sidebar-avatar" />
           </div>
           
           <nav className="sidebar-nav">
@@ -288,10 +341,6 @@ function MisFavoritos() {
               <li onClick={() => handleNavigation('/visualizador-rutas')} className="nav-item">
                 <span className="nav-icon"></span>
                 <span>Mis Cursos</span>
-              </li>
-              <li onClick={() => handleNavigation('/catalogo')} className="nav-item">
-                <span className="nav-icon"></span>
-                <span>Explorar Cursos</span>
               </li>
               <li onClick={() => handleNavigation('/mis-favoritos')} className="nav-item active">
                 <span className="nav-icon"></span>
@@ -318,13 +367,11 @@ function MisFavoritos() {
 
       {/* Main Content */}
       <main className="dashboard-main">
-        {/* Welcome Section */}
-        <section className="welcome-section">
-          <div className="welcome-content">
-            <h1>Mis Favoritos</h1>
-            <p>Cursos que has guardado para estudiar más tarde</p>
-          </div>
-        </section>
+        {/* Título de página */}
+        <div className="page-header">
+          <h1>Mis Cursos Favoritos</h1>
+          <p className="page-description">Cursos que has guardado para estudiar más tarde</p>
+        </div>
 
         {/* Controles y filtros */}
         <section className="controls-section">
@@ -390,12 +437,12 @@ function MisFavoritos() {
             <div className="empty-state">
               <div className="empty-icon">♥</div>
               <h3>No tienes cursos favoritos</h3>
-              <p>Explora nuestro catálogo y guarda los cursos que te interesen</p>
+              <p>Ve al inicio y usa el buscador para encontrar cursos que te interesen</p>
               <button 
                 className="cta-button"
-                onClick={() => handleNavigation('/catalogo')}
+                onClick={() => handleNavigation('/dashboard')}
               >
-                Explorar Cursos
+                Ir al Buscador
               </button>
             </div>
           ) : (

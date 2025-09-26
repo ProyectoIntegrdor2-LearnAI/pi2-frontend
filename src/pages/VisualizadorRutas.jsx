@@ -1,553 +1,683 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // AGREGADO: Import faltante
-import apiServices from "../services/apiServices"; // AGREGADO: Import faltante
-import avatarIcon from '../imagenes/iconoUsuario.png';
-import logoImage from '../imagenes/logoPrincipal.jpg';
-import "../styles/Dashboard.css"; // AGREGADO: Import de estilos
+import { useNavigate, useLocation } from "react-router-dom";
+import { useRutasAprendizaje } from "../hooks/useRutasAprendizaje";
+import "../styles/Dashboard.css";
+import "../styles/VisualizadorRutas.css";
 
-// Datos simulados de rutas de aprendizaje
+// Datos simulados de rutas de aprendizaje (solo se usan si no hay rutas guardadas)
 const rutasSimuladas = [
   {
     id: 1,
     titulo: "Desarrollador Full Stack con React y Node.js",
     descripcion: "Aprende desarrollo web completo desde frontend hasta backend",
-    progreso: 45,
+    progreso: 40,
     fechaInicio: "2024-01-15",
     estimacion: "12 semanas",
     nivel: "Intermedio",
+    origenChat: false,
     cursos: [
       {
         id: 1,
         titulo: "HTML y CSS Fundamentos",
+        descripcion: "Aprende las bases del desarrollo web con HTML5 y CSS3",
         estado: "completado",
         orden: 1,
         duracion: "2 semanas",
         plataforma: "Coursera",
         url: "https://coursera.org/html-css",
-        completadoEn: "2024-01-29"
+        completadoEn: "2024-01-29",
+        nivel: "Básico",
+        accion: "completado"
       },
       {
         id: 2,
         titulo: "JavaScript Moderno ES6+",
+        descripcion: "Domina JavaScript moderno y sus características avanzadas",
         estado: "completado",
         orden: 2,
         duracion: "3 semanas",
         plataforma: "Udemy",
         url: "https://udemy.com/javascript-es6",
-        completadoEn: "2024-02-19"
+        completadoEn: "2024-02-19",
+        nivel: "Intermedio",
+        accion: "completado"
       },
       {
         id: 3,
         titulo: "React.js Fundamentos",
-        estado: "en-progreso",
+        descripcion: "Construye aplicaciones web interactivas con React",
+        estado: "disponible",
         orden: 3,
         duracion: "2 semanas",
         plataforma: "edX",
         url: "https://edx.org/react-fundamentals",
-        progresoCurso: 75
+        nivel: "Intermedio"
       },
       {
         id: 4,
-        titulo: "APIs REST con Node.js",
+        titulo: "Node.js y Express",
+        descripcion: "Desarrollo backend con Node.js y Express framework",
         estado: "bloqueado",
         orden: 4,
-        duracion: "2 semanas",
-        plataforma: "Coursera",
-        url: "https://coursera.org/nodejs-api"
+        duracion: "3 semanas",
+        plataforma: "Pluralsight",
+        url: "https://pluralsight.com/nodejs-express",
+        nivel: "Intermedio"
       },
       {
         id: 5,
-        titulo: "Base de Datos MongoDB",
+        titulo: "MongoDB y Base de Datos",
+        descripcion: "Gestión de bases de datos NoSQL con MongoDB",
         estado: "bloqueado",
         orden: 5,
         duracion: "2 semanas",
-        plataforma: "Khan Academy",
-        url: "https://khanacademy.org/mongodb"
-      },
-      {
-        id: 6,
-        titulo: "Proyecto Final: App Completa",
-        estado: "bloqueado",
-        orden: 6,
-        duracion: "1 semana",
-        plataforma: "Proyecto",
-        url: null
+        plataforma: "MongoDB University",
+        url: "https://university.mongodb.com",
+        nivel: "Intermedio"
       }
     ]
   },
   {
     id: 2,
-    titulo: "Data Science con Python",
-    descripcion: "Domina el análisis de datos y machine learning",
-    progreso: 20,
+    titulo: "Data Science con Python - Ruta IA",
+    descripcion: "Conviértete en un científico de datos usando Python y sus librerías. Ruta generada automáticamente por nuestro asistente IA.",
+    progreso: 66,
     fechaInicio: "2024-02-01",
     estimacion: "16 semanas",
-    nivel: "Avanzado",
+    nivel: "Intermedio",
+    origenChat: true,
+    promptOriginal: "Quiero aprender data science desde cero",
+    fechaCreacion: "2024-02-01T10:30:00Z",
     cursos: [
       {
-        id: 7,
+        id: 6,
         titulo: "Python para Principiantes",
+        descripcion: "Fundamentos de programación con Python",
         estado: "completado",
         orden: 1,
         duracion: "3 semanas",
-        plataforma: "Coursera",
-        url: "https://coursera.org/python-basics",
-        completadoEn: "2024-02-22"
+        plataforma: "Codecademy",
+        url: "https://codecademy.com/python",
+        completadoEn: "2024-02-21",
+        nivel: "Básico",
+        accion: "completado"
+      },
+      {
+        id: 7,
+        titulo: "NumPy y Pandas",
+        descripcion: "Manipulación y análisis de datos con Python",
+        estado: "omitido",
+        orden: 2,
+        duracion: "2 semanas",
+        plataforma: "DataCamp",
+        url: "https://datacamp.com/numpy-pandas",
+        nivel: "Intermedio",
+        omitidoEn: "2024-02-22",
+        accion: "omitido"
       },
       {
         id: 8,
-        titulo: "NumPy y Pandas",
-        estado: "en-progreso",
-        orden: 2,
-        duracion: "2 semanas",
-        plataforma: "edX",
-        url: "https://edx.org/numpy-pandas",
-        progresoCurso: 30
-      },
-      {
-        id: 9,
-        titulo: "Visualización con Matplotlib",
-        estado: "bloqueado",
+        titulo: "Matplotlib y Seaborn",
+        descripcion: "Visualización de datos efectiva",
+        estado: "disponible",
         orden: 3,
         duracion: "2 semanas",
-        plataforma: "Udemy",
-        url: "https://udemy.com/matplotlib"
-      },
-      {
-        id: 10,
-        titulo: "Machine Learning Basics",
-        estado: "bloqueado",
-        orden: 4,
-        duracion: "4 semanas",
-        plataforma: "Coursera",
-        url: "https://coursera.org/ml-basics"
+        plataforma: "Udacity",
+        url: "https://udacity.com/data-visualization",
+        nivel: "Intermedio",
+        desbloqueadoEn: "2024-02-22"
       }
     ]
   }
 ];
 
 function VisualizadorRutas() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [rutas, setRutas] = useState(rutasSimuladas);
+  const {
+    rutas,
+    loading,
+    error,
+    agregarRuta,
+    actualizarCurso,
+    obtenerEstadisticas
+  } = useRutasAprendizaje();
+
   const [rutaSeleccionada, setRutaSeleccionada] = useState(null);
-  const [userProfile, setUserProfile] = useState({ name: "", email: "" }); // AGREGADO: Estado del perfil
-
-  // Estado y función para el chat flotante
-  const [chatOpen, setChatOpen] = useState(false);
-  const toggleChat = () => setChatOpen((open) => !open);
-
-  // Estados para el panel del curso
-  const [panelAbierto, setPanelAbierto] = useState(false);
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [accionModal, setAccionModal] = useState(null);
 
-  const navigate = useNavigate(); // AGREGADO: Hook de navegación
+  const navigate = useNavigate();
+  const location = useLocation();
 
+  // Manejar ruta seleccionada cuando cambien las rutas
   useEffect(() => {
-    // Seleccionar automáticamente la primera ruta con progreso
-    const rutaActiva = rutas.find(ruta => ruta.progreso > 0) || rutas[0];
-    setRutaSeleccionada(rutaActiva);
-    
-    // AGREGADO: Cargar perfil del usuario
-    loadUserProfile();
-  }, []);
-
-  // AGREGADO: Función para cargar perfil del usuario
-  const loadUserProfile = async () => {
-    try {
-      const profile = await apiServices.user.getProfile();
-      setUserProfile(profile);
-    } catch (error) {
-      console.error('Error cargando perfil:', error);
-      setUserProfile({
-        name: "Usuario",
-        email: "usuario@ejemplo.com"
-      });
+    if (rutas.length > 0 && !rutaSeleccionada) {
+      setRutaSeleccionada(rutas[0]);
     }
+  }, [rutas, rutaSeleccionada]);
+
+  // Verificar si llegamos desde el chat con una nueva ruta
+  useEffect(() => {
+    if (location.state?.nuevaRuta) {
+      const rutaCreada = agregarRuta(location.state.nuevaRuta);
+      if (rutaCreada) {
+        setRutaSeleccionada(rutaCreada);
+      }
+      
+      // Limpiar el state de navegación
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, agregarRuta]);
+
+  const manejarAccionCurso = (curso, accion) => {
+    setCursoSeleccionado(curso);
+    setAccionModal(accion);
+    setShowConfirmModal(true);
   };
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  const confirmarAccion = () => {
+    if (!cursoSeleccionado || !accionModal || !rutaSeleccionada) return;
 
-  const closeSidebar = () => {
-    setSidebarOpen(false);
-  };
+    let nuevoEstado = cursoSeleccionado.estado;
+    
+    switch (accionModal) {
+      case 'completar':
+        nuevoEstado = 'completado';
+        break;
+      case 'omitir':
+        nuevoEstado = 'omitido';
+        break;
+      case 'continuar':
+        if (cursoSeleccionado.url) {
+          window.open(cursoSeleccionado.url, '_blank');
+        }
+        nuevoEstado = 'en-progreso';
+        break;
+      case 'retomar':
+        nuevoEstado = 'disponible';
+        break;
+    }
 
-  const handleNavigation = (route) => {
-    closeSidebar();
-    navigate(route); // CORREGIDO: Usar navigate en lugar de alert
-  };
-
-
-
-  const continuarCurso = (curso) => {
-    if (curso.estado === "disponible" || curso.estado === "en-progreso") {
-      if (curso.url) {
-        window.open(curso.url, '_blank');
+    const exito = actualizarCurso(rutaSeleccionada.id, cursoSeleccionado.id, nuevoEstado, accionModal);
+    
+    if (exito) {
+      // Actualizar ruta seleccionada
+      const rutaActualizada = rutas.find(r => r.id === rutaSeleccionada.id);
+      if (rutaActualizada) {
+        setRutaSeleccionada(rutaActualizada);
       }
     }
-  };
-
-  const iniciarRuta = (ruta) => {
-    const rutaActualizada = {
-      ...ruta,
-      fechaInicio: new Date().toISOString().split('T')[0],
-      progreso: 0,
-      cursos: ruta.cursos.map((curso, index) => ({
-        ...curso,
-        estado: index === 0 ? "disponible" : "bloqueado"
-      }))
-    };
-
-    setRutas(prevRutas => 
-      prevRutas.map(r => r.id === ruta.id ? rutaActualizada : r)
-    );
-    setRutaSeleccionada(rutaActualizada);
-  };
-
-  // Funciones para el panel del curso
-  const abrirPanelCurso = (curso) => {
-    setCursoSeleccionado(curso);
-    setPanelAbierto(true);
-  };
-
-  const cerrarPanel = () => {
-    setPanelAbierto(false);
+    
+    setShowConfirmModal(false);
     setCursoSeleccionado(null);
+    setAccionModal(null);
   };
 
-  const completarCurso = (curso) => {
-    // Lógica para marcar curso como completado
-    const rutaActualizada = {
-      ...rutaSeleccionada,
-      cursos: rutaSeleccionada.cursos.map(c => 
-        c.id === curso.id 
-          ? { ...c, estado: "completado", completadoEn: new Date().toISOString().split('T')[0] }
-          : c
-      )
-    };
-
-    // Activar siguiente curso
-    const indiceCursoActual = rutaActualizada.cursos.findIndex(c => c.id === curso.id);
-    if (indiceCursoActual < rutaActualizada.cursos.length - 1) {
-      rutaActualizada.cursos[indiceCursoActual + 1].estado = "disponible";
-    }
-
-    // Actualizar progreso de la ruta
-    const cursosCompletados = rutaActualizada.cursos.filter(c => c.estado === "completado").length;
-    rutaActualizada.progreso = Math.round((cursosCompletados / rutaActualizada.cursos.length) * 100);
-
-    setRutas(prevRutas => 
-      prevRutas.map(r => r.id === rutaActualizada.id ? rutaActualizada : r)
-    );
-    setRutaSeleccionada(rutaActualizada);
-    cerrarPanel();
+  const cancelarAccion = () => {
+    setShowConfirmModal(false);
+    setCursoSeleccionado(null);
+    setAccionModal(null);
   };
 
-  const omitirCurso = (curso) => {
-    // Lógica para omitir curso y activar el siguiente
-    const rutaActualizada = {
-      ...rutaSeleccionada,
-      cursos: rutaSeleccionada.cursos.map(c => 
-        c.id === curso.id 
-          ? { ...c, estado: "omitido" }
-          : c
-      )
-    };
-
-    // Activar siguiente curso
-    const indiceCursoActual = rutaActualizada.cursos.findIndex(c => c.id === curso.id);
-    if (indiceCursoActual < rutaActualizada.cursos.length - 1) {
-      rutaActualizada.cursos[indiceCursoActual + 1].estado = "disponible";
-    }
-
-    setRutas(prevRutas => 
-      prevRutas.map(r => r.id === rutaActualizada.id ? rutaActualizada : r)
-    );
-    setRutaSeleccionada(rutaActualizada);
-    cerrarPanel();
-  };
-
-  const getEstadoIcon = (estado) => {
-    switch (estado) {
-      case "completado": return "✅";
-      case "en-progreso": return "⏳";
-      case "disponible": return "🚀";
-      case "bloqueado": return "🔒";
-      case "omitido": return "⏭️";
-      default: return "📚";
-    }
+  // Función temporal para debug - reinicializar datos
+  const reinicializarDatos = () => {
+    localStorage.removeItem('misRutasAprendizaje');
+    window.location.reload();
   };
 
   const getEstadoColor = (estado) => {
     switch (estado) {
-      case "completado": return "#28a745";
-      case "en-progreso": return "#007bff";
-      case "disponible": return "#6a0dad";
-      case "bloqueado": return "#6c757d";
-      case "omitido": return "#ffc107";
-      default: return "#6c757d";
+      case 'completado': return '#28a745';
+      case 'omitido': return '#ffc107';
+      case 'en-progreso': return '#007bff';
+      case 'disponible': return '#6a0dad';
+      case 'bloqueado': return '#6c757d';
+      case 'pendiente': return '#6a0dad';
+      default: return '#6c757d';
     }
   };
 
-  // CORREGIDO: Función de logout usando apiServices
-  const handleLogout = () => {
-    apiServices.auth.logout();
-    navigate('/');
+  const getEstadoIcono = (estado) => {
+    switch (estado) {
+      case 'completado': return '✅';
+      case 'omitido': return '⏭️';
+      case 'en-progreso': return '🔄';
+      case 'disponible': return '▶️';
+      case 'bloqueado': return '🔒';
+      case 'pendiente': return '⏳';
+      default: return '⏳';
+    }
   };
 
+  const getEstadoTexto = (estado) => {
+    switch (estado) {
+      case 'completado': return 'Completado';
+      case 'omitido': return 'Omitido';
+      case 'en-progreso': return 'En Progreso';
+      case 'disponible': return 'Disponible';
+      case 'bloqueado': return 'Bloqueado';
+      case 'pendiente': return 'Pendiente';
+      default: return 'Pendiente';
+    }
+  };
+
+  const puedeInteractuar = (estado) => {
+    return estado === 'disponible' || estado === 'en-progreso' || estado === 'pendiente';
+  };
+
+  const puedeCompletar = (estado) => {
+    // Permitir completar cualquier curso que no esté bloqueado o ya completado
+    return estado !== 'bloqueado' && estado !== 'completado';
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-content">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Cargando tus rutas de aprendizaje...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-content">
+        <div className="error-container">
+          <h2>Error cargando las rutas</h2>
+          <p>{error}</p>
+          <button onClick={initializeRutas} className="retry-button">
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="dashboard-wrapper">
-      {/* Header */}
-      <header className="dashboard-header">
-        <div className="header-container">
-          
-          {/* Sección izquierda: Avatar/Menú + Logo */}
-          <div className="header-left">
-            {/* Avatar del usuario que actúa como botón de menú */}
-            <div className="user-info" onClick={toggleSidebar}>
-              <img src={avatarIcon} alt="Avatar" className="user-avatar" />
-              {userProfile?.name && <span className="user-name">{userProfile.name}</span>}
-            </div>
-
-            {/* Logo LearnIA */}
-            <div className="logo-section">
-              <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
-            </div>
-          </div>
+    <div className="dashboard-content">
+      {/* Welcome Section adaptada */}
+      <section className="welcome-section">
+        <div className="welcome-content">
+          <h1>Mis Rutas de Aprendizaje</h1>
+          <p>Sigue tu progreso y continúa tu camino de aprendizaje personalizado</p>
         </div>
-      </header>
+      </section>
 
-      {/* Sidebar */}
-      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <div className="sidebar-content">
-          <div className="user-profile-sidebar">
-            <img src={avatarIcon} alt="Avatar" className="sidebar-avatar" />
-        
-          </div>
-          
-          <nav className="sidebar-nav">
-            <ul>
-              <li onClick={() => handleNavigation('/dashboard')} className="nav-item active">
-                <span className="nav-icon"></span>
-                <span>Inicio</span>
-              </li>
-              <li onClick={() => handleNavigation('/visualizador-rutas')} className="nav-item">
-                <span className="nav-icon"></span>
-                <span>Mis Cursos</span>
-              </li>
-              <li onClick={() => handleNavigation('/catalogo')} className="nav-item">
-                <span className="nav-icon"></span>
-                <span>Explorar Cursos</span>
-              </li>
-              <li onClick={() => handleNavigation('/mis-favoritos')} className="nav-item">
-                <span className="nav-icon"></span>
-                <span>Favoritos</span>
-              </li>
-              <li onClick={() => handleNavigation('/mi-perfil')} className="nav-item">
-                <span className="nav-icon"></span>
-                <span>Perfil</span>
-              </li>
-            </ul>
-          </nav>
-
-          <div className="sidebar-footer">
-            <button onClick={handleLogout} className="logout-btn">
-              <span className="nav-icon"></span>
-              <span>Cerrar Sesión</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Overlay para cerrar chat al hacer clic fuera */}
-      {chatOpen && <div className="chat-overlay" onClick={toggleChat}></div>}
-
-      {/* Overlay para cerrar sidebar al hacer clic fuera */}
-      {sidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar}></div>}
-
-      {/* Main Content - Ajustado para dar espacio al chat */}
-      <main className="dashboard-main">
-        {/* Welcome Section adaptada */}
-        <section className="welcome-section">
-          <div className="welcome-content">
-            <h1>Mis Rutas de Aprendizaje</h1>
-            <p>Sigue tu progreso y continúa tu camino de aprendizaje personalizado</p>
-          </div>
-        </section>
-
-        {/* Selector de rutas */}
-        <section className="stats-section">
-          <div className="section-header">
-            <h2>Seleccionar Ruta</h2>
-            <button className="see-all-btn" onClick={() => handleNavigation('/crear-ruta')}>
-              + Crear Nueva Ruta
-            </button>
-          </div>
-          <div className="stats-grid">
-            {rutas.map((ruta) => (
-              <div
-                key={ruta.id}
-                className={`stat-card ${rutaSeleccionada?.id === ruta.id ? 'active-route' : ''}`}
-                onClick={() => setRutaSeleccionada(ruta)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="stat-header">
-                  <div className="stat-icon">🎯</div>
-                  <h3>{ruta.titulo}</h3>
-                </div>
-                <div className="stat-body">
-                  <div className="progress-circle" style={{'--progress': ruta.progreso}}>
-                    <span className="progress-number">{ruta.progreso}%</span>
-                  </div>
-                  <p>{ruta.nivel} • {ruta.estimacion}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Ruta seleccionada - Solo visualizador central */}
-        {rutaSeleccionada && (
-          <section className="ruta-visualizador">
-            <div className="section-header">
-              <h2>{rutaSeleccionada.titulo}</h2>
-              {rutaSeleccionada.progreso === 0 && !rutaSeleccionada.fechaInicio && (
-                <button 
-                  className="see-all-btn"
-                  onClick={() => iniciarRuta(rutaSeleccionada)}
-                  style={{ background: '#28a745', color: 'white', border: 'none' }}
-                >
-                  Iniciar Ruta
-                </button>
-              )}
-            </div>
-
-            {/* Mapa de cursos centrado - Solo nodos */}
-            <div className="course-map-container">
-              <div className="course-path">
-                {rutaSeleccionada.cursos.map((curso, index) => (
-                  <div key={curso.id} className="course-step">
-                    {/* Línea conectora */}
-                    {index < rutaSeleccionada.cursos.length - 1 && (
-                      <div className="path-connector"></div>
-                    )}
-                    
-                    {/* Nodo del curso - Solo la burbuja */}
+      {/* Selector de rutas */}
+      <section className="route-selector">
+        <div className="route-tabs">
+          {rutas.map((ruta) => (
+            <button
+              key={ruta.id}
+              className={`route-tab ${rutaSeleccionada?.id === ruta.id ? 'active' : ''}`}
+              onClick={() => setRutaSeleccionada(ruta)}
+            >
+              <div className="route-tab-content">
+                <h4>{ruta.titulo}</h4>
+                <div className="route-progress">
+                  <div className="progress-bar">
                     <div 
-                      className={`course-bubble ${curso.estado}`}
-                      onClick={() => abrirPanelCurso(curso)}
-                      style={{ '--node-color': getEstadoColor(curso.estado) }}
-                    >
-                      <span className="course-icon">{getEstadoIcon(curso.estado)}</span>
-                      {curso.estado === "en-progreso" && curso.progresoCurso && (
-                        <div className="bubble-progress">
-                          <div 
-                            className="progress-ring"
-                            style={{ 
-                              background: `conic-gradient(${getEstadoColor(curso.estado)} ${curso.progresoCurso * 3.6}deg, rgba(255,255,255,0.3) 0deg)` 
-                            }}
-                          ></div>
-                        </div>
-                      )}
-                      <div className="course-number">{index + 1}</div>
-                    </div>
+                      className="progress-fill" 
+                      style={{ width: `${ruta.progreso}%` }}
+                    ></div>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Estadísticas de progreso */}
-            <div className="progress-stats">
-              <div className="stat-item">
-                <span className="stat-number">{rutaSeleccionada.cursos.filter(c => c.estado === "completado").length}</span>
-                <span className="stat-label">Completados</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">{rutaSeleccionada.cursos.filter(c => c.estado === "en-progreso").length}</span>
-                <span className="stat-label">En Progreso</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">{rutaSeleccionada.cursos.length}</span>
-                <span className="stat-label">Total</span>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Panel flotante del curso */}
-        {panelAbierto && cursoSeleccionado && (
-          <div className="panel-overlay" onClick={cerrarPanel}>
-            <div className="course-panel" onClick={(e) => e.stopPropagation()}>
-              <div className="panel-header">
-                <h3>{cursoSeleccionado.titulo}</h3>
-                <button className="panel-close" onClick={cerrarPanel}>✕</button>
-              </div>
-              
-              <div className="panel-content">
-                <div className="course-details">
-                  <div className="detail-row">
-                    <span className="label">Duración:</span>
-                    <span className="value">{cursoSeleccionado.duracion}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="label">Plataforma:</span>
-                    <span className="value">{cursoSeleccionado.plataforma}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="label">Estado:</span>
-                    <span className="value status">{cursoSeleccionado.estado}</span>
-                  </div>
-                  {cursoSeleccionado.estado === "en-progreso" && cursoSeleccionado.progresoCurso && (
-                    <div className="detail-row">
-                      <span className="label">Progreso:</span>
-                      <span className="value">{cursoSeleccionado.progresoCurso}%</span>
-                    </div>
-                  )}
-                  {cursoSeleccionado.completadoEn && (
-                    <div className="detail-row">
-                      <span className="label">Completado:</span>
-                      <span className="value">{new Date(cursoSeleccionado.completadoEn).toLocaleDateString()}</span>
-                    </div>
-                  )}
+                  <span className="progress-text">{ruta.progreso}%</span>
                 </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
 
-                <div className="panel-actions">
-                  {cursoSeleccionado.url && (
-                    <button 
-                      className="action-btn primary"
-                      onClick={() => window.open(cursoSeleccionado.url, '_blank')}
-                    >
-                      Ir al Curso
-                    </button>
+      {/* Detalle de la ruta seleccionada */}
+      {rutaSeleccionada && (
+        <section className="route-detail">
+          <div className="route-header">
+            <div className="route-info">
+              <h2>{rutaSeleccionada.titulo}</h2>
+              <p className="route-description">{rutaSeleccionada.descripcion}</p>
+              
+              <div className="route-meta">
+                <div className="meta-item">
+                  <span className="meta-label">Nivel:</span>
+                  <span className="meta-value">{rutaSeleccionada.nivel}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Duración estimada:</span>
+                  <span className="meta-value">{rutaSeleccionada.estimacion}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Progreso:</span>
+                  <span className="meta-value">{rutaSeleccionada.progreso}%</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="route-progress-circle">
+              <div className="progress-circle-container">
+                <svg className="progress-circle-svg" width="120" height="120">
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="50"
+                    fill="none"
+                    stroke="#e0e0e0"
+                    strokeWidth="8"
+                  />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="50"
+                    fill="none"
+                    stroke="#007bff"
+                    strokeWidth="8"
+                    strokeDasharray={`${2 * Math.PI * 50}`}
+                    strokeDashoffset={`${2 * Math.PI * 50 * (1 - rutaSeleccionada.progreso / 100)}`}
+                    strokeLinecap="round"
+                    className="progress-circle-stroke"
+                  />
+                </svg>
+                <div className="progress-text">
+                  <span className="progress-percent">{rutaSeleccionada.progreso}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mapa de Aprendizaje tipo Duolingo */}
+          <div className="learning-path-map">
+            <h3>🗺️ Camino de Aprendizaje</h3>
+            <div className="path-container">
+              {rutaSeleccionada.cursos.map((curso, index) => (
+                <div key={curso.id} className={`path-step ${curso.estado}`}>
+                  {/* Línea conectora */}
+                  {index < rutaSeleccionada.cursos.length - 1 && (
+                    <div 
+                      className="connector-line" 
+                      style={{ 
+                        background: curso.estado === 'completado' || curso.estado === 'omitido'
+                          ? 'linear-gradient(180deg, var(--success-color) 0%, var(--border-color) 100%)'
+                          : 'var(--border-color)'
+                      }}
+                    />
                   )}
                   
-                  {(cursoSeleccionado.estado === "disponible" || cursoSeleccionado.estado === "en-progreso") && (
-                    <>
-                      <button 
-                        className="action-btn success"
-                        onClick={() => completarCurso(cursoSeleccionado)}
-                      >
-                        Marcar Completado
-                      </button>
-                      <button 
-                        className="action-btn secondary"
-                        onClick={() => omitirCurso(cursoSeleccionado)}
-                      >
-                        Omitir Curso
-                      </button>
-                    </>
-                  )}
+                  {/* Nodo del curso */}
+                  <div className="course-node">
+                    <div 
+                      className={`node-circle ${curso.estado} ${!puedeInteractuar(curso.estado) ? 'disabled' : ''}`}
+                      style={{ backgroundColor: getEstadoColor(curso.estado) }}
+                      onClick={() => puedeInteractuar(curso.estado) && setCursoSeleccionado(curso)}
+                    >
+                      <span className="node-icon">{getEstadoIcono(curso.estado)}</span>
+                      <span className="node-number">{curso.orden}</span>
+                    </div>
+
+                    {/* Info del curso */}
+                    <div className="course-info-card">
+                      <div className="course-header">
+                        <h4>{curso.titulo}</h4>
+                        <span className={`status-badge ${curso.estado}`}>
+                          {getEstadoTexto(curso.estado)}
+                        </span>
+                      </div>
+                      
+                      {curso.descripcion && (
+                        <p className="course-description">{curso.descripcion}</p>
+                      )}
+                      
+                      <div className="course-meta-grid">
+                        <div className="meta-item">
+                          <span className="meta-icon">⏱️</span>
+                          <span>{curso.duracion}</span>
+                        </div>
+                        <div className="meta-item">
+                          <span className="meta-icon">🎓</span>
+                          <span>{curso.nivel}</span>
+                        </div>
+                        <div className="meta-item">
+                          <span className="meta-icon">🌐</span>
+                          <span>{curso.plataforma}</span>
+                        </div>
+                      </div>
+
+                      {/* Fechas especiales */}
+                      {curso.completadoEn && (
+                        <div className="completion-info">
+                          <span className="completion-icon">🎉</span>
+                          <span>Completado el {new Date(curso.completadoEn).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      
+                      {curso.omitidoEn && (
+                        <div className="skip-info">
+                          <span className="skip-icon">⏭️</span>
+                          <span>Omitido el {new Date(curso.omitidoEn).toLocaleDateString()}</span>
+                        </div>
+                      )}
+
+                      {curso.retomadoEn && (
+                        <div className="retake-info">
+                          <span className="retake-icon">🔄</span>
+                          <span>Retomado el {new Date(curso.retomadoEn).toLocaleDateString()}</span>
+                        </div>
+                      )}
+
+                      {/* Acciones del curso */}
+                      {puedeInteractuar(curso.estado) && (
+                        <div className="course-actions-duolingo">
+                          <button 
+                            className="action-btn primary"
+                            onClick={() => manejarAccionCurso(curso, 'continuar')}
+                          >
+                            {curso.estado === 'disponible' ? '▶️ Comenzar' : '📖 Continuar'}
+                          </button>
+                          
+                          <div className="secondary-actions">
+                            {puedeCompletar(curso.estado) && (
+                              <button 
+                                className="action-btn success"
+                                onClick={() => manejarAccionCurso(curso, 'completar')}
+                                title="Marcar como completado"
+                              >
+                                ✅
+                              </button>
+                            )}
+                            
+                            <button 
+                              className="action-btn warning"
+                              onClick={() => manejarAccionCurso(curso, 'omitir')}
+                              title="Omitir este curso"
+                            >
+                              ⏭️
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mostrar acciones de completar/omitir incluso para cursos bloqueados con mensaje */}
+                      {curso.estado === 'bloqueado' && (
+                        <div className="blocked-actions">
+                          <div className="blocked-message">
+                            <span className="blocked-icon">🔒</span>
+                            <span>Completa el curso anterior para desbloquear</span>
+                          </div>
+                          <div className="blocked-hint">
+                            <small>💡 Tip: Puedes completar o omitir el curso anterior directamente</small>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Para cursos completados, mostrar opción de revisar */}
+                      {curso.estado === 'completado' && (
+                        <div className="completed-actions">
+                          {curso.url && (
+                            <button 
+                              className="action-btn secondary"
+                              onClick={() => window.open(curso.url, '_blank')}
+                            >
+                              🔍 Revisar Curso
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Para cursos omitidos, mostrar opción de retomar */}
+                      {curso.estado === 'omitido' && (
+                        <div className="skipped-actions">
+                          <button 
+                            className="action-btn secondary"
+                            onClick={() => manejarAccionCurso(curso, 'retomar')}
+                          >
+                            🔄 Retomar Curso
+                          </button>
+                          {curso.url && (
+                            <button 
+                              className="action-btn secondary"
+                              onClick={() => window.open(curso.url, '_blank')}
+                            >
+                              🔍 Ver Curso
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
-        )}
-      </main>
 
-  {/* ChatIA real (logueado) */}
+          {/* Estadísticas de la ruta */}
+          <div className="route-stats">
+            <h3>📊 Estadísticas de la Ruta</h3>
+            <div className="stats-grid">
+              <div className="stat-item completados">
+                <div className="stat-number">
+                  {rutaSeleccionada.cursos.filter(c => c.estado === 'completado').length}
+                </div>
+                <div className="stat-label">Completados</div>
+                <div className="stat-icon">✅</div>
+              </div>
+              
+              <div className="stat-item omitidos">
+                <div className="stat-number">
+                  {rutaSeleccionada.cursos.filter(c => c.estado === 'omitido').length}
+                </div>
+                <div className="stat-label">Omitidos</div>
+                <div className="stat-icon">⏭️</div>
+              </div>
+              
+              <div className="stat-item disponibles">
+                <div className="stat-number">
+                  {rutaSeleccionada.cursos.filter(c => c.estado === 'disponible').length}
+                </div>
+                <div className="stat-label">Disponibles</div>
+                <div className="stat-icon">▶️</div>
+              </div>
+              
+              <div className="stat-item bloqueados">
+                <div className="stat-number">
+                  {rutaSeleccionada.cursos.filter(c => c.estado === 'bloqueado').length}
+                </div>
+                <div className="stat-label">Bloqueados</div>
+                <div className="stat-icon">🔒</div>
+              </div>
+            </div>
+            
+            {/* Progreso general */}
+            <div className="progress-summary">
+              <div className="progress-info">
+                <h4>Progreso General</h4>
+                <div className="progress-details">
+                  <span>
+                    {rutaSeleccionada.cursos.filter(c => c.estado === 'completado' || c.estado === 'omitido').length} 
+                    de {rutaSeleccionada.cursos.length} cursos
+                  </span>
+                  <span className="progress-percentage">{rutaSeleccionada.progreso}%</span>
+                </div>
+              </div>
+              
+              <div className="progress-bar-large">
+                <div 
+                  className="progress-fill-large" 
+                  style={{ width: `${rutaSeleccionada.progreso}%` }}
+                />
+              </div>
+            </div>
 
+            {/* Información adicional si es de origen chat */}
+            {rutaSeleccionada.origenChat && (
+              <div className="chat-origin-info">
+                <div className="chat-badge">
+                  <span className="chat-icon">🤖</span>
+                  <span>Ruta generada por IA</span>
+                </div>
+                <p>Esta ruta fue creada automáticamente por nuestro asistente inteligente basado en tus preferencias de aprendizaje.</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Modal de Confirmación */}
+      {showConfirmModal && cursoSeleccionado && (
+        <div className="modal-overlay" onClick={cancelarAccion}>
+          <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>
+                {accionModal === 'completar' && '✅ Completar Curso'}
+                {accionModal === 'omitir' && '⏭️ Omitir Curso'}
+                {accionModal === 'continuar' && '📖 Continuar Curso'}
+                {accionModal === 'retomar' && '🔄 Retomar Curso'}
+              </h3>
+              <button className="modal-close" onClick={cancelarAccion}>×</button>
+            </div>
+            
+            <div className="modal-content">
+              <div className="course-summary">
+                <h4>{cursoSeleccionado.titulo}</h4>
+                <p>
+                  {accionModal === 'completar' && 
+                    '¿Estás seguro que has completado este curso? Esto desbloqueará el siguiente curso en la ruta.'
+                  }
+                  {accionModal === 'omitir' && 
+                    '¿Deseas omitir este curso? Podrás volver a él más tarde, pero se desbloqueará el siguiente curso.'
+                  }
+                  {accionModal === 'continuar' && 
+                    'Se abrirá el curso en una nueva pestaña. ¿Deseas continuar?'
+                  }
+                  {accionModal === 'retomar' && 
+                    '¿Deseas retomar este curso? Cambiará su estado a disponible y podrás comenzarlo nuevamente.'
+                  }
+                </p>
+              </div>
+            </div>
+            
+            <div className="modal-actions">
+              <button 
+                className={`modal-btn ${
+                  accionModal === 'completar' ? 'success' : 
+                  accionModal === 'omitir' ? 'warning' : 
+                  accionModal === 'retomar' ? 'secondary' : 'primary'
+                }`}
+                onClick={confirmarAccion}
+              >
+                {accionModal === 'completar' && 'Sí, completar'}
+                {accionModal === 'omitir' && 'Sí, omitir'}
+                {accionModal === 'continuar' && 'Continuar'}
+                {accionModal === 'retomar' && 'Sí, retomar'}
+              </button>
+              
+              <button className="modal-btn secondary" onClick={cancelarAccion}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
