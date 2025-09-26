@@ -1,15 +1,34 @@
 import React, { useState } from "react";
+import { 
+  User, 
+  Mail, 
+  Phone, 
+  Edit3, 
+  Save, 
+  X, 
+  Camera, 
+  Settings, 
+  Lock, 
+  Bell, 
+  Shield,
+  Eye,
+  EyeOff
+} from "lucide-react";
 import "../styles/App.css";
 
 const MiPerfil = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [user, setUser] = useState({
     nombre: "Karen Ortiz",
     email: "karen.ortiz@example.com",
     telefono: "3001234567",
-    bio: "Apasionada por el aprendizaje y la tecnología.",
+    bio: "Apasionada por el aprendizaje y la tecnología. Siempre buscando nuevas formas de crecer profesional y personalmente.",
     foto: null,
+    fechaRegistro: "15 de Marzo, 2024",
+    cursosCompletados: 12,
+    horasAprendizaje: 48,
     preferencias: {
       tema: "Claro",
       notificaciones: true,
@@ -56,7 +75,7 @@ const MiPerfil = () => {
     setIsEditing(false);
   };
 
-  // Cambio de contraseña (simulado)
+  // Cambio de contraseña
   const handlePasswordChange = () => {
     if (newPassword.trim().length < 6) {
       alert("La contraseña debe tener al menos 6 caracteres.");
@@ -67,219 +86,282 @@ const MiPerfil = () => {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "700px",
-        margin: "100px auto",
-        padding: "2rem",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "var(--shadow-lg)",
-        background: "var(--background-gradient)",
-        color: "white",
-      }}
-    >
-      {!isEditing ? (
-        // ---- VISTA PERFIL ----
-        <div style={{ textAlign: "center" }}>
-          <img
-            src={
-              user.foto ||
-              "https://via.placeholder.com/120x120.png?text=Foto"
-            }
-            alt="Foto de perfil"
-            style={{
-              width: "120px",
-              height: "120px",
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "3px solid var(--accent-color)",
-              marginBottom: "1rem",
-            }}
-          />
-          <h2 style={{ fontSize: "2rem", fontWeight: "700" }}>Perfil de Usuario</h2>
-          <p><strong>Nombre:</strong> {user.nombre}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Teléfono:</strong> {user.telefono}</p>
-          <p><strong>Bio:</strong> {user.bio}</p>
-          <hr style={{ margin: "1.5rem 0", borderColor: "rgba(255,255,255,0.2)" }} />
-          <h3>⚙️ Preferencias</h3>
-          <p><strong>Tema:</strong> {user.preferencias.tema}</p>
-          <p>
-            <strong>Notificaciones:</strong>{" "}
-            {user.preferencias.notificaciones ? "Activadas" : "Desactivadas"}
-          </p>
-          <p><strong>Privacidad:</strong> {user.preferencias.privacidad}</p>
-          <button
-            onClick={() => setIsEditing(true)}
-            style={{
-              marginTop: "1.5rem",
-              padding: "0.75rem 1.5rem",
-              borderRadius: "var(--radius-md)",
-              background: "var(--accent-color)",
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Editar Perfil
-          </button>
-        </div>
-      ) : (
-        // ---- FORMULARIO DE EDICIÓN ----
-        <form onSubmit={handleSave}>
-          <h2 style={{ fontSize: "2rem", fontWeight: "700", marginBottom: "1rem" }}>
-            Editar Perfil
-          </h2>
-
-          {/* Foto */}
-          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+    <div className="mi-perfil-container">
+      <div className="perfil-header">
+        <div className="perfil-banner"></div>
+        <div className="perfil-info-header">
+          <div className="foto-container">
             <img
               src={
-                formData.foto ||
-                "https://via.placeholder.com/120x120.png?text=Foto"
+                isEditing
+                  ? formData.foto ||
+                    "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
+                  : user.foto ||
+                    "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
               }
-              alt="Vista previa"
-              style={{
-                width: "120px",
-                height: "120px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                border: "3px solid var(--accent-color)",
-                marginBottom: "0.5rem",
-              }}
+              alt="Foto de perfil"
+              className="foto-perfil"
             />
-            <input type="file" accept="image/*" onChange={handleImageChange} />
+            {isEditing && (
+              <label className="cambiar-foto-btn">
+                <Camera size={16} />
+                <input type="file" accept="image/*" onChange={handleImageChange} hidden />
+              </label>
+            )}
           </div>
-
-          {/* Datos personales */}
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            placeholder="Nombre"
-            style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
-          />
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Email"
-            style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
-          />
-          <input
-            type="text"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleChange}
-            placeholder="Teléfono"
-            style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
-          />
-          <textarea
-            name="bio"
-            value={formData.bio}
-            onChange={handleChange}
-            placeholder="Biografía"
-            style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
-          />
-
-          {/* Preferencias */}
-          <h3>⚙️ Preferencias</h3>
-          <label>
-            Tema:
-            <select
-              name="tema"
-              value={formData.preferencias.tema}
-              onChange={handlePrefChange}
-              style={{ marginLeft: "0.5rem" }}
-            >
-              <option value="Claro">Claro</option>
-              <option value="Oscuro">Oscuro</option>
-            </select>
-          </label>
           <br />
-          <label>
-            Notificaciones:
-            <input
-              type="checkbox"
-              name="notificaciones"
-              checked={formData.preferencias.notificaciones}
-              onChange={handlePrefChange}
-              style={{ marginLeft: "0.5rem" }}
-            />
-          </label>
           <br />
-          <label>
-            Privacidad:
-            <select
-              name="privacidad"
-              value={formData.preferencias.privacidad}
-              onChange={handlePrefChange}
-              style={{ marginLeft: "0.5rem" }}
-            >
-              <option value="Público">Público</option>
-              <option value="Privado">Privado</option>
-              <option value="Solo Amigos">Solo Amigos</option>
-            </select>
-          </label>
-
-          {/* Cambio de contraseña */}
-          <h3 style={{ marginTop: "1.5rem" }}>🔐 Seguridad</h3>
-          <input
-            type="password"
-            placeholder="Nueva contraseña"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
-          />
+          <div className="info-basica">
+            <h1 className="nombre-usuario">{user.nombre}</h1>
+            <br></br>
+            <div className="stats-rapidas">
+              <div className="stat-item">
+                <span className="stat-numero">{user.cursosCompletados}</span>
+                <span className="stat-label">Cursos</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-numero">{user.horasAprendizaje}</span>
+                <span className="stat-label">Horas</span>
+              </div>
+            </div>
+          </div>
           <button
-            type="button"
-            onClick={handlePasswordChange}
-            style={{
-              background: "var(--primary-color)",
-              color: "white",
-              border: "none",
-              borderRadius: "var(--radius-md)",
-              padding: "0.5rem 1rem",
-              cursor: "pointer",
-            }}
+            onClick={() => setIsEditing(!isEditing)}
+            className={`edit-toggle-btn ${isEditing ? 'active' : ''}`}
           >
-            Cambiar Contraseña
+            {isEditing ? <X size={18} /> : <Edit3 size={18} />}
+            {isEditing ? 'Cancelar' : 'Editar'}
           </button>
+        </div>
+      </div>
 
-          {/* Botones */}
-          <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-            <button
-              type="submit"
-              style={{
-                flex: 1,
-                background: "var(--accent-color)",
-                color: "white",
-                padding: "0.75rem",
-                borderRadius: "var(--radius-md)",
-                border: "none",
-              }}
-            >
-              Guardar
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsEditing(false)}
-              style={{
-                flex: 1,
-                background: "var(--primary-color)",
-                color: "white",
-                padding: "0.75rem",
-                borderRadius: "var(--radius-md)",
-                border: "none",
-              }}
-            >
-              Cancelar
-            </button>
+      <div className="perfil-content">
+        {!isEditing ? (
+          // ---- VISTA PERFIL ----
+          <div className="perfil-grid">
+            <div className="info-card">
+              <h3 className="card-title">
+                <User size={20} />
+                Información Personal
+              </h3>
+              <div className="info-list">
+                <div className="info-item">
+                  <Mail size={16} />
+                  <div>
+                    <span className="info-label">Email</span>
+                    <span className="info-value">{user.email}</span>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <Phone size={16} />
+                  <div>
+                    <span className="info-label">Teléfono</span>
+                    <span className="info-value">{user.telefono}</span>
+                  </div>
+                </div>
+                <div className="info-item bio-item">
+                  <div>
+                    <span className="info-label">Biografía</span>
+                    <span className="info-value bio-text">{user.bio}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="preferencias-card">
+              <h3 className="card-title">
+                <Settings size={20} />
+                Preferencias
+              </h3>
+              <div className="pref-list">
+                <div className="pref-item">
+                  <div className="pref-icon">🎨</div>
+                  <div>
+                    <span className="pref-label">Tema</span>
+                    <span className="pref-value">{user.preferencias.tema}</span>
+                  </div>
+                </div>
+                <div className="pref-item">
+                  <Bell size={16} className="pref-icon" />
+                  <div>
+                    <span className="pref-label">Notificaciones</span>
+                    <span className={`pref-value ${user.preferencias.notificaciones ? 'active' : 'inactive'}`}>
+                      {user.preferencias.notificaciones ? 'Activadas' : 'Desactivadas'}
+                    </span>
+                  </div>
+                </div>
+                <div className="pref-item">
+                  <Shield size={16} className="pref-icon" />
+                  <div>
+                    <span className="pref-label">Privacidad</span>
+                    <span className="pref-value">{user.preferencias.privacidad}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </form>
-      )}
+        ) : (
+          // ---- FORMULARIO DE EDICIÓN ----
+          <form onSubmit={handleSave} className="edit-form">
+            <div className="form-grid">
+              <div className="form-section">
+                <h3 className="section-title">
+                  <User size={20} />
+                  Datos Personales
+                </h3>
+                
+                <div className="form-group">
+                  <label className="form-label">Nombre completo</label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder="Ingresa tu nombre completo"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder="tu@email.com"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Teléfono</label>
+                  <input
+                    type="text"
+                    name="telefono"
+                    value={formData.telefono}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder="300 123 4567"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Biografía</label>
+                  <textarea
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleChange}
+                    className="form-textarea"
+                    placeholder="Cuéntanos sobre ti..."
+                    rows="4"
+                  />
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3 className="section-title">
+                  <Settings size={20} />
+                  Preferencias
+                </h3>
+
+                <div className="form-group">
+                  <label className="form-label">Tema de la aplicación</label>
+                  <select
+                    name="tema"
+                    value={formData.preferencias.tema}
+                    onChange={handlePrefChange}
+                    className="form-select"
+                  >
+                    <option value="Claro">🌞 Claro</option>
+                    <option value="Oscuro">🌙 Oscuro</option>
+                    <option value="Sistema">⚡ Automático</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="notificaciones"
+                      checked={formData.preferencias.notificaciones}
+                      onChange={handlePrefChange}
+                      className="form-checkbox"
+                    />
+                    <span className="checkbox-text">
+                      <Bell size={16} />
+                      Recibir notificaciones por email
+                    </span>
+                  </label>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Configuración de privacidad</label>
+                  <select
+                    name="privacidad"
+                    value={formData.preferencias.privacidad}
+                    onChange={handlePrefChange}
+                    className="form-select"
+                  >
+                    <option value="Público">🌍 Público</option>
+                    <option value="Privado">🔒 Privado</option>
+                    <option value="Solo Amigos">👥 Solo Amigos</option>
+                  </select>
+                </div>
+
+                {/* Sección de Seguridad */}
+                <h3 className="section-title security-section">
+                  <Lock size={20} />
+                  Seguridad
+                </h3>
+
+                <div className="form-group">
+                  <label className="form-label">Nueva contraseña</label>
+                  <div className="password-input-container">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Mínimo 6 caracteres"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="form-input password-input"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="password-toggle"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handlePasswordChange}
+                    className="change-password-btn"
+                    disabled={!newPassword}
+                  >
+                    Cambiar Contraseña
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button type="submit" className="save-btn">
+                <Save size={18} />
+                Guardar Cambios
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="cancel-btn"
+              >
+                <X size={18} />
+                Cancelar
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 };

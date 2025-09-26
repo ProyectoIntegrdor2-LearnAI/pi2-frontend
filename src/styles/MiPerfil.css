@@ -1,11 +1,3 @@
-.quienes-somos-page,
-.como-funciona-page,
-.tecnologia-page,
-.mision-vision-page,
-.contacto-page {
-    padding-top: 2rem;
-}
-
 /* Estilos para Mi Perfil - Diseño Moderno */
 
 .mi-perfil-container {
@@ -95,7 +87,7 @@
 .nombre-usuario {
   font-size: 2.25rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
   line-height: 1.2;
 }
@@ -506,7 +498,7 @@
   border-color: var(--text-light);
 }
 
-/* Responsive para Mi Perfil */
+/* Responsive Design */
 @media (max-width: 1024px) {
   .perfil-grid, .form-grid {
     grid-template-columns: 1fr;
@@ -563,4 +555,53 @@
   .save-btn, .cancel-btn {
     width: 100%;
   }
+}
+
+@media (max-width: 480px) {
+  .stats-rapidas {
+    gap: 1rem;
+  }
+  
+  .stat-numero {
+    font-size: 1.25rem;
+  }
+  
+  .edit-toggle-btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .info-item, .pref-item {
+    padding: 0.75rem;
+  }
+  
+  .form-section {
+    padding: 1rem;
+  }
+}
+
+/* Animaciones adicionales */
+.info-item, .pref-item {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+.info-item:nth-child(2) { animation-delay: 0.1s; }
+.info-item:nth-child(3) { animation-delay: 0.2s; }
+.info-item:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Transiciones para tema oscuro */
+.mi-perfil-container * {
+  transition: background-color var(--transition), color var(--transition), border-color var(--transition);
 }

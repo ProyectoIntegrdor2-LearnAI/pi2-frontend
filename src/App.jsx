@@ -48,6 +48,7 @@ function AppContent() {
       setShowAuthModal(true);
     };
     window.addEventListener('openAuthModal', handler);
+
     return () => window.removeEventListener('openAuthModal', handler);
   }, []);
 
