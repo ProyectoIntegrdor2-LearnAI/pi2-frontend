@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
+import { useAuth } from "../hooks/useAuth";
 import avatarIcon from '../imagenes/iconoUsuario.png';
 import logoImage from '../imagenes/logoPrincipal.png';
 import "../styles/Dashboard.css";
 import "../styles/MiPerfil.css";
-
-// Context para el tema (esto se implementaría globalmente)
-const ThemeContext = React.createContext();
 
 // Datos simulados del perfil del usuario
 const perfilSimulado = {
@@ -53,39 +51,103 @@ const perfilSimulado = {
   }
 };
 
+const storedUserProfile = apiServices.utils.getStoredUser();
+const initialProfile = storedUserProfile
+  ? { ...perfilSimulado, ...storedUserProfile }
+  : perfilSimulado;
+
 function MiPerfil() {
+  const { user: authUser, loading: authLoading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("perfil");
-  const [perfilData, setPerfilData] = useState(perfilSimulado);
+  const [perfilData, setPerfilData] = useState(initialProfile);
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({});
-  const [configuraciones, setConfiguraciones] = useState(perfilSimulado.configuraciones);
+  const [formData, setFormData] = useState(() => ({
+    name: initialProfile.name || "",
+    email: initialProfile.email || "",
+    identification: initialProfile.identification || initialProfile.id || "",
+    phone: initialProfile.phone || "",
+    address: initialProfile.address || "",
+    avatar: initialProfile.avatar || null,
+  }));
+  const [configuraciones, setConfiguraciones] = useState(
+    initialProfile.configuraciones || perfilSimulado.configuraciones
+  );
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: ""
   });
+  const [profileError, setProfileError] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadUserProfile();
-    // Aplicar tema al cargar
-    applyTheme(configuraciones.tema);
-  }, []);
+    if (authLoading) return;
+    if (authUser?.user_id) {
+      loadUserProfile(authUser.user_id);
+      return;
+    }
+    const cached = apiServices.utils.getStoredUser();
+    if (cached?.user_id) {
+      loadUserProfile(cached.user_id);
+    }
+  }, [authLoading, authUser?.user_id]);
 
-  const loadUserProfile = async () => {
+  useEffect(() => {
+    if (configuraciones?.tema) {
+      applyTheme(configuraciones.tema);
+    }
+  }, [configuraciones?.tema]);
+
+  const loadUserProfile = async (requestedUserId) => {
     try {
       setLoading(true);
-      // const profile = await apiServices.user.getProfile();
-      // setPerfilData(profile);
-      // setFormData(profile);
-      const savedAvatar = localStorage.getItem('userAvatar') || 'avatar1';
-      setFormData({...perfilData, avatar: savedAvatar});
+      setProfileError(null);
+      const targetId = requestedUserId || authUser?.user_id || 'profile';
+      const profile = await apiServices.user.getProfile(targetId);
+      const savedAvatar = getSavedAvatar();
+
+      const mergedProfile = { ...perfilSimulado, ...profile };
+
+      setPerfilData({ ...mergedProfile, avatar: savedAvatar });
+      setFormData((prev) => ({
+        ...prev,
+        name: mergedProfile.name || '',
+        email: mergedProfile.email || '',
+        identification: mergedProfile.identification || mergedProfile.id || '',
+        phone: mergedProfile.phone || '',
+        address: mergedProfile.address || '',
+        avatar: savedAvatar,
+      }));
+
+      if (mergedProfile.configuraciones) {
+        setConfiguraciones(mergedProfile.configuraciones);
+      }
     } catch (error) {
       console.error('Error cargando perfil:', error);
+      setProfileError(error?.message || 'No fue posible cargar el perfil');
+      const cachedUser = apiServices.utils.getStoredUser();
+      if (cachedUser) {
+        const savedAvatar = getSavedAvatar();
+        const mergedProfile = { ...perfilSimulado, ...cachedUser };
+        setPerfilData({ ...mergedProfile, avatar: savedAvatar });
+        setFormData((prev) => ({
+          ...prev,
+          name: mergedProfile.name || prev.name || '',
+          email: mergedProfile.email || prev.email || '',
+          identification:
+            mergedProfile.identification ||
+            mergedProfile.id ||
+            prev.identification ||
+            '',
+          phone: mergedProfile.phone || prev.phone || '',
+          address: mergedProfile.address || prev.address || '',
+          avatar: savedAvatar,
+        }));
+      }
     } finally {
       setLoading(false);
     }
@@ -121,7 +183,7 @@ function MiPerfil() {
     setConfiguraciones(prev => ({
       ...prev,
       [section]: {
-        ...prev[section],
+        ...(prev?.[section] || {}),
         [field]: value
       }
     }));
@@ -132,8 +194,34 @@ function MiPerfil() {
     }
   };
 
+  const getSavedAvatar = () => {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return initialProfile.avatar || 'avatar1';
+    }
+    try {
+      return window.localStorage.getItem('userAvatar') || initialProfile.avatar || 'avatar1';
+    } catch {
+      return initialProfile.avatar || 'avatar1';
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab !== 'perfil') return;
+    setFormData((prev) => ({
+      ...prev,
+      name: perfilData?.name || '',
+      email: perfilData?.email || '',
+      identification: perfilData?.identification || perfilData?.id || '',
+      phone: perfilData?.phone || '',
+      address: perfilData?.address || '',
+      avatar: perfilData?.avatar || prev.avatar,
+    }));
+  }, [activeTab, perfilData]);
+
   // Aplicar tema a la página
   const applyTheme = (tema) => {
+    if (typeof document === 'undefined') return;
+
     const root = document.documentElement;
     
     if (tema === 'oscuro') {
@@ -141,10 +229,16 @@ function MiPerfil() {
       document.body.classList.add('dark-theme');
       document.body.classList.remove('light-theme');
     } else if (tema === 'sistema') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-      document.body.classList.toggle('dark-theme', prefersDark);
-      document.body.classList.toggle('light-theme', !prefersDark);
+      if (typeof window === 'undefined' || !window.matchMedia) {
+        root.setAttribute('data-theme', 'light');
+        document.body.classList.add('light-theme');
+        document.body.classList.remove('dark-theme');
+      } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        document.body.classList.toggle('dark-theme', prefersDark);
+        document.body.classList.toggle('light-theme', !prefersDark);
+      }
     } else {
       root.setAttribute('data-theme', 'light');
       document.body.classList.add('light-theme');
@@ -152,7 +246,13 @@ function MiPerfil() {
     }
     
     // Guardar preferencia
-    localStorage.setItem('theme-preference', tema);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        window.localStorage.setItem('theme-preference', tema);
+      } catch {
+        // noop
+      }
+    }
     
     // Aplicar el tema a toda la aplicación inmediatamente
     updateAllComponents(tema);
@@ -160,6 +260,8 @@ function MiPerfil() {
 
   // Función para actualizar todos los componentes con el nuevo tema
   const updateAllComponents = (tema) => {
+    if (typeof document === 'undefined') return;
+
     // Aplicar clases CSS globalmente
     const dashboardElements = document.querySelectorAll('.dashboard-wrapper, .dashboard-main, .dashboard-header, .sidebar');
     dashboardElements.forEach(element => {
@@ -173,23 +275,53 @@ function MiPerfil() {
     });
 
     // Forzar re-render de las variables CSS
-    const event = new CustomEvent('themeChange', { 
-      detail: { theme: tema } 
-    });
-    window.dispatchEvent(event);
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('themeChange', {
+        detail: { theme: tema }
+      });
+      window.dispatchEvent(event);
+    }
   };
 
   // Guardar cambios del perfil
   const saveProfile = async () => {
     try {
       setLoading(true);
-      // await apiServices.user.updateProfile(formData);
-      setPerfilData({ ...perfilData, ...formData });
+      const payload = {
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+      };
+
+      await apiServices.user.updateProfile('profile', payload);
+
+      const storedUser = apiServices.utils.getStoredUser();
+      const refreshedProfile = storedUser
+        ? { ...perfilSimulado, ...storedUser }
+        : { ...perfilData, ...payload };
+
+      setPerfilData((prev) => ({
+        ...prev,
+        ...refreshedProfile,
+        avatar: formData.avatar || prev.avatar || getSavedAvatar(),
+      }));
+
+      setFormData((prev) => ({
+        ...prev,
+        name: refreshedProfile.name || payload.name || '',
+        email: refreshedProfile.email || prev.email || '',
+        identification:
+          refreshedProfile.identification ||
+          refreshedProfile.id ||
+          prev.identification ||
+          '',
+        phone: refreshedProfile.phone || payload.phone || '',
+        address: refreshedProfile.address || payload.address || '',
+      }));
+
       setEditMode(false);
-      // Mostrar notificación de éxito
     } catch (error) {
       console.error('Error guardando perfil:', error);
-      // Mostrar notificación de error
     } finally {
       setLoading(false);
     }
@@ -236,7 +368,10 @@ function MiPerfil() {
 
   // Eliminar cuenta
   const deleteAccount = async () => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.")) {
+    if (
+      typeof window !== 'undefined' &&
+      window.confirm("¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.")
+    ) {
       try {
         // await apiServices.user.deleteAccount();
         navigate('/');
@@ -260,7 +395,7 @@ function MiPerfil() {
           <div className="header-left">
             <div className="user-info" onClick={toggleSidebar}>
               <img src={avatarIcon} alt="Avatar" className="user-avatar" />
-              <span className="user-name">{perfilData?.nombre || "Usuario"}</span>
+              <span className="user-name">{perfilData?.name || "Usuario"}</span>
             </div>
             <div className="logo-section">
               <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
@@ -321,6 +456,11 @@ function MiPerfil() {
 
         {/* Profile Container */}
         <div className="profile-container">
+          {profileError && (
+            <div className="profile-error-message">
+              {profileError}
+            </div>
+          )}
           {/* Tabs Navigation */}
           <div className="profile-tabs">
             {tabs.map(tab => (
@@ -380,8 +520,13 @@ function MiPerfil() {
                       <label>Cédula</label>
                       <input
                         type="text"
-                        value={formData.id || perfilData.id}
-                        onChange={(e) => handleInputChange('id', e.target.value)}
+                        value={
+                          formData.identification ||
+                          perfilData.identification ||
+                          perfilData.id ||
+                          ''
+                        }
+                        onChange={(e) => handleInputChange('identification', e.target.value)}
                         disabled={!editMode}
                         className="form-input"
                       />
