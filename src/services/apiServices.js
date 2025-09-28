@@ -125,6 +125,7 @@ const apiServices = {
         phone: userData.phone,
         password: userData.password,
         address: userData.address,
+        type_user: userData.type_user || 'student',
       };
 
       Object.keys(payloadToSend).forEach((key) => {
