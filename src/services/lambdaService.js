@@ -2,6 +2,7 @@
 // Servicio optimizado para manejar llamadas a AWS Lambda
 
 import { buildLambdaUrl, CORS_CONFIG } from '../config/endpoints';
+import { buildAuthorizationValue } from '../utils/tokenUtils';
 
 class LambdaService {
   constructor() {
@@ -22,9 +23,13 @@ class LambdaService {
     };
 
     // Agregar token si está disponible
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const storedToken =
+      typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
+        ? localStorage.getItem('token') || localStorage.getItem('authToken')
+        : '';
+    const authorization = buildAuthorizationValue(storedToken);
+    if (authorization) {
+      config.headers.Authorization = authorization;
     }
 
     return this.executeWithRetry(url, config);

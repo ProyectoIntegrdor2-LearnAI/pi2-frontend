@@ -1,5 +1,7 @@
 // src/services/apiServices.js
 
+import { normalizeToken, buildAuthorizationValue } from '../utils/tokenUtils';
+
 // Configuración de URLs base
 const API_BASE_URL =
   process.env.REACT_APP_AUTH_LAMBDA_URL ||
@@ -16,11 +18,34 @@ const USER_STORAGE_KEY = 'learnia_user';
 const isBrowser = () =>
   typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 
+const normalizeUser = (user) => {
+  if (!user || typeof user !== 'object') return null;
+  const candidateId =
+    user.user_id ||
+    user.id ||
+    user.uuid ||
+    user.userId ||
+    user.user_uuid ||
+    null;
+
+  if (!candidateId) {
+    return { ...user };
+  }
+
+  return {
+    ...user,
+    user_id: candidateId,
+    id: user.id || candidateId,
+  };
+};
+
 const persistToken = (token) => {
-  if (!token || !isBrowser()) return;
+  if (!isBrowser()) return;
+  const normalizedToken = normalizeToken(token);
+  if (!normalizedToken) return;
   STORAGE_KEYS.forEach((key) => {
     try {
-      window.localStorage.setItem(key, token);
+      window.localStorage.setItem(key, normalizedToken);
     } catch {
       // noop
     }
@@ -28,9 +53,14 @@ const persistToken = (token) => {
 };
 
 const persistUser = (user) => {
-  if (!user || !isBrowser()) return;
+  if (!isBrowser()) return;
+  const normalizedUser = normalizeUser(user);
+  if (!normalizedUser) return;
   try {
-    window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    window.localStorage.setItem(
+      USER_STORAGE_KEY,
+      JSON.stringify(normalizedUser)
+    );
   } catch {
     // noop
   }
@@ -61,7 +91,10 @@ const getStoredToken = () => {
   for (const key of STORAGE_KEYS) {
     try {
       const value = window.localStorage.getItem(key);
-      if (value) return value;
+      if (value) {
+        const normalized = normalizeToken(value);
+        if (normalized) return normalized;
+      }
     } catch {
       return null;
     }
@@ -74,7 +107,8 @@ const getStoredUser = () => {
   try {
     const value = window.localStorage.getItem(USER_STORAGE_KEY);
     if (!value) return null;
-    return JSON.parse(value);
+    const parsed = JSON.parse(value);
+    return normalizeUser(parsed);
   } catch {
     return null;
   }
@@ -93,8 +127,9 @@ const buildHeaders = (headers = {}, includeAuth = false) => {
 
   if (includeAuth) {
     const token = getStoredToken();
-    if (token) {
-      finalHeaders.Authorization = `Bearer ${token}`;
+    const authorization = buildAuthorizationValue(token);
+    if (authorization) {
+      finalHeaders.Authorization = authorization;
     }
   }
 
@@ -133,15 +168,17 @@ const apiServices = {
       });
 
       const payload = await handleResponse(response);
-      const token = payload?.data?.token;
-      const user = payload?.data?.user;
+      const rawToken = payload?.data?.token;
+      const normalizedToken = normalizeToken(rawToken);
+      const user = normalizeUser(payload?.data?.user);
 
-      persistToken(token);
+      persistToken(rawToken);
       persistUser(user);
 
       return {
         ...payload,
-        token,
+        token: normalizedToken,
+        rawToken,
         user,
         expiresIn: payload?.data?.expiresIn,
       };
@@ -176,15 +213,17 @@ const apiServices = {
       });
 
       const payload = await handleResponse(response);
-      const token = payload?.data?.token;
-      const user = payload?.data?.user;
+      const rawToken = payload?.data?.token;
+      const normalizedToken = normalizeToken(rawToken);
+      const user = normalizeUser(payload?.data?.user);
 
-      persistToken(token);
+      persistToken(rawToken);
       persistUser(user);
 
       return {
         ...payload,
-        token,
+        token: normalizedToken,
+        rawToken,
         user,
       };
     },
@@ -233,7 +272,7 @@ const apiServices = {
       });
 
       const payload = await handleResponse(response);
-      const user = payload?.data?.user || payload?.user;
+      const user = normalizeUser(payload?.data?.user || payload?.user);
 
       if (!user) {
         throw new Error('No se pudo obtener la información del usuario');
@@ -260,7 +299,7 @@ const apiServices = {
           headers: buildHeaders({}, true),
         });
         const payload = await handleResponse(response);
-        const user = payload?.data?.user || payload;
+        const user = normalizeUser(payload?.data?.user || payload);
         if (user) {
           persistUser(user);
           return user;
@@ -344,7 +383,7 @@ const apiServices = {
       });
 
       const result = await handleResponse(response);
-      const updatedUser = result?.data?.user || result?.user;
+      const updatedUser = normalizeUser(result?.data?.user || result?.user);
       if (updatedUser) {
         persistUser(updatedUser);
       }
