@@ -32,24 +32,28 @@ export const API_PATHS = {
   
   // Rutas de usuarios
   USERS: {
-    PROFILE: '/users/profile',
-    PROGRESS: '/users/progress',
-    DASHBOARD: '/users/dashboard'
+    BASE: '/users',
+    ME: '/users/me',
+    PROFILE: (id = 'me') => (id === 'me' ? '/users/me' : `/users/${id}`),
+    PROFILE_UPDATE: (id = 'me') => (id === 'me' ? '/users/me/profile' : `/users/${id}/profile`),
+    DASHBOARD: (id = 'me') => (id === 'me' ? '/users/me/dashboard' : `/users/${id}/dashboard`),
+    PROGRESS: (id = 'me') => (id === 'me' ? '/users/me/progress' : `/users/${id}/progress`)
   },
   
   // Rutas de chat
   CHAT: {
     SESSION: '/chat/session',
+    SESSION_BY_ID: (id) => `/chat/session/${id}`,
     HISTORY: '/chat/history',
-    DELETE_SESSION: '/chat/session/:id'
+    DELETE_SESSION: (id) => `/chat/session/${id}`
   },
   
   // Rutas de aprendizaje
   LEARNING_PATH: {
     GENERATE: '/learning-path/generate',
-    UPDATE: '/learning-path/update',
-    CLONE: '/learning-path/clone',
-    DELETE: '/learning-path/:id'
+    UPDATE: (id) => `/learning-path/${id}`,
+    CLONE: (id) => `/learning-path/${id}/clone`,
+    DELETE: (id) => `/learning-path/${id}`
   },
   
   // Rutas de cursos
@@ -57,7 +61,8 @@ export const API_PATHS = {
     ALL: '/courses',
     TRENDING: '/courses/trending',
     CATEGORIES: '/courses/categories',
-    FAVORITES: '/courses/favorites'
+    DETAIL: (id) => `/courses/${id}`,
+    FAVORITE: (id) => `/courses/${id}/favorite`
   },
   
   // Rutas de analíticas
@@ -75,9 +80,21 @@ export const API_PATHS = {
 };
 
 // Helper para construir URLs completas
-export const buildLambdaUrl = (lambdaType, path) => {
-  const baseUrl = LAMBDA_ENDPOINTS[lambdaType];
-  return `${baseUrl}${path}`;
+export const buildLambdaUrl = (lambdaType, path = '') => {
+  const rawBaseUrl = LAMBDA_ENDPOINTS[lambdaType] || '';
+  const baseUrl = typeof rawBaseUrl === 'string' ? rawBaseUrl.replace(/\/+$/, '') : '';
+  const resolvedPath = typeof path === 'function' ? path() : path || '';
+
+  if (!resolvedPath) {
+    return baseUrl;
+  }
+
+  if (resolvedPath.startsWith('http')) {
+    return resolvedPath;
+  }
+
+  const normalizedPath = resolvedPath.startsWith('/') ? resolvedPath : `/${resolvedPath}`;
+  return `${baseUrl}${normalizedPath}`;
 };
 
 // Configuración de CORS para desarrollo

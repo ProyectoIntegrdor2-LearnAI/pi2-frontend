@@ -1,15 +1,73 @@
 // src/services/apiServices.js
 
 import { normalizeToken, buildAuthorizationValue } from '../utils/tokenUtils';
+import { LAMBDA_ENDPOINTS, API_PATHS } from '../config/endpoints';
 
-// Configuración de URLs base
-const API_BASE_URL =
-  process.env.REACT_APP_AUTH_LAMBDA_URL ||
-  process.env.REACT_APP_API_BASE_URL ||
-  'https://avouruymc3.execute-api.us-east-2.amazonaws.com/Prod';
-const CHAT_API_URL = process.env.REACT_APP_CHAT_API_URL || API_BASE_URL;
-const LEARNING_PATH_API_URL =
-  process.env.REACT_APP_LEARNING_PATH_API_URL || API_BASE_URL;
+const DEFAULT_AUTH_FALLBACK = 'https://avouruymc3.execute-api.us-east-2.amazonaws.com/Prod';
+const PLACEHOLDER_MARKERS = ['your-', 'example.com'];
+
+const sanitizeUrl = (maybeUrl) =>
+  typeof maybeUrl === 'string' ? maybeUrl.trim().replace(/\/+$/, '') : '';
+
+const isUsableUrl = (maybeUrl) => {
+  if (!maybeUrl) return false;
+  const sanitized = sanitizeUrl(maybeUrl);
+  if (!sanitized) return false;
+  return !PLACEHOLDER_MARKERS.some((marker) => sanitized.includes(marker));
+};
+
+const resolveServiceUrl = (fallback, ...candidates) => {
+  for (const candidate of candidates) {
+    if (isUsableUrl(candidate)) {
+      return sanitizeUrl(candidate);
+    }
+  }
+  return sanitizeUrl(fallback);
+};
+
+const AUTH_BASE_URL = resolveServiceUrl(
+  DEFAULT_AUTH_FALLBACK,
+  process.env.REACT_APP_AUTH_API_URL,
+  process.env.REACT_APP_AUTH_LAMBDA_URL,
+  process.env.REACT_APP_API_BASE_URL,
+  LAMBDA_ENDPOINTS?.AUTH
+);
+
+const SERVICE_BASE_URLS = {
+  AUTH: AUTH_BASE_URL,
+  USER: AUTH_BASE_URL,
+  CHAT: resolveServiceUrl(
+    AUTH_BASE_URL,
+    process.env.REACT_APP_CHAT_API_URL,
+    process.env.REACT_APP_CHAT_LAMBDA_URL,
+    LAMBDA_ENDPOINTS?.CHAT
+  ),
+  LEARNING_PATH: resolveServiceUrl(
+    AUTH_BASE_URL,
+    process.env.REACT_APP_LEARNING_PATH_API_URL,
+    process.env.REACT_APP_LEARNING_PATH_LAMBDA_URL,
+    LAMBDA_ENDPOINTS?.LEARNING_PATH
+  ),
+  COURSES: resolveServiceUrl(
+    AUTH_BASE_URL,
+    process.env.REACT_APP_COURSES_API_URL,
+    process.env.REACT_APP_COURSES_LAMBDA_URL,
+    LAMBDA_ENDPOINTS?.COURSES
+  ),
+  ANALYTICS: resolveServiceUrl(
+    AUTH_BASE_URL,
+    process.env.REACT_APP_ANALYTICS_API_URL,
+    process.env.REACT_APP_ANALYTICS_LAMBDA_URL,
+    LAMBDA_ENDPOINTS?.ANALYTICS
+  ),
+  SEARCH: resolveServiceUrl(
+    AUTH_BASE_URL,
+    process.env.REACT_APP_SEARCH_API_URL,
+    process.env.REACT_APP_SEARCH_LAMBDA_URL,
+    LAMBDA_ENDPOINTS?.SEARCH
+  ),
+};
+
 const MOCK_API = process.env.REACT_APP_MOCK_API === 'true';
 
 const STORAGE_KEYS = ['token', 'authToken'];
@@ -114,11 +172,24 @@ const getStoredUser = () => {
   }
 };
 
+const resolveTargetUserId = (userId) => {
+  if (!userId || userId === 'profile' || userId === 'me') {
+    return 'me';
+  }
+  return userId;
+};
+
 // Helper para construir URLs completas
-const buildUrl = (endpoint, baseUrl = API_BASE_URL) => {
-  if (!endpoint) return baseUrl;
-  if (endpoint.startsWith('http')) return endpoint;
-  return `${baseUrl}${endpoint}`;
+const buildUrl = (endpoint = '', serviceKey = 'AUTH') => {
+  if (endpoint && endpoint.startsWith('http')) return endpoint;
+
+  const baseUrl = sanitizeUrl(SERVICE_BASE_URLS[serviceKey] || AUTH_BASE_URL);
+  if (!endpoint) {
+    return baseUrl;
+  }
+
+  const normalizedPath = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${baseUrl}${normalizedPath}`;
 };
 
 const buildHeaders = (headers = {}, includeAuth = false) => {
@@ -158,7 +229,7 @@ const apiServices = {
   // 🔹 Servicio de autenticación
   auth: {
     login: async (credentials = {}) => {
-      const response = await fetch(buildUrl('/auth/login'), {
+      const response = await fetch(buildUrl(API_PATHS.AUTH.LOGIN), {
         method: 'POST',
         headers: buildHeaders(),
         body: JSON.stringify({
@@ -206,7 +277,7 @@ const apiServices = {
         }
       });
 
-      const response = await fetch(buildUrl('/auth/register'), {
+      const response = await fetch(buildUrl(API_PATHS.AUTH.REGISTER), {
         method: 'POST',
         headers: buildHeaders(),
         body: JSON.stringify(payloadToSend),
@@ -234,7 +305,7 @@ const apiServices = {
 
       if (token) {
         try {
-          const response = await fetch(buildUrl('/auth/logout'), {
+          const response = await fetch(buildUrl(API_PATHS.AUTH.LOGOUT), {
             method: 'POST',
             headers: buildHeaders({}, true),
           });
@@ -266,7 +337,7 @@ const apiServices = {
         throw new Error('No hay token almacenado');
       }
 
-      const response = await fetch(buildUrl('/users/profile'), {
+      const response = await fetch(buildUrl(API_PATHS.USERS.PROFILE(), 'USER'), {
         method: 'GET',
         headers: buildHeaders({}, true),
       });
@@ -288,13 +359,11 @@ const apiServices = {
   user: {
     getProfile: async (userId = 'profile') => {
       const storedUser = getStoredUser();
-      const resolvedUserId =
-        userId === 'profile'
-          ? storedUser?.user_id || storedUser?.id || 'profile'
-          : userId;
+      const targetUserId = resolveTargetUserId(userId);
+      const path = API_PATHS.USERS.PROFILE(targetUserId);
 
       try {
-        const response = await fetch(buildUrl(`/users/${resolvedUserId}`), {
+        const response = await fetch(buildUrl(path, 'USER'), {
           method: 'GET',
           headers: buildHeaders({}, true),
         });
@@ -317,13 +386,10 @@ const apiServices = {
     getCurrentProfile: async () => apiServices.user.getProfile('profile'),
 
     getProgress: async (userId = 'profile') => {
-      const storedUser = getStoredUser();
-      const resolvedUserId =
-        userId === 'profile'
-          ? storedUser?.user_id || storedUser?.id || 'profile'
-          : userId;
+      const targetUserId = resolveTargetUserId(userId);
+      const path = API_PATHS.USERS.PROGRESS(targetUserId);
 
-      const response = await fetch(buildUrl(`/users/${resolvedUserId}/progress`), {
+      const response = await fetch(buildUrl(path, 'USER'), {
         method: 'GET',
         headers: buildHeaders({}, true),
       });
@@ -344,13 +410,10 @@ const apiServices = {
         throw new Error('resourceId es requerido');
       }
 
-      const storedUser = getStoredUser();
-      const resolvedUserId =
-        userId === 'profile'
-          ? storedUser?.user_id || storedUser?.id || 'profile'
-          : userId;
+      const targetUserId = resolveTargetUserId(userId);
+      const path = API_PATHS.USERS.PROGRESS(targetUserId);
 
-      const response = await fetch(buildUrl(`/users/${resolvedUserId}/progress`), {
+      const response = await fetch(buildUrl(path, 'USER'), {
         method: 'POST',
         headers: buildHeaders({}, true),
         body: JSON.stringify({ resourceId }),
@@ -370,13 +433,10 @@ const apiServices = {
         }
       });
 
-      const storedUser = getStoredUser();
-      const resolvedUserId =
-        userId === 'profile'
-          ? storedUser?.user_id || storedUser?.id || 'profile'
-          : userId;
+      const targetUserId = resolveTargetUserId(userId);
+      const path = API_PATHS.USERS.PROFILE_UPDATE(targetUserId);
 
-      const response = await fetch(buildUrl(`/users/${resolvedUserId}/profile`), {
+      const response = await fetch(buildUrl(path, 'USER'), {
         method: 'PUT',
         headers: buildHeaders({}, true),
         body: JSON.stringify(payload),
@@ -393,26 +453,40 @@ const apiServices = {
 
   // 🔹 Servicios de cursos
   courses: {
-    getAllCourses: async ({ limit = 10 }) => {
-      const response = await fetch(`/api/courses/trending?limit=${limit}`);
-      if (!response.ok) throw new Error("Error obteniendo cursos");
+    getAllCourses: async ({ limit = 10 } = {}) => {
+      const url = new URL(buildUrl(API_PATHS.COURSES.TRENDING, 'COURSES'));
+      if (limit !== undefined && limit !== null) {
+        url.searchParams.set('limit', String(limit));
+      }
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: buildHeaders(),
+      });
+      if (!response.ok) throw new Error('Error obteniendo cursos');
       return response.json();
     },
 
     getCourseById: async (id) => {
-      const response = await fetch(`/api/courses/${id}`);
-      if (!response.ok) throw new Error("Error obteniendo detalle del curso");
+      const response = await fetch(buildUrl(API_PATHS.COURSES.DETAIL(id), 'COURSES'), {
+        method: 'GET',
+        headers: buildHeaders(),
+      });
+      if (!response.ok) throw new Error('Error obteniendo detalle del curso');
       return response.json();
     },
 
     getCategories: async () => {
-      const response = await fetch(`/api/courses/categories`);
-      if (!response.ok) throw new Error("Error obteniendo categorías");
+      const response = await fetch(buildUrl(API_PATHS.COURSES.CATEGORIES, 'COURSES'), {
+        method: 'GET',
+        headers: buildHeaders(),
+      });
+      if (!response.ok) throw new Error('Error obteniendo categorías');
       return response.json();
     },
 
     addFavorite: async (id) => {
-      const response = await fetch(`/api/courses/${id}/favorite`, {
+      const response = await fetch(buildUrl(API_PATHS.COURSES.FAVORITE(id), 'COURSES'), {
         method: 'POST',
         headers: buildHeaders({}, true),
       });
@@ -423,12 +497,15 @@ const apiServices = {
   // 🔹 Analíticas
   analytics: {
     getPopularCourses: async () => {
-      const response = await fetch(`/api/analytics/popular-courses`);
+      const response = await fetch(buildUrl(API_PATHS.ANALYTICS.POPULAR, 'ANALYTICS'), {
+        method: 'GET',
+        headers: buildHeaders(),
+      });
       if (!response.ok) throw new Error('Error obteniendo cursos populares');
       return response.json();
     },
     getUserEngagement: async () => {
-      const response = await fetch(`/api/analytics/user-engagement`, {
+      const response = await fetch(buildUrl(API_PATHS.ANALYTICS.ENGAGEMENT, 'ANALYTICS'), {
         headers: buildHeaders({}, true),
       });
       if (!response.ok) throw new Error('Error obteniendo engagement');
@@ -457,26 +534,20 @@ const apiServices = {
   // 🔹 Dashboard
   dashboard: {
     getDashboard: async (userId = 'profile') => {
-      const storedUser = getStoredUser();
-      const resolvedUserId =
-        userId === 'profile'
-          ? storedUser?.user_id || storedUser?.id || 'profile'
-          : userId;
+      const targetUserId = resolveTargetUserId(userId);
+      const path = API_PATHS.USERS.DASHBOARD(targetUserId);
 
-      const response = await fetch(buildUrl(`/users/${resolvedUserId}/dashboard`), {
+      const response = await fetch(buildUrl(path, 'USER'), {
         method: 'GET',
         headers: buildHeaders({}, true),
       });
       return handleResponse(response);
     },
     deleteDashboard: async (userId = 'profile') => {
-      const storedUser = getStoredUser();
-      const resolvedUserId =
-        userId === 'profile'
-          ? storedUser?.user_id || storedUser?.id || 'profile'
-          : userId;
+      const targetUserId = resolveTargetUserId(userId);
+      const path = API_PATHS.USERS.DASHBOARD(targetUserId);
 
-      const response = await fetch(buildUrl(`/users/${resolvedUserId}/dashboard`), {
+      const response = await fetch(buildUrl(path, 'USER'), {
         method: 'DELETE',
         headers: buildHeaders({}, true),
       });
@@ -487,7 +558,7 @@ const apiServices = {
   // 🔹 Servicio de chat con IA
   chat: {
     sendMessage: async (message, sessionId) => {
-      const response = await fetch(buildUrl("/api/chat/session", CHAT_API_URL), {
+      const response = await fetch(buildUrl(API_PATHS.CHAT.SESSION, 'CHAT'), {
         method: 'POST',
         headers: buildHeaders({}, true),
         body: JSON.stringify({ message, sessionId }),
@@ -497,14 +568,14 @@ const apiServices = {
     },
 
     getSession: async (id) => {
-      const response = await fetch(buildUrl(`/api/chat/session/${id}`, CHAT_API_URL), {
+      const response = await fetch(buildUrl(API_PATHS.CHAT.SESSION_BY_ID(id), 'CHAT'), {
         headers: buildHeaders({}, true),
       });
       if (!response.ok) throw new Error('Error obteniendo sesión de chat');
       return response.json();
     },
     updateSession: async (id, data) => {
-      const response = await fetch(buildUrl(`/api/chat/session/${id}`, CHAT_API_URL), {
+      const response = await fetch(buildUrl(API_PATHS.CHAT.SESSION_BY_ID(id), 'CHAT'), {
         method: 'PUT',
         headers: buildHeaders({}, true),
         body: JSON.stringify(data),
@@ -513,7 +584,7 @@ const apiServices = {
       return response.json();
     },
     deleteSession: async (id) => {
-      const response = await fetch(buildUrl(`/api/chat/session/${id}`, CHAT_API_URL), {
+      const response = await fetch(buildUrl(API_PATHS.CHAT.DELETE_SESSION(id), 'CHAT'), {
         method: 'DELETE',
         headers: buildHeaders({}, true),
       });
@@ -525,7 +596,7 @@ const apiServices = {
   learningPath: {
     generate: async (data) => {
       const response = await fetch(
-        buildUrl(`/api/generate-learning-path`, LEARNING_PATH_API_URL),
+        buildUrl(API_PATHS.LEARNING_PATH.GENERATE, 'LEARNING_PATH'),
         {
           method: 'POST',
           headers: buildHeaders({}, true),
@@ -537,7 +608,7 @@ const apiServices = {
     },
     update: async (pathId, data) => {
       const response = await fetch(
-        buildUrl(`/api/learning-path/${pathId}`, LEARNING_PATH_API_URL),
+        buildUrl(API_PATHS.LEARNING_PATH.UPDATE(pathId), 'LEARNING_PATH'),
         {
           method: 'PUT',
           headers: buildHeaders({}, true),
@@ -549,7 +620,7 @@ const apiServices = {
     },
     clone: async (pathId) => {
       const response = await fetch(
-        buildUrl(`/api/learning-path/${pathId}/clone`, LEARNING_PATH_API_URL),
+        buildUrl(API_PATHS.LEARNING_PATH.CLONE(pathId), 'LEARNING_PATH'),
         {
           method: 'POST',
           headers: buildHeaders({}, true),
@@ -563,7 +634,7 @@ const apiServices = {
   // 🔹 Búsqueda principal
   search: {
     main: async (query) => {
-      const response = await fetch(`/api/search`, {
+      const response = await fetch(buildUrl(API_PATHS.SEARCH.MAIN, 'SEARCH'), {
         method: 'POST',
         headers: buildHeaders({}, true),
         body: JSON.stringify({ query }),
