@@ -88,23 +88,13 @@ const AuthModal = ({ showAuthModal, closeAuthModal, initialTab = 'login' }) => {
             }
             return;
         } catch (apiErr) {
-            // Fallback local para pruebas
-            console.warn('Error en API de autenticación, activando fallback local:', apiErr);
-            const fakeUser = { email: 'test@correo.com', password: '12345' };
+            console.error('Error en API de autenticación:', apiErr);
+            const apiMessage = apiErr?.data?.message || apiErr?.message || 'Error de conexión con el servidor.';
 
             if (activeTab === 'login') {
-                if (formData.email === fakeUser.email && formData.password === fakeUser.password) {
-                    try { localStorage.setItem('token', 'local-dev-token'); } catch (e) { }
-                    if (closeAuthModal) closeAuthModal();
-                    navigate('/dashboard');
-                    return;
-                } else {
-                    alert('Correo o contraseña incorrectos (modo prueba).');
-                    return;
-                }
+                alert(apiMessage === 'Unauthorized' ? 'Credenciales incorrectas.' : apiMessage);
             } else {
-                setActiveTab('login');
-                alert('Cuenta creada con éxito (modo prueba). Por favor inicia sesión.');
+                alert(apiMessage);
             }
         }
     };
