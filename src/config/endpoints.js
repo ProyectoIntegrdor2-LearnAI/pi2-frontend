@@ -3,7 +3,7 @@
 
 export const LAMBDA_ENDPOINTS = {
   // Lambda para autenticación y usuarios
-  AUTH: process.env.REACT_APP_AUTH_LAMBDA_URL || 'https://your-auth-lambda.execute-api.region.amazonaws.com/prod',
+  AUTH: process.env.REACT_APP_AUTH_LAMBDA_URL || 'https://avouruymc3.execute-api.us-east-2.amazonaws.com/Prod',
   
   // Lambda para chat con IA
   CHAT: process.env.REACT_APP_CHAT_LAMBDA_URL || 'https://your-chat-lambda.execute-api.region.amazonaws.com/prod',
