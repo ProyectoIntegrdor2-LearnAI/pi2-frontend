@@ -19,16 +19,37 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        // Verificar si el token es válido
-        const userData = await apiServices.auth.verifyToken();
-        setUser(userData);
+      const token = apiServices.utils.getStoredToken();
+      const storedUser = apiServices.utils.getStoredUser();
+
+      if (!token && storedUser) {
+        setUser(storedUser);
         setIsAuthenticated(true);
+        return;
       }
+
+      if (token) {
+        try {
+          const userData = await apiServices.auth.verifyToken();
+          setUser(userData);
+          setIsAuthenticated(true);
+          return;
+        } catch (verifyError) {
+          if (storedUser) {
+            setUser(storedUser);
+            setIsAuthenticated(true);
+            return;
+          }
+          throw verifyError;
+        }
+      }
+
+      setUser(null);
+      setIsAuthenticated(false);
     } catch (error) {
       // Token inválido o expirado
-      localStorage.removeItem('authToken');
+      apiServices.utils.clearStoredToken();
+      apiServices.utils.clearStoredUser();
       setUser(null);
       setIsAuthenticated(false);
     } finally {

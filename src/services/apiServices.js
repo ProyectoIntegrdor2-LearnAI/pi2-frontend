@@ -11,6 +11,7 @@ const LEARNING_PATH_API_URL =
 const MOCK_API = process.env.REACT_APP_MOCK_API === 'true';
 
 const STORAGE_KEYS = ['token', 'authToken'];
+const USER_STORAGE_KEY = 'learnia_user';
 
 const isBrowser = () =>
   typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
@@ -26,6 +27,15 @@ const persistToken = (token) => {
   });
 };
 
+const persistUser = (user) => {
+  if (!user || !isBrowser()) return;
+  try {
+    window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+  } catch {
+    // noop
+  }
+};
+
 const clearStoredToken = () => {
   if (!isBrowser()) return;
   STORAGE_KEYS.forEach((key) => {
@@ -35,6 +45,15 @@ const clearStoredToken = () => {
       // noop
     }
   });
+};
+
+const clearStoredUser = () => {
+  if (!isBrowser()) return;
+  try {
+    window.localStorage.removeItem(USER_STORAGE_KEY);
+  } catch {
+    // noop
+  }
 };
 
 const getStoredToken = () => {
@@ -48,6 +67,17 @@ const getStoredToken = () => {
     }
   }
   return null;
+};
+
+const getStoredUser = () => {
+  if (!isBrowser()) return null;
+  try {
+    const value = window.localStorage.getItem(USER_STORAGE_KEY);
+    if (!value) return null;
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
 };
 
 // Helper para construir URLs completas
@@ -107,6 +137,7 @@ const apiServices = {
       const user = payload?.data?.user;
 
       persistToken(token);
+      persistUser(user);
 
       return {
         ...payload,
@@ -149,6 +180,7 @@ const apiServices = {
       const user = payload?.data?.user;
 
       persistToken(token);
+      persistUser(user);
 
       return {
         ...payload,
@@ -177,6 +209,7 @@ const apiServices = {
       }
 
       clearStoredToken();
+      clearStoredUser();
       if (isBrowser()) {
         try {
           window.sessionStorage.clear();
@@ -206,6 +239,8 @@ const apiServices = {
         throw new Error('No se pudo obtener la información del usuario');
       }
 
+      persistUser(user);
+
       return user;
     },
   },
@@ -213,18 +248,43 @@ const apiServices = {
   // 🔹 Servicios de usuario
   user: {
     getProfile: async (userId = 'profile') => {
-      const response = await fetch(buildUrl(`/users/${userId}`), {
-        method: 'GET',
-        headers: buildHeaders({}, true),
-      });
-      const payload = await handleResponse(response);
-      return payload?.data?.user || payload;
+      const storedUser = getStoredUser();
+      const resolvedUserId =
+        userId === 'profile'
+          ? storedUser?.user_id || storedUser?.id || 'profile'
+          : userId;
+
+      try {
+        const response = await fetch(buildUrl(`/users/${resolvedUserId}`), {
+          method: 'GET',
+          headers: buildHeaders({}, true),
+        });
+        const payload = await handleResponse(response);
+        const user = payload?.data?.user || payload;
+        if (user) {
+          persistUser(user);
+          return user;
+        }
+        if (storedUser) return storedUser;
+        return user;
+      } catch (error) {
+        if (storedUser) {
+          return storedUser;
+        }
+        throw error;
+      }
     },
 
     getCurrentProfile: async () => apiServices.user.getProfile('profile'),
 
     getProgress: async (userId = 'profile') => {
-      const response = await fetch(buildUrl(`/users/${userId}/progress`), {
+      const storedUser = getStoredUser();
+      const resolvedUserId =
+        userId === 'profile'
+          ? storedUser?.user_id || storedUser?.id || 'profile'
+          : userId;
+
+      const response = await fetch(buildUrl(`/users/${resolvedUserId}/progress`), {
         method: 'GET',
         headers: buildHeaders({}, true),
       });
@@ -245,7 +305,13 @@ const apiServices = {
         throw new Error('resourceId es requerido');
       }
 
-      const response = await fetch(buildUrl(`/users/${userId}/progress`), {
+      const storedUser = getStoredUser();
+      const resolvedUserId =
+        userId === 'profile'
+          ? storedUser?.user_id || storedUser?.id || 'profile'
+          : userId;
+
+      const response = await fetch(buildUrl(`/users/${resolvedUserId}/progress`), {
         method: 'POST',
         headers: buildHeaders({}, true),
         body: JSON.stringify({ resourceId }),
@@ -265,13 +331,24 @@ const apiServices = {
         }
       });
 
-      const response = await fetch(buildUrl(`/users/${userId}/profile`), {
+      const storedUser = getStoredUser();
+      const resolvedUserId =
+        userId === 'profile'
+          ? storedUser?.user_id || storedUser?.id || 'profile'
+          : userId;
+
+      const response = await fetch(buildUrl(`/users/${resolvedUserId}/profile`), {
         method: 'PUT',
         headers: buildHeaders({}, true),
         body: JSON.stringify(payload),
       });
 
-      return handleResponse(response);
+      const result = await handleResponse(response);
+      const updatedUser = result?.data?.user || result?.user;
+      if (updatedUser) {
+        persistUser(updatedUser);
+      }
+      return result;
     },
   },
 
@@ -341,14 +418,26 @@ const apiServices = {
   // 🔹 Dashboard
   dashboard: {
     getDashboard: async (userId = 'profile') => {
-      const response = await fetch(buildUrl(`/users/${userId}/dashboard`), {
+      const storedUser = getStoredUser();
+      const resolvedUserId =
+        userId === 'profile'
+          ? storedUser?.user_id || storedUser?.id || 'profile'
+          : userId;
+
+      const response = await fetch(buildUrl(`/users/${resolvedUserId}/dashboard`), {
         method: 'GET',
         headers: buildHeaders({}, true),
       });
       return handleResponse(response);
     },
     deleteDashboard: async (userId = 'profile') => {
-      const response = await fetch(buildUrl(`/users/${userId}/dashboard`), {
+      const storedUser = getStoredUser();
+      const resolvedUserId =
+        userId === 'profile'
+          ? storedUser?.user_id || storedUser?.id || 'profile'
+          : userId;
+
+      const response = await fetch(buildUrl(`/users/${resolvedUserId}/dashboard`), {
         method: 'DELETE',
         headers: buildHeaders({}, true),
       });
@@ -450,6 +539,9 @@ const apiServices = {
     persistToken,
     clearStoredToken,
     getStoredToken,
+    persistUser,
+    getStoredUser,
+    clearStoredUser,
     isMockMode: () => MOCK_API,
   },
 };
