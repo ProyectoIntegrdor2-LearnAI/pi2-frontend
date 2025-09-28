@@ -3,175 +3,16 @@ import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
 import avatarIcon from '../imagenes/iconoUsuario.png';
 import logoImage from '../imagenes/logoPrincipal.png';
-import cursosData from '../data/cursosData.json';
+import { unwrapApiData, normalizeCourse } from "../utils/apiData";
 import "../styles/Dashboard.css";
 import "../styles/MisFavoritos.css";
-
-// Datos simulados de cursos favoritos
-const cursosFavoritosSimulados = [
-  {
-    id: 1,
-    titulo: "Complete React Developer Course 2024",
-    descripcion: "Master React by building real projects. Includes Redux, React Router, Hooks, Context API and modern React development.",
-    plataforma: "Udemy",
-    instructor: "Andrew Mead",
-    duracion: "39 hours",
-    nivel: "Intermedio",
-    rating: 4.7,
-    estudiantes: "145,234",
-    precio: "$89.99",
-    precioOriginal: "$199.99",
-    descuento: 55,
-    imagen: "https://img-c.udemycdn.com/course/750x422/851712_fc61_6.jpg",
-    url: "https://udemy.com/react-complete-course",
-    categoria: "Desarrollo Web",
-    tags: ["React", "JavaScript", "Frontend", "Redux"],
-    fechaAgregado: "2024-02-15",
-    ultimaActualizacion: "2024-01-20",
-    idioma: "Inglés",
-    certificado: true,
-    accesoVitalicio: true,
-    videoHoras: 39,
-    articulos: 12,
-    recursosDescargables: 8
-  },
-  {
-    id: 2,
-    titulo: "Machine Learning A-Z: AI, Python & R + ChatGPT Bonus",
-    descripcion: "Learn to create Machine Learning Algorithms in Python and R from two Data Science experts. Code templates included.",
-    plataforma: "Udemy",
-    instructor: "Kirill Eremenko",
-    duracion: "44 hours",
-    nivel: "Principiante",
-    rating: 4.5,
-    estudiantes: "256,789",
-    precio: "$94.99",
-    precioOriginal: "$199.99",
-    descuento: 52,
-    imagen: "https://img-c.udemycdn.com/course/750x422/950390_270f_3.jpg",
-    url: "https://udemy.com/machine-learning-az",
-    categoria: "Data Science",
-    tags: ["Machine Learning", "Python", "AI", "Data Science"],
-    fechaAgregado: "2024-02-10",
-    ultimaActualizacion: "2024-01-15",
-    idioma: "Inglés",
-    certificado: true,
-    accesoVitalicio: true,
-    videoHoras: 44,
-    articulos: 24,
-    recursosDescargables: 15
-  },
-  {
-    id: 3,
-    titulo: "AWS Certified Solutions Architect Associate",
-    descripcion: "Pass the AWS Certified Solutions Architect Associate exam! Complete AWS SAA-C03 course with practice tests.",
-    plataforma: "Udemy",
-    instructor: "Stephane Maarek",
-    duracion: "27 hours",
-    nivel: "Intermedio",
-    rating: 4.8,
-    estudiantes: "198,456",
-    precio: "$79.99",
-    precioOriginal: "$199.99",
-    descuento: 60,
-    imagen: "https://img-c.udemycdn.com/course/750x422/362070_b9a1_10.jpg",
-    url: "https://udemy.com/aws-certified-solutions-architect",
-    categoria: "Cloud Computing",
-    tags: ["AWS", "Cloud", "Solutions Architect", "Certification"],
-    fechaAgregado: "2024-02-05",
-    ultimaActualizacion: "2024-01-25",
-    idioma: "Inglés",
-    certificado: true,
-    accesoVitalicio: true,
-    videoHoras: 27,
-    articulos: 18,
-    recursosDescargables: 10
-  },
-  {
-    id: 4,
-    titulo: "Python for Data Science and Machine Learning Bootcamp",
-    descripcion: "Learn how to use NumPy, Pandas, Seaborn, Matplotlib, Plotly, Scikit-Learn, Machine Learning, Tensorflow, and more!",
-    plataforma: "Udemy",
-    instructor: "Jose Portilla",
-    duracion: "25 hours",
-    nivel: "Intermedio",
-    rating: 4.6,
-    estudiantes: "432,123",
-    precio: "$84.99",
-    precioOriginal: "$199.99",
-    descuento: 57,
-    imagen: "https://img-c.udemycdn.com/course/750x422/903744_8eb2.jpg",
-    url: "https://udemy.com/python-data-science-bootcamp",
-    categoria: "Data Science",
-    tags: ["Python", "Data Science", "Machine Learning", "Pandas"],
-    fechaAgregado: "2024-01-28",
-    ultimaActualizacion: "2024-01-10",
-    idioma: "Inglés",
-    certificado: true,
-    accesoVitalicio: true,
-    videoHoras: 25,
-    articulos: 16,
-    recursosDescargables: 12
-  },
-  {
-    id: 5,
-    titulo: "Docker & Kubernetes: The Complete Guide",
-    descripcion: "Build, test, and deploy Docker applications with Kubernetes while learning production-style development workflows.",
-    plataforma: "Udemy",
-    instructor: "Stephen Grider",
-    duracion: "21 hours",
-    nivel: "Intermedio",
-    rating: 4.7,
-    estudiantes: "87,945",
-    precio: "$89.99",
-    precioOriginal: "$199.99",
-    descuento: 55,
-    imagen: "https://img-c.udemycdn.com/course/750x422/1793828_7cd9.jpg",
-    url: "https://udemy.com/docker-kubernetes-complete-guide",
-    categoria: "DevOps",
-    tags: ["Docker", "Kubernetes", "DevOps", "Containers"],
-    fechaAgregado: "2024-01-20",
-    ultimaActualizacion: "2024-01-18",
-    idioma: "Inglés",
-    certificado: true,
-    accesoVitalicio: true,
-    videoHoras: 21,
-    articulos: 8,
-    recursosDescargables: 6
-  },
-  {
-    id: 6,
-    titulo: "Complete Node.js Developer Course",
-    descripcion: "Learn Node.js by building real-world applications with Node, Express, MongoDB, Jest, and more!",
-    plataforma: "Udemy",
-    instructor: "Andrew Mead",
-    duracion: "35 hours",
-    nivel: "Intermedio",
-    rating: 4.7,
-    estudiantes: "178,234",
-    precio: "$89.99",
-    precioOriginal: "$199.99",
-    descuento: 55,
-    imagen: "https://img-c.udemycdn.com/course/750x422/922484_52a1_8.jpg",
-    url: "https://udemy.com/complete-nodejs-developer-course",
-    categoria: "Desarrollo Web",
-    tags: ["Node.js", "Express", "MongoDB", "Backend"],
-    fechaAgregado: "2024-01-15",
-    ultimaActualizacion: "2024-01-12",
-    idioma: "Inglés",
-    certificado: true,
-    accesoVitalicio: true,
-    videoHoras: 35,
-    articulos: 14,
-    recursosDescargables: 10
-  }
-];
 
 function MisFavoritos() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cursosFavoritos, setCursosFavoritos] = useState([]);
   const [userProfile, setUserProfile] = useState({ name: "", email: "" });
+  const [favoritesError, setFavoritesError] = useState(null);
   const [filtroCategoria, setFiltroCategoria] = useState("Todas");
   const [filtroNivel, setFiltroNivel] = useState("Todos");
   const [ordenarPor, setOrdenarPor] = useState("fechaAgregado");
@@ -184,44 +25,72 @@ function MisFavoritos() {
     loadFavoritesCourses();
   }, []);
 
-  // Cargar cursos favoritos desde localStorage
-  const loadFavoritesCourses = () => {
+  if (loading) {
+    return (
+      <div className="dashboard-wrapper">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Cargando tus cursos favoritos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const loadFavoritesCourses = async () => {
     try {
-      const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const favoritesCourses = cursosData
-        .filter(curso => favoriteIds.includes(curso.id))
-        .map(curso => ({
-          ...curso,
-          // Adaptar formato para compatibilidad con el componente existente
-          plataforma: "LearnIA",
-          estudiantes: "0",
-          precio: curso.precio === 'gratis' ? 'Gratis' : '$99.99',
-          precioOriginal: curso.precio === 'gratis' ? 'Gratis' : '$199.99',
-          descuento: curso.precio === 'gratis' ? 0 : 50,
-          imagen: curso.imagen || 'https://via.placeholder.com/300x200?text=Curso',
-          url: `/curso/${curso.id}`,
-          categoria: curso.categoria,
-          tags: [curso.categoria, curso.nivel],
-          fechaAgregado: new Date().toISOString().split('T')[0],
-          ultimaActualizacion: new Date().toISOString().split('T')[0],
-          idioma: "Español",
-          certificado: true,
-          accesoVitalicio: true,
-          videoHoras: parseInt(curso.duracion.split(' ')[0]) || 8,
-          articulos: 5,
-          recursosDescargables: 3,
-          rating: curso.calificacion
-        }));
-      
-      // Si no hay favoritos, usar algunos cursos simulados como ejemplo
-      if (favoritesCourses.length === 0) {
-        setCursosFavoritos(cursosFavoritosSimulados.slice(0, 2)); // Solo mostrar 2 ejemplos
-      } else {
-        setCursosFavoritos(favoritesCourses);
+      setLoading(true);
+      setFavoritesError(null);
+
+      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
+
+      if (!Array.isArray(stored) || stored.length === 0) {
+        setCursosFavoritos([]);
+        return;
       }
+
+      const resolved = await Promise.all(
+        stored.map(async (item) => {
+          if (item && typeof item === 'object') {
+            const normalized = normalizeCourse(item) || {
+              ...item,
+              calificacion: Number(item.calificacion || 0),
+            };
+
+            return {
+              ...normalized,
+              ...item,
+              fechaAgregado: item.fechaAgregado || new Date().toISOString(),
+            };
+          }
+
+          try {
+            const response = await apiServices.courses.getCourseById(item);
+            const data = unwrapApiData(response);
+            const normalized = normalizeCourse(data);
+            if (!normalized) {
+              return null;
+            }
+            return {
+              ...normalized,
+              fechaAgregado: new Date().toISOString(),
+            };
+          } catch (error) {
+            console.warn('No se pudo obtener el curso favorito', error);
+            return null;
+          }
+        })
+      );
+
+      const favorites = resolved.filter(Boolean);
+      setCursosFavoritos(favorites);
     } catch (error) {
       console.error('Error cargando favoritos:', error);
-      setCursosFavoritos(cursosFavoritosSimulados.slice(0, 2));
+      setFavoritesError(
+        error?.message || 'No fue posible cargar tus cursos favoritos'
+      );
+      setCursosFavoritos([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -257,8 +126,18 @@ function MisFavoritos() {
   };
 
   // Obtener categorías únicas
-  const categorias = ["Todas", ...new Set(cursosFavoritos.map(curso => curso.categoria))];
-  const niveles = ["Todos", ...new Set(cursosFavoritos.map(curso => curso.nivel))];
+  const categorias = [
+    "Todas",
+    ...Array.from(
+      new Set(cursosFavoritos.map((curso) => curso.categoria).filter(Boolean))
+    ),
+  ];
+  const niveles = [
+    "Todos",
+    ...Array.from(
+      new Set(cursosFavoritos.map((curso) => curso.nivel).filter(Boolean))
+    ),
+  ];
 
   // Filtrar y ordenar cursos
   const cursosFiltrados = cursosFavoritos
@@ -268,40 +147,81 @@ function MisFavoritos() {
       return true;
     })
     .sort((a, b) => {
+      const priceValue = (value) => {
+        const normalized = String(value || '').toLowerCase();
+        if (normalized.includes('gratis')) {
+          return 0;
+        }
+        const numeric = parseFloat(normalized.replace(/[^0-9.,]/g, '').replace(',', '.'));
+        return Number.isNaN(numeric) ? 0 : numeric;
+      };
+
       switch (ordenarPor) {
         case "fechaAgregado":
-          return new Date(b.fechaAgregado) - new Date(a.fechaAgregado);
+          return (
+            new Date(b.fechaAgregado || b.updated_at || 0) -
+            new Date(a.fechaAgregado || a.updated_at || 0)
+          );
         case "titulo":
-          return a.titulo.localeCompare(b.titulo);
+          return (a.titulo || '').localeCompare(b.titulo || '');
         case "rating":
-          return b.rating - a.rating;
+          return Number(b.calificacion || 0) - Number(a.calificacion || 0);
         case "precio":
-          return parseFloat(a.precio.replace('$', '')) - parseFloat(b.precio.replace('$', ''));
+          return priceValue(a.precio) - priceValue(b.precio);
         default:
           return 0;
       }
     });
 
+  const promedioCalificacion = cursosFavoritos.length
+    ? (
+        cursosFavoritos.reduce(
+          (acc, curso) => acc + Number(curso.calificacion || 0),
+          0
+        ) / cursosFavoritos.length
+      ).toFixed(1)
+    : '0.0';
+
+  const totalDuracion = cursosFavoritos.reduce((acc, curso) => {
+    const match = String(curso.duracion || '').match(/\d+(\.\d+)?/);
+    return acc + (match ? parseFloat(match[0]) : 0);
+  }, 0);
+
   const removerDeFavoritos = (cursoId) => {
-    // Remover del estado local
-    setCursosFavoritos(prev => prev.filter(curso => curso.id !== cursoId));
-    
-    // Remover del localStorage
+    setCursosFavoritos((prev) => prev.filter((curso) => curso.id !== cursoId));
+
     try {
-      const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const updatedFavorites = favoriteIds.filter(id => id !== cursoId);
-      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const updated = Array.isArray(stored)
+        ? stored.filter((item) =>
+            typeof item === 'object' ? item.id !== cursoId : item !== cursoId
+          )
+        : [];
+      localStorage.setItem('favorites', JSON.stringify(updated));
     } catch (error) {
       console.error('Error actualizando favoritos:', error);
     }
   };
 
-  const irAlCurso = (url) => {
-    window.open(url, '_blank');
+  const irAlCurso = (url, cursoId) => {
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      navigate(`/curso/${cursoId}`);
+    }
   };
 
   const formatearFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-ES', {
+    if (!fecha) {
+      return 'No disponible';
+    }
+
+    const date = new Date(fecha);
+    if (Number.isNaN(date.getTime())) {
+      return 'No disponible';
+    }
+
+    return date.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -436,8 +356,12 @@ function MisFavoritos() {
           {cursosFiltrados.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">♥</div>
-              <h3>No tienes cursos favoritos</h3>
-              <p>Ve al inicio y usa el buscador para encontrar cursos que te interesen</p>
+              <h3>{favoritesError ? 'No pudimos cargar tus favoritos' : 'No encontramos cursos para mostrar'}</h3>
+              <p>
+                {favoritesError
+                  ? favoritesError
+                  : 'Ve al inicio y usa el buscador para encontrar cursos que te interesen'}
+              </p>
               <button 
                 className="cta-button"
                 onClick={() => handleNavigation('/dashboard')}
@@ -450,11 +374,17 @@ function MisFavoritos() {
               {cursosFiltrados.map((curso) => (
                 <div key={curso.id} className="curso-card">
                   <div className="curso-imagen">
-                    <img src={curso.imagen} alt={curso.titulo} />
+                    <img
+                      src={curso.imagen || 'https://via.placeholder.com/400x250?text=Curso'}
+                      alt={curso.titulo || 'Curso'}
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Curso';
+                      }}
+                    />
                     <div className="curso-overlay">
                       <button 
                         className="preview-btn"
-                        onClick={() => irAlCurso(curso.url)}
+                        onClick={() => irAlCurso(curso.url, curso.id)}
                       >
                         Ver Curso
                       </button>
@@ -463,7 +393,7 @@ function MisFavoritos() {
                   
                   <div className="curso-content">
                     <div className="curso-header">
-                      <div className="plataforma-badge">{curso.plataforma}</div>
+                      <div className="plataforma-badge">{curso.plataforma || 'LearnIA'}</div>
                       <button 
                         className="favorite-btn active"
                         onClick={() => removerDeFavoritos(curso.id)}
@@ -473,35 +403,41 @@ function MisFavoritos() {
                       </button>
                     </div>
 
-                    <h3 className="curso-titulo">{curso.titulo}</h3>
-                    <p className="curso-instructor">Por {curso.instructor}</p>
-                    <p className="curso-descripcion">{curso.descripcion}</p>
+                    <h3 className="curso-titulo">{curso.titulo || 'Curso sin título'}</h3>
+                    <p className="curso-instructor">Por {curso.instructor || 'Instructor por definir'}</p>
+                    <p className="curso-descripcion">
+                      {curso.descripcion
+                        ? (curso.descripcion.length > 140
+                            ? `${curso.descripcion.slice(0, 140)}...`
+                            : curso.descripcion)
+                        : 'Sin descripción disponible'}
+                    </p>
 
                     <div className="curso-meta">
                       <div className="meta-item">
                         <span className="meta-icon">⭐</span>
-                        <span>{curso.rating} ({curso.estudiantes})</span>
+                        <span>{Number(curso.calificacion || 0).toFixed(1)}</span>
                       </div>
                       <div className="meta-item">
                         <span className="meta-icon">🕒</span>
-                        <span>{curso.duracion}</span>
+                        <span>{curso.duracion || 'Duración no disponible'}</span>
                       </div>
                       <div className="meta-item">
                         <span className="meta-icon">📊</span>
-                        <span>{curso.nivel}</span>
+                        <span>{curso.nivel || 'Nivel no definido'}</span>
                       </div>
                     </div>
 
                     <div className="curso-tags">
-                      {curso.tags.slice(0, 3).map((tag, index) => (
+                      {(curso.tags && curso.tags.length ? curso.tags : [curso.categoria, curso.nivel].filter(Boolean))
+                        .slice(0, 3)
+                        .map((tag, index) => (
                         <span key={index} className="tag">{tag}</span>
                       ))}
                     </div>
 
                     <div className="curso-precio">
-                      <span className="precio-actual">{curso.precio}</span>
-                      <span className="precio-original">{curso.precioOriginal}</span>
-                      <span className="descuento">-{curso.descuento}%</span>
+                      <span className="precio-actual">{curso.precio || 'Gratis'}</span>
                     </div>
 
                     <div className="curso-footer">
@@ -517,7 +453,7 @@ function MisFavoritos() {
                         </button>
                         <button 
                           className="action-btn primary"
-                          onClick={() => irAlCurso(curso.url)}
+                          onClick={() => irAlCurso(curso.url, curso.id)}
                         >
                           Ir al Curso
                         </button>
@@ -565,9 +501,7 @@ function MisFavoritos() {
                   <h3>Rating Promedio</h3>
                 </div>
                 <div className="stat-body">
-                  <div className="stat-number">
-                    {(cursosFavoritos.reduce((acc, curso) => acc + curso.rating, 0) / cursosFavoritos.length).toFixed(1)}
-                  </div>
+                  <div className="stat-number">{promedioCalificacion}</div>
                   <p>Calificación</p>
                 </div>
               </div>
@@ -578,9 +512,7 @@ function MisFavoritos() {
                   <h3>Tiempo Total</h3>
                 </div>
                 <div className="stat-body">
-                  <div className="stat-number">
-                    {cursosFavoritos.reduce((acc, curso) => acc + parseInt(curso.duracion), 0)}h
-                  </div>
+                  <div className="stat-number">{totalDuracion.toFixed(1)}h</div>
                   <p>De contenido</p>
                 </div>
               </div>

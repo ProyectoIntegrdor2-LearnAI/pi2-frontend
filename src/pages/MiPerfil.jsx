@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
 import { useAuth } from "../hooks/useAuth";
+import { unwrapApiData, formatDateValue } from "../utils/apiData";
 import avatarIcon from '../imagenes/iconoUsuario.png';
 import logoImage from '../imagenes/logoPrincipal.png';
 import "../styles/Dashboard.css";
@@ -31,15 +32,6 @@ const DEFAULT_SETTINGS = {
   },
 };
 
-const DEFAULT_STATS = {
-  cursosCompletados: 0,
-  horasEstudiadas: 0,
-  rutasTerminadas: 0,
-  certificadosObtenidos: 0,
-  rachaActual: 0,
-  promedioCalificacion: 0,
-};
-
 const normalizeSettings = (settings = {}) => ({
   ...DEFAULT_SETTINGS,
   ...settings,
@@ -60,11 +52,6 @@ const normalizeSettings = (settings = {}) => ({
   },
 });
 
-const normalizeStats = (stats = {}) => ({
-  ...DEFAULT_STATS,
-  ...stats,
-});
-
 const createEmptyProfile = () => ({
   user_id: "",
   name: "",
@@ -76,7 +63,9 @@ const createEmptyProfile = () => ({
   typeUser: "",
   avatar: null,
   configuraciones: normalizeSettings(),
-  estadisticas: normalizeStats(),
+  account_status: "",
+  created_at: null,
+  updated_at: null,
 });
 
 const normalizeProfile = (profile = {}) => {
@@ -97,7 +86,9 @@ const normalizeProfile = (profile = {}) => {
   normalized.typeUser = normalized.type_user;
   normalized.avatar = profile.avatar || null;
   normalized.configuraciones = normalizeSettings(profile.configuraciones);
-  normalized.estadisticas = normalizeStats(profile.estadisticas);
+  normalized.account_status = profile.account_status || profile.status || "";
+  normalized.created_at = profile.created_at || profile.createdAt || null;
+  normalized.updated_at = profile.updated_at || profile.updatedAt || null;
 
   return normalized;
 };
@@ -113,6 +104,7 @@ function MiPerfil() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("perfil");
   const [perfilData, setPerfilData] = useState(initialProfile);
+  const [dashboardInfo, setDashboardInfo] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState(() => ({
     name: initialProfile.name || "",
@@ -136,6 +128,45 @@ function MiPerfil() {
 
   const navigate = useNavigate();
 
+  const accountSummary = useMemo(() => {
+    const membershipDate = formatDateValue(perfilData.created_at);
+    const lastUpdate = formatDateValue(perfilData.updated_at, { includeTime: true });
+    const lastLogin = formatDateValue(dashboardInfo?.last_login, { includeTime: true });
+
+    const summary = [
+      {
+        icon: '🧩',
+        label: 'Tipo de usuario',
+        value: perfilData.type_user || 'Sin definir',
+      },
+      {
+        icon: '🔒',
+        label: 'Estado de la cuenta',
+        value: dashboardInfo?.account_status || perfilData.account_status || 'No disponible',
+      },
+      {
+        icon: '📅',
+        label: 'Miembro desde',
+        value: membershipDate || 'No disponible',
+      },
+      {
+        icon: '⏱️',
+        label: 'Última actualización',
+        value: lastUpdate || 'No disponible',
+      },
+    ];
+
+    if (lastLogin) {
+      summary.push({
+        icon: '🔄',
+        label: 'Último acceso',
+        value: lastLogin,
+      });
+    }
+
+    return summary;
+  }, [perfilData, dashboardInfo]);
+
   useEffect(() => {
     if (authLoading) return;
     if (authUser?.user_id) {
@@ -155,57 +186,73 @@ function MiPerfil() {
   }, [configuraciones?.tema]);
 
   const loadUserProfile = async (requestedUserId) => {
+    const targetId = requestedUserId || authUser?.user_id || 'profile';
+
     try {
       setLoading(true);
       setProfileError(null);
-      const targetId = requestedUserId || authUser?.user_id || 'profile';
-      const profile = await apiServices.user.getProfile(targetId);
+
+      const [profileResponse, dashboardResponse] = await Promise.all([
+        apiServices.user.getProfile(targetId),
+        apiServices.dashboard.getDashboard(targetId).catch((dashboardError) => {
+          console.warn('Error cargando información de dashboard:', dashboardError);
+          return null;
+        }),
+      ]);
+
       const savedAvatar = getSavedAvatar();
+      const normalizedProfile = normalizeProfile(profileResponse);
 
-      const mergedProfile = normalizeProfile(profile);
-
-      setPerfilData({ ...mergedProfile, avatar: savedAvatar });
+      setPerfilData({ ...normalizedProfile, avatar: savedAvatar });
       setFormData((prev) => ({
         ...prev,
-        name: mergedProfile.name || '',
-        email: mergedProfile.email || '',
-        identification: mergedProfile.identification || mergedProfile.id || '',
-        phone: mergedProfile.phone || '',
-        address: mergedProfile.address || '',
+        name: normalizedProfile.name || '',
+        email: normalizedProfile.email || '',
+        identification:
+          normalizedProfile.identification ||
+          normalizedProfile.id ||
+          '',
+        phone: normalizedProfile.phone || '',
+        address: normalizedProfile.address || '',
         avatar: savedAvatar,
-        typeUser: mergedProfile.typeUser || mergedProfile.type_user || '',
+        typeUser: normalizedProfile.typeUser || normalizedProfile.type_user || '',
       }));
 
-      if (mergedProfile.configuraciones) {
-        setConfiguraciones(normalizeSettings(mergedProfile.configuraciones));
-      }
+      setConfiguraciones(normalizeSettings(normalizedProfile.configuraciones));
+
+      const dashboardData = unwrapApiData(dashboardResponse);
+      setDashboardInfo(dashboardData?.dashboard_info || null);
     } catch (error) {
       console.error('Error cargando perfil:', error);
       setProfileError(error?.message || 'No fue posible cargar el perfil');
+
       const cachedUser = apiServices.utils.getStoredUser();
       if (cachedUser) {
         const savedAvatar = getSavedAvatar();
-        const mergedProfile = normalizeProfile(cachedUser);
-        setPerfilData({ ...mergedProfile, avatar: savedAvatar });
+        const normalizedCached = normalizeProfile(cachedUser);
+        setPerfilData({ ...normalizedCached, avatar: savedAvatar });
         setFormData((prev) => ({
           ...prev,
-          name: mergedProfile.name || prev.name || '',
-          email: mergedProfile.email || prev.email || '',
+          name: normalizedCached.name || prev.name || '',
+          email: normalizedCached.email || prev.email || '',
           identification:
-            mergedProfile.identification ||
-            mergedProfile.id ||
+            normalizedCached.identification ||
+            normalizedCached.id ||
             prev.identification ||
             '',
-          phone: mergedProfile.phone || prev.phone || '',
-          address: mergedProfile.address || prev.address || '',
+          phone: normalizedCached.phone || prev.phone || '',
+          address: normalizedCached.address || prev.address || '',
           avatar: savedAvatar,
           typeUser:
-            mergedProfile.typeUser ||
-            mergedProfile.type_user ||
+            normalizedCached.typeUser ||
+            normalizedCached.type_user ||
             prev.typeUser ||
             '',
         }));
-        setConfiguraciones(normalizeSettings(mergedProfile.configuraciones));
+        setConfiguraciones(normalizeSettings(normalizedCached.configuraciones));
+        setDashboardInfo(null);
+      } else {
+        setDashboardInfo(null);
       }
     } finally {
       setLoading(false);
@@ -399,6 +446,14 @@ function MiPerfil() {
           prev.typeUser ||
           '',
       }));
+
+      const dashboardResponse = await apiServices.dashboard
+        .getDashboard('profile')
+        .catch(() => null);
+      const dashboardData = unwrapApiData(dashboardResponse);
+      if (dashboardData?.dashboard_info) {
+        setDashboardInfo(dashboardData.dashboard_info);
+      }
 
       setEditMode(false);
     } catch (error) {
@@ -1010,86 +1065,47 @@ function MiPerfil() {
             {activeTab === "estadisticas" && (
               <div className="tab-panel">
                 <div className="panel-header">
-                  <h2>Mis Estadísticas</h2>
+                  <h2>Resumen de Cuenta</h2>
                 </div>
 
                 <div className="stats-overview">
                   <div className="stats-grid">
-                    <div className="stat-card">
-                      <div className="stat-icon">🎓</div>
-                      <div className="stat-content">
-                        <div className="stat-number">{perfilData.estadisticas.cursosCompletados}</div>
-                        <div className="stat-label">Cursos Completados</div>
+                    {accountSummary.map((item) => (
+                      <div key={item.label} className="stat-card">
+                        <div className="stat-icon">{item.icon}</div>
+                        <div className="stat-content">
+                          <div className="stat-number">{item.value}</div>
+                          <div className="stat-label">{item.label}</div>
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="stat-card">
-                      <div className="stat-icon">⏱️</div>
-                      <div className="stat-content">
-                        <div className="stat-number">{perfilData.estadisticas.horasEstudiadas}h</div>
-                        <div className="stat-label">Horas de Estudio</div>
-                      </div>
-                    </div>
-
-                    <div className="stat-card">
-                      <div className="stat-icon">🏆</div>
-                      <div className="stat-content">
-                        <div className="stat-number">{perfilData.estadisticas.certificadosObtenidos}</div>
-                        <div className="stat-label">Certificados</div>
-                      </div>
-                    </div>
-
-                    <div className="stat-card">
-                      <div className="stat-icon">🔥</div>
-                      <div className="stat-content">
-                        <div className="stat-number">{perfilData.estadisticas.rachaActual}</div>
-                        <div className="stat-label">Días Consecutivos</div>
-                      </div>
-                    </div>
-
-                    <div className="stat-card">
-                      <div className="stat-icon">📈</div>
-                      <div className="stat-content">
-                        <div className="stat-number">{perfilData.estadisticas.rutasTerminadas}</div>
-                        <div className="stat-label">Rutas Terminadas</div>
-                      </div>
-                    </div>
-
-                    <div className="stat-card">
-                      <div className="stat-icon">⭐</div>
-                      <div className="stat-content">
-                        <div className="stat-number">{perfilData.estadisticas.promedioCalificacion}</div>
-                        <div className="stat-label">Calificación Promedio</div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
 
-                  {/* Información adicional */}
                   <div className="additional-info">
                     <div className="info-card">
-                      <h3>Información de Cuenta</h3>
+                      <h3>Información de contacto</h3>
                       <div className="info-item">
-                        <span className="info-label">Miembro desde:</span>
-                        <span className="info-value">
-                          {new Date(perfilData.fechaRegistro).toLocaleDateString('es-ES', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </span>
+                        <span className="info-label">Identificación:</span>
+                        <span className="info-value">{perfilData.identification || 'No registrada'}</span>
                       </div>
                       <div className="info-item">
-                        <span className="info-label">Último acceso:</span>
-                        <span className="info-value">
-                          {new Date(perfilData.ultimoAcceso).toLocaleDateString('es-ES', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
+                        <span className="info-label">Correo:</span>
+                        <span className="info-value">{perfilData.email || 'No registrado'}</span>
                       </div>
+                      <div className="info-item">
+                        <span className="info-label">Teléfono:</span>
+                        <span className="info-value">{perfilData.phone || 'No registrado'}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Dirección:</span>
+                        <span className="info-value">{perfilData.address || 'No registrada'}</span>
+                      </div>
+                      {!dashboardInfo && (
+                        <div className="info-item">
+                          <span className="info-label">Métricas:</span>
+                          <span className="info-value">Aún no hay estadísticas de progreso disponibles</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

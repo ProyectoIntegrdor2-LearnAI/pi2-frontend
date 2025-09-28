@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
+import { unwrapApiData, normalizeCourse } from "../utils/apiData";
 import avatarIcon from '../imagenes/iconoUsuario.png';
 import logoImage from '../imagenes/logoPrincipal.png';
 import "../styles/Dashboard.css";
@@ -11,6 +12,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  const [dashboardInfo, setDashboardInfo] = useState(null);
   const [userProgress, setUserProgress] = useState({
     completedCourses: 0,
     totalCourses: 0,
@@ -19,6 +21,7 @@ function Dashboard() {
     currentLevel: "Principiante"
   });
   const [recentCourses, setRecentCourses] = useState([]);
+  const [availableCourses, setAvailableCourses] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchFilters, setSearchFilters] = useState({
@@ -27,6 +30,9 @@ function Dashboard() {
     precio: '',
     duracion: ''
   });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [coursesError, setCoursesError] = useState(null);
+  const [progressError, setProgressError] = useState(null);
 
   
   const navigate = useNavigate();
@@ -36,102 +42,155 @@ function Dashboard() {
   }, []);
 
   const initializeDashboard = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
-      const [profileResponse, progressResponse] = await Promise.allSettled([
-        loadUserProfile(),
-        loadUserProgress()
-      ]);
+    const [dashboardResult, coursesResult, progressResult] = await Promise.allSettled([
+      loadDashboardData(),
+      loadCourseCatalog(),
+      loadUserProgress()
+    ]);
 
-      if (profileResponse.status === 'rejected') {
-        console.error('Error cargando perfil:', profileResponse.reason);
-      }
-      
-      if (progressResponse.status === 'rejected') {
-        console.error('Error cargando progreso:', progressResponse.reason);
-      }
-
-    } catch (error) {
-      console.error('Error inicializando dashboard:', error);
-      setError('Error cargando los datos del dashboard');
-    } finally {
-      setLoading(false);
+    if (dashboardResult.status === 'rejected') {
+      console.error('Error cargando datos del dashboard:', dashboardResult.reason);
+      setError(
+        dashboardResult.reason?.message ||
+          'No fue posible cargar tu información personal'
+      );
     }
+
+    if (coursesResult.status === 'rejected') {
+      console.error('Error cargando cursos:', coursesResult.reason);
+      setCoursesError(
+        coursesResult.reason?.message ||
+          'No fue posible cargar los cursos recomendados'
+      );
+    }
+
+    if (progressResult.status === 'rejected') {
+      console.error('Error cargando progreso:', progressResult.reason);
+      setProgressError(
+        progressResult.reason?.message ||
+          'No fue posible obtener tu progreso'
+      );
+    }
+
+    setLoading(false);
   };
 
-  // RF-027: Ver perfil del usuario
-  const loadUserProfile = async () => {
+  // Información general de usuario y dashboard
+  const loadDashboardData = async () => {
     try {
-      const profile = await apiServices.user.getProfile();
-      setUserProfile(profile);
-      return profile;
+      const response = await apiServices.dashboard.getDashboard();
+      const data = unwrapApiData(response);
+
+      const userData = data?.user || data?.usuario;
+      if (userData) {
+        setUserProfile(userData);
+      } else {
+        const cachedUser = apiServices.utils.getStoredUser();
+        if (cachedUser) {
+          setUserProfile(cachedUser);
+        }
+      }
+
+      setDashboardInfo(data?.dashboard_info || null);
+      return data;
     } catch (error) {
-      console.error('Error cargando perfil:', error);
-      setUserProfile({
-        name: "",
-        email: ""
-      });
+      const cachedUser = apiServices.utils.getStoredUser();
+      if (cachedUser) {
+        setUserProfile(cachedUser);
+      }
+      setDashboardInfo(null);
       throw error;
     }
   };
 
-  // RF-029: Ver progreso de ruta
+  // Progreso del usuario (si está disponible en la API)
   const loadUserProgress = async () => {
     try {
-      const progress = await apiServices.user.getProgress();
-      setUserProgress(progress);
-      
-      // Cargar cursos recientes
-      const courses = await apiServices.courses.getAllCourses({ limit: 3 });
-      setRecentCourses(courses.slice(0, 3));
-      
-      return progress;
+      setProgressError(null);
+      const response = await apiServices.user.getProgress();
+      const data = unwrapApiData(response);
+
+      const rawProgress =
+        data?.progress ||
+        data?.progreso ||
+        data?.data?.progress ||
+        data;
+
+      const normalized = {
+        completedCourses: Number(
+          rawProgress?.completedCourses ?? rawProgress?.completed_courses ?? 0
+        ),
+        totalCourses: Number(
+          rawProgress?.totalCourses ?? rawProgress?.total_courses ?? 0
+        ),
+        consecutiveDays: Number(
+          rawProgress?.consecutiveDays ??
+            rawProgress?.diasConsecutivos ??
+            rawProgress?.streak ??
+            0
+        ),
+        totalHours: Number(
+          rawProgress?.totalHours ?? rawProgress?.horasTotales ?? 0
+        ),
+        currentLevel:
+          rawProgress?.level ||
+          rawProgress?.nivel ||
+          'En progreso',
+      };
+
+      setUserProgress((prev) => ({
+        ...prev,
+        ...normalized,
+      }));
+
+      return normalized;
     } catch (error) {
-      console.error('Error cargando progreso:', error);
-      setUserProgress({
-        completedCourses: 8,
-        totalCourses: 12,
-        consecutiveDays: 15,
-        totalHours: 127
-      });
-      
-      // Datos de fallback para cursos recientes
-      setRecentCourses([
-        { 
-          id: 1, 
-          titulo: "React Fundamentos", 
-          descripcion: "Aprende los conceptos básicos de React",
-          duracion: "4 semanas",
-          nivel: "Principiante",
-          categoria: "Desarrollo Web",
-          calificacion: 4.5,
-          url: "https://example.com/react"
-        },
-        { 
-          id: 2, 
-          titulo: "JavaScript Avanzado", 
-          descripcion: "Domina conceptos avanzados de JavaScript",
-          duracion: "6 semanas",
-          nivel: "Avanzado",
-          categoria: "Programación",
-          calificacion: 4.8,
-          url: "https://example.com/js"
-        },
-        { 
-          id: 3, 
-          titulo: "Python para IA", 
-          descripcion: "Introducción a Python para inteligencia artificial",
-          duracion: "8 semanas",
-          nivel: "Intermedio",
-          categoria: "Inteligencia Artificial",
-          calificacion: 4.7,
-          url: "https://example.com/python"
-        }
-      ]);
-      
-      throw error;
+      console.warn('Error cargando progreso:', error);
+      setProgressError(
+        error?.message || 'No fue posible obtener tu progreso todavía'
+      );
+      setUserProgress((prev) => ({
+        ...prev,
+        completedCourses: 0,
+        totalCourses: 0,
+        consecutiveDays: 0,
+        totalHours: 0,
+        currentLevel: prev?.currentLevel || 'Sin datos',
+      }));
+      return null;
+    }
+  };
+
+  const loadCourseCatalog = async () => {
+    try {
+      setCoursesError(null);
+      const response = await apiServices.courses.getAllCourses({ limit: 12 });
+      const data = unwrapApiData(response);
+
+      const rawCourses = Array.isArray(data?.courses)
+        ? data.courses
+        : Array.isArray(data)
+          ? data
+          : [];
+
+      const normalized = rawCourses
+        .map(normalizeCourse)
+        .filter(Boolean);
+
+      setAvailableCourses(normalized);
+      setRecentCourses(normalized.slice(0, 3));
+      return normalized;
+    } catch (error) {
+      console.warn('Error cargando cursos:', error);
+      setCoursesError(
+        error?.message || 'No fue posible cargar los cursos recomendados'
+      );
+      setAvailableCourses([]);
+      setRecentCourses([]);
+      return null;
     }
   };
 
@@ -170,126 +229,54 @@ function Dashboard() {
   // Manejar resultados de búsqueda
   const handleSearchResults = (results) => {
     setSearchResults(results);
-    setShowSearchResults(results.length > 0);
+    setShowSearchResults(true);
   };
 
-  // Función de búsqueda local (preparada para endpoints)
-  const performSearch = async (searchTerm, filters = {}) => {
-    try {
-      // TODO: Reemplazar con llamada real al endpoint
-      // const response = await fetch('/api/courses/search', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ searchTerm, filters })
-      // });
-      // const results = await response.json();
-      
-      // Por ahora, simulamos búsqueda local
-      const mockCourses = [
-        {
-          id: 1,
-          titulo: "React Fundamentos",
-          descripcion: "Aprende los conceptos básicos de React y construye aplicaciones web modernas",
-          duracion: "4 semanas",
-          nivel: "Principiante",
-          categoria: "Desarrollo Web",
-          calificacion: 4.5,
-          instructor: "Ana López",
-          precio: "Gratis",
-          imagen: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop"
-        },
-        {
-          id: 2,
-          titulo: "JavaScript Avanzado",
-          descripcion: "Domina conceptos avanzados de JavaScript como closures, promises y async/await",
-          duracion: "6 semanas",
-          nivel: "Avanzado",
-          categoria: "Programación",
-          calificacion: 4.8,
-          instructor: "Carlos Rodríguez",
-          precio: "$49",
-          imagen: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop"
-        },
-        {
-          id: 3,
-          titulo: "Python para IA",
-          descripcion: "Introducción a Python para inteligencia artificial y machine learning",
-          duracion: "8 semanas",
-          nivel: "Intermedio",
-          categoria: "Inteligencia Artificial",
-          calificacion: 4.7,
-          instructor: "María García",
-          precio: "$79",
-          imagen: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=250&fit=crop"
-        },
-        {
-          id: 4,
-          titulo: "Diseño UX/UI",
-          descripcion: "Aprende a diseñar interfaces de usuario intuitivas y atractivas",
-          duracion: "5 semanas",
-          nivel: "Principiante",
-          categoria: "Diseño",
-          calificacion: 4.6,
-          instructor: "Laura Martínez",
-          precio: "Gratis",
-          imagen: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop"
-        },
-        {
-          id: 5,
-          titulo: "Node.js Backend",
-          descripcion: "Desarrollo de aplicaciones backend con Node.js y Express",
-          duracion: "7 semanas",
-          nivel: "Intermedio",
-          categoria: "Desarrollo Web",
-          calificacion: 4.4,
-          instructor: "Diego Fernández",
-          precio: "$65",
-          imagen: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop"
-        }
-      ];
+  const performSearch = (searchTerm, filters = {}) => {
+    const normalizedTerm = (searchTerm || '').trim().toLowerCase();
+    let filteredResults = [...availableCourses];
 
-      // Filtrar resultados basado en el término de búsqueda
-      let filteredResults = mockCourses;
-      
-      if (searchTerm) {
-        filteredResults = filteredResults.filter(course =>
-          course.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          course.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          course.categoria.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-
-      // Aplicar filtros adicionales
-      if (filters.categoria && filters.categoria !== '') {
-        filteredResults = filteredResults.filter(course =>
-          course.categoria.toLowerCase() === filters.categoria.toLowerCase()
-        );
-      }
-
-      if (filters.nivel && filters.nivel !== '') {
-        filteredResults = filteredResults.filter(course =>
-          course.nivel.toLowerCase() === filters.nivel.toLowerCase()
-        );
-      }
-
-      if (filters.precio && filters.precio !== '') {
-        if (filters.precio === 'gratis') {
-          filteredResults = filteredResults.filter(course =>
-            course.precio.toLowerCase() === 'gratis'
-          );
-        } else if (filters.precio === 'pago') {
-          filteredResults = filteredResults.filter(course =>
-            course.precio.toLowerCase() !== 'gratis'
-          );
-        }
-      }
-
-      handleSearchResults(filteredResults);
-    } catch (error) {
-      console.error('Error en búsqueda:', error);
-      handleSearchResults([]);
+    if (normalizedTerm) {
+      filteredResults = filteredResults.filter((course) =>
+        [
+          course.titulo,
+          course.descripcion,
+          course.categoria,
+          course.instructor,
+        ]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(normalizedTerm))
+      );
     }
+
+    if (filters.categoria) {
+      const category = filters.categoria.toLowerCase();
+      filteredResults = filteredResults.filter(
+        (course) => course.categoria?.toLowerCase() === category
+      );
+    }
+
+    if (filters.nivel) {
+      const level = filters.nivel.toLowerCase();
+      filteredResults = filteredResults.filter(
+        (course) => course.nivel?.toLowerCase() === level
+      );
+    }
+
+    if (filters.precio) {
+      filteredResults = filteredResults.filter((course) => {
+        const price = (course.precio || '').toString().toLowerCase();
+        if (filters.precio === 'gratis') {
+          return price.includes('gratis') || price === '0' || price === '$0';
+        }
+        if (filters.precio === 'pago') {
+          return price && !price.includes('gratis');
+        }
+        return true;
+      });
+    }
+
+    handleSearchResults(filteredResults);
   };
 
   // Limpiar resultados de búsqueda
@@ -403,8 +390,16 @@ function Dashboard() {
             <div className="search-bar">
               <input
                 type="text"
+                value={searchTerm}
                 placeholder="Buscar cursos, categorías o instructores..."
                 className="search-input"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchTerm(value);
+                  if (showSearchResults) {
+                    performSearch(value, searchFilters);
+                  }
+                }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     performSearch(e.target.value, searchFilters);
@@ -414,8 +409,7 @@ function Dashboard() {
               <button
                 className="search-btn"
                 onClick={(e) => {
-                  const searchInput = e.target.parentNode.querySelector('.search-input');
-                  performSearch(searchInput.value, searchFilters);
+                  performSearch(searchTerm, searchFilters);
                 }}
               >
                 🔍 Buscar
@@ -425,7 +419,13 @@ function Dashboard() {
             <div className="filters-container">
               <select
                 value={searchFilters.categoria}
-                onChange={(e) => setSearchFilters({...searchFilters, categoria: e.target.value})}
+                onChange={(e) => {
+                  const nextFilters = { ...searchFilters, categoria: e.target.value };
+                  setSearchFilters(nextFilters);
+                  if (searchTerm || showSearchResults) {
+                    performSearch(searchTerm, nextFilters);
+                  }
+                }}
                 className="filter-select"
               >
                 <option value="">Todas las categorías</option>
@@ -437,7 +437,13 @@ function Dashboard() {
 
               <select
                 value={searchFilters.nivel}
-                onChange={(e) => setSearchFilters({...searchFilters, nivel: e.target.value})}
+                onChange={(e) => {
+                  const nextFilters = { ...searchFilters, nivel: e.target.value };
+                  setSearchFilters(nextFilters);
+                  if (searchTerm || showSearchResults) {
+                    performSearch(searchTerm, nextFilters);
+                  }
+                }}
                 className="filter-select"
               >
                 <option value="">Todos los niveles</option>
@@ -448,7 +454,13 @@ function Dashboard() {
 
               <select
                 value={searchFilters.precio}
-                onChange={(e) => setSearchFilters({...searchFilters, precio: e.target.value})}
+                onChange={(e) => {
+                  const nextFilters = { ...searchFilters, precio: e.target.value };
+                  setSearchFilters(nextFilters);
+                  if (searchTerm || showSearchResults) {
+                    performSearch(searchTerm, nextFilters);
+                  }
+                }}
                 className="filter-select"
               >
                 <option value="">Todos los precios</option>
@@ -460,6 +472,7 @@ function Dashboard() {
                 className="clear-filters-btn"
                 onClick={() => {
                   setSearchFilters({categoria: '', nivel: '', precio: '', duracion: ''});
+                  setSearchTerm('');
                   clearSearchResults();
                 }}
               >
@@ -568,6 +581,12 @@ function Dashboard() {
           </div>
         </section>
 
+        {progressError && (
+          <div className="empty-state">
+            {progressError}
+          </div>
+        )}
+
         {/* Recent Courses */}
         <section className="recent-courses">
           <div className="section-header">
@@ -580,38 +599,47 @@ function Dashboard() {
             </button>
           </div>
           <div className="courses-grid">
-            {recentCourses.map((course) => (
-              <div key={course.id} className="course-card">
-                <div className="course-info">
-                  <h3>{course.titulo}</h3>
-                  <p className="course-desc">{course.descripcion?.slice(0, 100)}...</p>
-                  <ul className="course-meta">
-                    <li><strong>Duración:</strong> {course.duracion}</li>
-                    <li><strong>Nivel:</strong> {course.nivel}</li>
-                    <li><strong>Categoría:</strong> {course.categoria}</li>
-                    <li><strong>⭐ {course.calificacion}</strong></li>
-                  </ul>
-                  <div className="course-actions">
-                    <button
-                      className="continue-btn"
-                      onClick={() => navigate(`/curso/${course.id}`)}
-                    >
-                      Continuar Curso
-                    </button>
-                    {course.url && (
-                      <a
-                        href={course.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="external-link"
-                      >
-                        Ver en Plataforma
-                      </a>
-                    )}
+            {recentCourses.length === 0 ? (
+              <div className="empty-state">
+                {coursesError || 'Aún no tenemos cursos recomendados para ti.'}
+              </div>
+            ) : (
+              recentCourses.map((course) => (
+                <div key={course.id} className="course-card">
+                  <div className="course-info">
+                    <h3>{course.titulo}</h3>
+                    <p className="course-desc">
+                      {course.descripcion
+                        ? `${course.descripcion.slice(0, 100)}${course.descripcion.length > 100 ? '…' : ''}`
+                        : 'Sin descripción disponible'}
+                    </p>
+                    <ul className="course-meta">
+                      <li><strong>Duración:</strong> {course.duracion || 'N/D'}</li>
+                      <li><strong>Nivel:</strong> {course.nivel || 'N/D'}</li>
+                      <li><strong>Categoría:</strong> {course.categoria || 'N/D'}</li>
+                      <li><strong>⭐ {Number(course.calificacion || 0).toFixed(1)}</strong></li>
+                    </ul>
+                    <div className="course-actions">
+                      {course.url ? (
+                        <button
+                          className="continue-btn"
+                          onClick={() => window.open(course.url, '_blank', 'noopener')}
+                        >
+                          Ver Curso
+                        </button>
+                      ) : (
+                        <button
+                          className="continue-btn"
+                          onClick={() => navigate(`/curso/${course.id}`)}
+                        >
+                          Ver detalles
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </section>
 

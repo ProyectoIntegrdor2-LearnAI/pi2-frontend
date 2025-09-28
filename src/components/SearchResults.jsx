@@ -4,12 +4,16 @@ import { useNavigate } from 'react-router-dom';
 const SearchResults = ({ results, isVisible }) => {
     const navigate = useNavigate();
 
-    if (!isVisible || results.length === 0) {
+    if (!isVisible) {
         return null;
     }
 
-    const handleCourseClick = (courseId) => {
-        navigate(`/curso/${courseId}`);
+    const handleCourseClick = (course) => {
+        if (course.url) {
+            window.open(course.url, '_blank', 'noopener');
+            return;
+        }
+        navigate(`/curso/${course.id}`);
     };
 
     return (
@@ -19,7 +23,7 @@ const SearchResults = ({ results, isVisible }) => {
                     <div key={curso.id} className="search-result-card">
                         <div className="course-image-container">
                             <img 
-                                src={curso.imagen} 
+                                src={curso.imagen || 'https://via.placeholder.com/300x200?text=Curso'} 
                                 alt={curso.titulo}
                                 className="course-image"
                                 onError={(e) => {
@@ -27,7 +31,7 @@ const SearchResults = ({ results, isVisible }) => {
                                 }}
                             />
                             <div className="course-level-badge">
-                                {curso.nivel}
+                                {curso.nivel || 'N/D'}
                             </div>
                         </div>
                         
@@ -35,46 +39,68 @@ const SearchResults = ({ results, isVisible }) => {
                             <div className="course-header">
                                 <h3 className="course-title">{curso.titulo}</h3>
                                 <div className="course-price">
-                                    {curso.precio === 'gratis' ? (
+                                    {String(curso.precio || '').toLowerCase().includes('gratis') ? (
                                         <span className="price-free">Gratis</span>
                                     ) : (
-                                        <span className="price-paid">Premium</span>
+                                        <span className="price-paid">{curso.precio || 'Premium'}</span>
                                     )}
                                 </div>
                             </div>
                             
                             <p className="course-description">
-                                {curso.descripcion.length > 100 
-                                    ? `${curso.descripcion.substring(0, 100)}...`
-                                    : curso.descripcion
-                                }
+                                {curso.descripcion
+                                    ? (curso.descripcion.length > 100
+                                        ? `${curso.descripcion.substring(0, 100)}...`
+                                        : curso.descripcion)
+                                    : 'Sin descripción disponible'}
                             </p>
                             
                             <div className="course-meta">
-                                <span className="course-instructor">👨‍🏫 {curso.instructor}</span>
-                                <span className="course-duration">⏱️ {curso.duracion}</span>
-                                <span className="course-rating">⭐ {curso.calificacion}</span>
+                                <span className="course-instructor">👨‍🏫 {curso.instructor || 'Instructor no definido'}</span>
+                                <span className="course-duration">⏱️ {curso.duracion || 'N/D'}</span>
+                                <span className="course-rating">⭐ {Number(curso.calificacion || 0).toFixed(1)}</span>
                             </div>
                             
                             <div className="course-actions">
                                 <button 
                                     className="course-action-button primary"
-                                    onClick={() => handleCourseClick(curso.id)}
+                                    onClick={() => handleCourseClick(curso)}
                                 >
-                                    Ver Curso
+                                    Ver curso
                                 </button>
                                 <button 
                                     className="course-action-button secondary"
                                     onClick={() => {
-                                        // Agregar a favoritos
-                                        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-                                        if (!favorites.includes(curso.id)) {
-                                            favorites.push(curso.id);
-                                            localStorage.setItem('favorites', JSON.stringify(favorites));
-                                            alert('Curso agregado a favoritos');
-                                        } else {
+                                        const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
+                                        const favorites = Array.isArray(stored) ? stored : [];
+                                        const exists = favorites.some((fav) =>
+                                            typeof fav === 'object' ? fav.id === curso.id : fav === curso.id
+                                        );
+
+                                        if (exists) {
                                             alert('El curso ya está en favoritos');
+                                            return;
                                         }
+
+                                    const courseToSave = {
+                                        id: curso.id,
+                                        titulo: curso.titulo,
+                                        descripcion: curso.descripcion,
+                                        categoria: curso.categoria,
+                                        nivel: curso.nivel,
+                                        duracion: curso.duracion,
+                                        instructor: curso.instructor,
+                                        calificacion: curso.calificacion,
+                                        precio: curso.precio,
+                                        imagen: curso.imagen,
+                                        url: curso.url,
+                                        plataforma: curso.plataforma,
+                                        fechaAgregado: new Date().toISOString(),
+                                    };
+
+                                        favorites.push(courseToSave);
+                                        localStorage.setItem('favorites', JSON.stringify(favorites));
+                                        alert('Curso agregado a favoritos');
                                     }}
                                 >
                                     ❤️
