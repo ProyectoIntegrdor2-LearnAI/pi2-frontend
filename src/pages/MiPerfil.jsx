@@ -7,54 +7,105 @@ import logoImage from '../imagenes/logoPrincipal.png';
 import "../styles/Dashboard.css";
 import "../styles/MiPerfil.css";
 
-// Datos simulados del perfil del usuario
-const perfilSimulado = {
-  name: "Juan Carlos Pérez González",
-  id: "1234567890", // Cédula
-  address: "Calle 45 #23-67, Bucaramanga, Santander",
-  email: "juan.perez@email.com",
-  phone: "+57 300 123 4567",
-  typeUser: "Estudiante", // Estudiante, Profesor, Administrador
-  avatar: null,
-  fechaRegistro: "2024-01-15",
-  ultimoAcceso: "2024-02-20T14:30:00",
-  configuraciones: {
-    tema: "claro", // claro, oscuro, sistema
-    idioma: "es", // es, en
-    notificaciones: {
-      email: true,
-      push: true,
-      marketing: false,
-      cursos: true,
-      progreso: true
-    },
-    privacidad: {
-      perfilPublico: false,
-      mostrarProgreso: true,
-      mostrarCursos: false
-    },
-    aprendizaje: {
-      recordatoriosDiarios: true,
-      horaRecordatorio: "09:00",
-      metaSemanal: 5, // horas por semana
-      dificultadPreferida: "intermedio",
-      categoriasInteres: ["Desarrollo Web", "Data Science", "DevOps"]
-    }
+const DEFAULT_SETTINGS = {
+  tema: "claro",
+  idioma: "es",
+  notificaciones: {
+    email: true,
+    push: true,
+    marketing: false,
+    cursos: true,
+    progreso: true,
   },
-  estadisticas: {
-    cursosCompletados: 12,
-    horasEstudiadas: 156,
-    rutasTerminadas: 3,
-    certificadosObtenidos: 8,
-    rachaActual: 15, // días consecutivos
-    promedioCalificacion: 4.7
-  }
+  privacidad: {
+    perfilPublico: false,
+    mostrarProgreso: true,
+    mostrarCursos: false,
+  },
+  aprendizaje: {
+    recordatoriosDiarios: true,
+    horaRecordatorio: "09:00",
+    metaSemanal: 5,
+    dificultadPreferida: "intermedio",
+    categoriasInteres: ["Desarrollo Web", "Data Science", "DevOps"],
+  },
 };
 
-const storedUserProfile = apiServices.utils.getStoredUser();
-const initialProfile = storedUserProfile
-  ? { ...perfilSimulado, ...storedUserProfile }
-  : perfilSimulado;
+const DEFAULT_STATS = {
+  cursosCompletados: 0,
+  horasEstudiadas: 0,
+  rutasTerminadas: 0,
+  certificadosObtenidos: 0,
+  rachaActual: 0,
+  promedioCalificacion: 0,
+};
+
+const normalizeSettings = (settings = {}) => ({
+  ...DEFAULT_SETTINGS,
+  ...settings,
+  notificaciones: {
+    ...DEFAULT_SETTINGS.notificaciones,
+    ...(settings.notificaciones || {}),
+  },
+  privacidad: {
+    ...DEFAULT_SETTINGS.privacidad,
+    ...(settings.privacidad || {}),
+  },
+  aprendizaje: {
+    ...DEFAULT_SETTINGS.aprendizaje,
+    ...(settings.aprendizaje || {}),
+    categoriasInteres: settings.aprendizaje?.categoriasInteres
+      ? [...settings.aprendizaje.categoriasInteres]
+      : [...DEFAULT_SETTINGS.aprendizaje.categoriasInteres],
+  },
+});
+
+const normalizeStats = (stats = {}) => ({
+  ...DEFAULT_STATS,
+  ...stats,
+});
+
+const createEmptyProfile = () => ({
+  user_id: "",
+  name: "",
+  identification: "",
+  email: "",
+  phone: "",
+  address: "",
+  type_user: "",
+  typeUser: "",
+  avatar: null,
+  configuraciones: normalizeSettings(),
+  estadisticas: normalizeStats(),
+});
+
+const normalizeProfile = (profile = {}) => {
+  const normalized = {
+    ...createEmptyProfile(),
+    ...profile,
+  };
+
+  normalized.user_id = profile.user_id || profile.id || "";
+  normalized.identification =
+    profile.identification || profile.id || profile.user_id || "";
+  normalized.id = normalized.identification;
+  normalized.email = profile.email || "";
+  normalized.name = profile.name || "";
+  normalized.phone = profile.phone || "";
+  normalized.address = profile.address || "";
+  normalized.type_user = profile.type_user || profile.typeUser || "";
+  normalized.typeUser = normalized.type_user;
+  normalized.avatar = profile.avatar || null;
+  normalized.configuraciones = normalizeSettings(profile.configuraciones);
+  normalized.estadisticas = normalizeStats(profile.estadisticas);
+
+  return normalized;
+};
+
+const cachedUserProfile = apiServices.utils.getStoredUser();
+const initialProfile = cachedUserProfile
+  ? normalizeProfile(cachedUserProfile)
+  : createEmptyProfile();
 
 function MiPerfil() {
   const { user: authUser, loading: authLoading } = useAuth();
@@ -70,9 +121,10 @@ function MiPerfil() {
     phone: initialProfile.phone || "",
     address: initialProfile.address || "",
     avatar: initialProfile.avatar || null,
+    typeUser: initialProfile.typeUser || initialProfile.type_user || "",
   }));
   const [configuraciones, setConfiguraciones] = useState(
-    initialProfile.configuraciones || perfilSimulado.configuraciones
+    initialProfile.configuraciones || normalizeSettings()
   );
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -110,7 +162,7 @@ function MiPerfil() {
       const profile = await apiServices.user.getProfile(targetId);
       const savedAvatar = getSavedAvatar();
 
-      const mergedProfile = { ...perfilSimulado, ...profile };
+      const mergedProfile = normalizeProfile(profile);
 
       setPerfilData({ ...mergedProfile, avatar: savedAvatar });
       setFormData((prev) => ({
@@ -121,10 +173,11 @@ function MiPerfil() {
         phone: mergedProfile.phone || '',
         address: mergedProfile.address || '',
         avatar: savedAvatar,
+        typeUser: mergedProfile.typeUser || mergedProfile.type_user || '',
       }));
 
       if (mergedProfile.configuraciones) {
-        setConfiguraciones(mergedProfile.configuraciones);
+        setConfiguraciones(normalizeSettings(mergedProfile.configuraciones));
       }
     } catch (error) {
       console.error('Error cargando perfil:', error);
@@ -132,7 +185,7 @@ function MiPerfil() {
       const cachedUser = apiServices.utils.getStoredUser();
       if (cachedUser) {
         const savedAvatar = getSavedAvatar();
-        const mergedProfile = { ...perfilSimulado, ...cachedUser };
+        const mergedProfile = normalizeProfile(cachedUser);
         setPerfilData({ ...mergedProfile, avatar: savedAvatar });
         setFormData((prev) => ({
           ...prev,
@@ -146,7 +199,13 @@ function MiPerfil() {
           phone: mergedProfile.phone || prev.phone || '',
           address: mergedProfile.address || prev.address || '',
           avatar: savedAvatar,
+          typeUser:
+            mergedProfile.typeUser ||
+            mergedProfile.type_user ||
+            prev.typeUser ||
+            '',
         }));
+        setConfiguraciones(normalizeSettings(mergedProfile.configuraciones));
       }
     } finally {
       setLoading(false);
@@ -180,16 +239,32 @@ function MiPerfil() {
   };
 
   const handleConfigChange = (section, field, value) => {
-    setConfiguraciones(prev => ({
-      ...prev,
-      [section]: {
-        ...(prev?.[section] || {}),
-        [field]: value
-      }
-    }));
+    if (!section) return;
 
-    // Aplicar tema inmediatamente
-    if (section === 'tema' || (section === undefined && field === 'tema')) {
+    setConfiguraciones((prev) => {
+      if (section === 'tema' || section === 'idioma') {
+        return {
+          ...prev,
+          [section]: value,
+        };
+      }
+
+      const previousSection = prev?.[section] || {};
+      const nextSection =
+        field === undefined
+          ? value
+          : {
+              ...previousSection,
+              [field]: value,
+            };
+
+      return {
+        ...prev,
+        [section]: nextSection,
+      };
+    });
+
+    if (section === 'tema') {
       applyTheme(value);
     }
   };
@@ -215,6 +290,7 @@ function MiPerfil() {
       phone: perfilData?.phone || '',
       address: perfilData?.address || '',
       avatar: perfilData?.avatar || prev.avatar,
+      typeUser: perfilData?.typeUser || perfilData?.type_user || '',
     }));
   }, [activeTab, perfilData]);
 
@@ -297,8 +373,8 @@ function MiPerfil() {
 
       const storedUser = apiServices.utils.getStoredUser();
       const refreshedProfile = storedUser
-        ? { ...perfilSimulado, ...storedUser }
-        : { ...perfilData, ...payload };
+        ? normalizeProfile(storedUser)
+        : normalizeProfile({ ...perfilData, ...payload });
 
       setPerfilData((prev) => ({
         ...prev,
@@ -317,6 +393,11 @@ function MiPerfil() {
           '',
         phone: refreshedProfile.phone || payload.phone || '',
         address: refreshedProfile.address || payload.address || '',
+        typeUser:
+          refreshedProfile.typeUser ||
+          refreshedProfile.type_user ||
+          prev.typeUser ||
+          '',
       }));
 
       setEditMode(false);
