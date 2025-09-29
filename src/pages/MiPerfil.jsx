@@ -678,29 +678,6 @@ function MiPerfil() {
                         className="form-input"
                       />
                     </div>
-
-                    <div className="form-group">
-                      <label>Teléfono</label>
-                      <input
-                        type="tel"
-                        value={formData.phone || perfilData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        disabled={!editMode}
-                        className="form-input"
-                      />
-                    </div>
-
-                    <div className="form-group full-width">
-                      <label>Dirección</label>
-                      <input
-                        type="text"
-                        value={formData.address || perfilData.address}
-                        onChange={(e) => handleInputChange('address', e.target.value)}
-                        disabled={!editMode}
-                        className="form-input"
-                      />
-                    </div>
-
                     <div className="form-group">
                       <label>Tipo de Usuario</label>
                       <select
