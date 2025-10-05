@@ -7,6 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import { useTheme } from './hooks/useTheme';
 // Headers
 import HeaderPublic from "./components/HeaderPublic";
 import HeaderDashboard from "./components/HeaderDashboard";
@@ -41,6 +42,7 @@ function AppContent() {
   const [showAuthModal, setShowAuthModal] = React.useState(false);
   const [authInitialTab, setAuthInitialTab] = React.useState('login');
 
+  const { theme } = useTheme();
   // Permitir abrir el modal desde cualquier parte con un evento global
   React.useEffect(() => {
     const handler = (e) => {

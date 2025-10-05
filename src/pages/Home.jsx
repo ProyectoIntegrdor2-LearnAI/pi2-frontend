@@ -3,12 +3,20 @@ import CursosGrid from '../components/CursosGrid';
 import FiltrosBusqueda from '../components/FiltrosBusqueda';
 import AuthModal from '../components/AuthModal'; // <-- Importamos el modal
 import { ArrowRight, Brain, BookOpen, Users, Award, ChevronUp, Target, Zap, Globe } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Home = ({ onChatToggle }) => {
     // Estado para el modal de autenticación
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [authInitialTab, setAuthInitialTab] = useState('login');
+    const navigate = useNavigate();
 
+    const handleComenzarAhora = () => {
+        const event = new CustomEvent('openAuthModal', {
+            detail: { tab: 'register' }
+        });
+        window.dispatchEvent(event);
+    };
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
@@ -65,14 +73,12 @@ const Home = ({ onChatToggle }) => {
                                 <span className="stat-label">Personalizado</span>
                             </div>
                         </div>
-                        <div className="cta-buttons">
-                            <button className="cta-primary">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                    <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM7.5 3.5a.5.5 0 0 1 1 0v3.793l2.146 2.147a.5.5 0 0 1-.708.708L7.5 7.707V3.5z" />
-                                </svg>
-                                Comenzar Ahora
-                            </button>
-                        </div>
+                        <button className="cta-primary" onClick={handleComenzarAhora}>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM7.5 3.5a.5.5 0 0 1 1 0v3.793l2.146 2.147a.5.5 0 0 1-.708.708L7.5 7.707V3.5z" />
+                            </svg>
+                            Comenzar Ahora
+                        </button>
                     </div>
                 </div>
             </section>

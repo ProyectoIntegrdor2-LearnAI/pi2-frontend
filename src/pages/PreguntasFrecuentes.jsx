@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Search, Brain, BookOpen, Shield, Zap, Users, Globe } from 'lucide-react';
 
@@ -116,52 +115,6 @@ const PreguntasFrecuentes = () => {
 
     return (
         <div className="home-page">
-            {/* Overlay para cerrar chat en móvil */}
-            {isMobileChatOpen && <div className="chat-overlay active" onClick={toggleMobileChat}></div>}
-            
-            {/* Chat de IA Fijo */}
-            <div className={`fixed-ai-chat ${isChatMinimized ? 'minimized' : ''} ${isMobileChatOpen ? 'mobile-open' : ''}`}>
-                <div className="chat-toggle" onClick={toggleChat}>
-                    <div className="ai-avatar">IA</div>
-                    {!isChatMinimized && (
-                        <div className="chat-header-info">
-                            <div className="chat-title">LearnIA Assistant</div>
-                            <div className="chat-subtitle">Resuelve tus dudas</div>
-                        </div>
-                    )}
-                </div>
-
-                {!isChatMinimized && (
-                    <>
-                        <div className="chat-messages">
-                            {chatMessages.map(message => (
-                                <div key={message.id} className={`chat-message ${message.type}`}>
-                                    {message.content}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="chat-input-container">
-                            <input
-                                type="text"
-                                placeholder="Haz tu pregunta..."
-                                value={inputMessage}
-                                onChange={(e) => setInputMessage(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                className="chat-input"
-                            />
-                            <button onClick={handleSendMessage} className="chat-send">
-                                <Send size={16} />
-                            </button>
-                        </div>
-                    </>
-                )}
-            </div>
-
-            {/* Botón flotante para móvil */}
-            <button className="mobile-chat-toggle" onClick={toggleMobileChat}>
-                IA
-            </button>
-
             {/* Hero Section */}
             <section className="hero-section">
                 <div className="hero-container-full">

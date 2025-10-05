@@ -7,6 +7,7 @@ import avatarIcon from '../imagenes/iconoUsuario.png';
 import logoImage from '../imagenes/logoPrincipal.png';
 import "../styles/Dashboard.css";
 import "../styles/MiPerfil.css";
+import { useTheme } from '../hooks/useTheme';
 
 const DEFAULT_SETTINGS = {
   tema: "claro",
@@ -99,6 +100,7 @@ const initialProfile = cachedUserProfile
   : createEmptyProfile();
 
 function MiPerfil() {
+  const { theme, changeTheme } = useTheme();
   const { user: authUser, loading: authLoading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -179,11 +181,13 @@ function MiPerfil() {
     }
   }, [authLoading, authUser?.user_id]);
 
+
   useEffect(() => {
-    if (configuraciones?.tema) {
-      applyTheme(configuraciones.tema);
-    }
-  }, [configuraciones?.tema]);
+    setTempConfiguraciones(prev => ({
+      ...prev,
+      tema: theme
+    }));
+  }, [theme]);
 
   const loadUserProfile = async (requestedUserId) => {
     const targetId = requestedUserId || authUser?.user_id || 'profile';
@@ -288,7 +292,7 @@ function MiPerfil() {
   const handleConfigChange = (section, field, value) => {
     if (!section) return;
 
-    setConfiguraciones((prev) => {
+    setTempConfiguraciones((prev) => {
       if (section === 'tema' || section === 'idioma') {
         return {
           ...prev,
@@ -301,9 +305,9 @@ function MiPerfil() {
         field === undefined
           ? value
           : {
-              ...previousSection,
-              [field]: value,
-            };
+            ...previousSection,
+            [field]: value,
+          };
 
       return {
         ...prev,
@@ -311,9 +315,7 @@ function MiPerfil() {
       };
     });
 
-    if (section === 'tema') {
-      applyTheme(value);
-    }
+    // NO aplicar el tema inmediatamente, solo guardarlo temporalmente
   };
 
   const getSavedAvatar = () => {
@@ -341,70 +343,11 @@ function MiPerfil() {
     }));
   }, [activeTab, perfilData]);
 
-  // Aplicar tema a la página
-  const applyTheme = (tema) => {
-    if (typeof document === 'undefined') return;
-
-    const root = document.documentElement;
-    
-    if (tema === 'oscuro') {
-      root.setAttribute('data-theme', 'dark');
-      document.body.classList.add('dark-theme');
-      document.body.classList.remove('light-theme');
-    } else if (tema === 'sistema') {
-      if (typeof window === 'undefined' || !window.matchMedia) {
-        root.setAttribute('data-theme', 'light');
-        document.body.classList.add('light-theme');
-        document.body.classList.remove('dark-theme');
-      } else {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-        document.body.classList.toggle('dark-theme', prefersDark);
-        document.body.classList.toggle('light-theme', !prefersDark);
-      }
-    } else {
-      root.setAttribute('data-theme', 'light');
-      document.body.classList.add('light-theme');
-      document.body.classList.remove('dark-theme');
-    }
-    
-    // Guardar preferencia
-    if (typeof window !== 'undefined' && window.localStorage) {
-      try {
-        window.localStorage.setItem('theme-preference', tema);
-      } catch {
-        // noop
-      }
-    }
-    
-    // Aplicar el tema a toda la aplicación inmediatamente
-    updateAllComponents(tema);
-  };
-
-  // Función para actualizar todos los componentes con el nuevo tema
-  const updateAllComponents = (tema) => {
-    if (typeof document === 'undefined') return;
-
-    // Aplicar clases CSS globalmente
-    const dashboardElements = document.querySelectorAll('.dashboard-wrapper, .dashboard-main, .dashboard-header, .sidebar');
-    dashboardElements.forEach(element => {
-      if (tema === 'oscuro') {
-        element.classList.add('dark-mode');
-        element.classList.remove('light-mode');
-      } else {
-        element.classList.add('light-mode');
-        element.classList.remove('dark-mode');
-      }
-    });
-
-    // Forzar re-render de las variables CSS
-    if (typeof window !== 'undefined') {
-      const event = new CustomEvent('themeChange', {
-        detail: { theme: tema }
-      });
-      window.dispatchEvent(event);
-    }
-  };
+  // Estado temporal para configuraciones antes de guardar
+  const [tempConfiguraciones, setTempConfiguraciones] = useState({
+    ...normalizeSettings(),
+    tema: theme
+  });
 
   // Guardar cambios del perfil
   const saveProfile = async () => {
@@ -467,15 +410,23 @@ function MiPerfil() {
   const saveConfigs = async () => {
     try {
       setLoading(true);
-      // await apiServices.user.updateConfigurations(configuraciones);
+
+      // Usar el hook para cambiar el tema globalmente
+      if (tempConfiguraciones.tema) {
+        changeTheme(tempConfiguraciones.tema);
+        console.log('Tema guardado:', tempConfiguraciones.tema);
+      }
+
+      // Actualizar configuraciones locales
+      setConfiguraciones(tempConfiguraciones);
       setPerfilData(prev => ({
         ...prev,
-        configuraciones
+        configuraciones: tempConfiguraciones
       }));
-      // Mostrar notificación de éxito
+
+      console.log('Configuraciones guardadas correctamente');
     } catch (error) {
       console.error('Error guardando configuraciones:', error);
-      // Mostrar notificación de error
     } finally {
       setLoading(false);
     }
@@ -546,7 +497,7 @@ function MiPerfil() {
           <div className="user-profile-sidebar">
             <img src={avatarIcon} alt="Avatar" className="sidebar-avatar" />
           </div>
-          
+
           <nav className="sidebar-nav">
             <ul>
               <li onClick={() => handleNavigation('/dashboard')} className="nav-item">
@@ -618,7 +569,7 @@ function MiPerfil() {
               <div className="tab-panel">
                 <div className="panel-header">
                   <h2>Información Personal</h2>
-                  <button 
+                  <button
                     className={`edit-btn ${editMode ? 'save' : 'edit'}`}
                     onClick={editMode ? saveProfile : () => setEditMode(true)}
                     disabled={loading}
@@ -631,9 +582,9 @@ function MiPerfil() {
                   {/* Avatar Section */}
                   <div className="avatar-section">
                     <div className="avatar-container">
-                      <img 
-                        src={avatarIcon} 
-                        alt="Avatar" 
+                      <img
+                        src={avatarIcon}
+                        alt="Avatar"
                         className="profile-avatar"
                       />
                     </div>
@@ -697,13 +648,13 @@ function MiPerfil() {
                   <div className="security-section">
                     <h3>Seguridad</h3>
                     <div className="security-actions">
-                      <button 
+                      <button
                         className="security-btn"
                         onClick={() => setShowPasswordModal(true)}
                       >
                         Cambiar Contraseña
                       </button>
-                      <button 
+                      <button
                         className="security-btn danger"
                         onClick={deleteAccount}
                       >
@@ -720,7 +671,7 @@ function MiPerfil() {
               <div className="tab-panel">
                 <div className="panel-header">
                   <h2>Configuración General</h2>
-                  <button 
+                  <button
                     className="save-btn"
                     onClick={saveConfigs}
                     disabled={loading}
@@ -741,7 +692,7 @@ function MiPerfil() {
                             type="radio"
                             name="tema"
                             value="claro"
-                            checked={configuraciones.tema === "claro"}
+                            checked={tempConfiguraciones.tema === "claro"}
                             onChange={(e) => handleConfigChange('tema', undefined, e.target.value)}
                           />
                           <span>Claro</span>
@@ -751,287 +702,12 @@ function MiPerfil() {
                             type="radio"
                             name="tema"
                             value="oscuro"
-                            checked={configuraciones.tema === "oscuro"}
+                            checked={tempConfiguraciones.tema === "oscuro"}
                             onChange={(e) => handleConfigChange('tema', undefined, e.target.value)}
                           />
                           <span>Oscuro</span>
                         </label>
-                        <label className="radio-option">
-                          <input
-                            type="radio"
-                            name="tema"
-                            value="sistema"
-                            checked={configuraciones.tema === "sistema"}
-                            onChange={(e) => handleConfigChange('tema', undefined, e.target.value)}
-                          />
-                          <span>Sistema</span>
-                        </label>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Idioma */}
-                  <div className="config-section">
-                    <h3>Idioma</h3>
-                    <div className="config-item">
-                      <label>Idioma de la interfaz</label>
-                      <select
-                        value={configuraciones.idioma}
-                        onChange={(e) => handleConfigChange('idioma', undefined, e.target.value)}
-                        className="form-input"
-                      >
-                        <option value="es">Español</option>
-                        <option value="en">English</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Notificaciones */}
-            {activeTab === "notificaciones" && (
-              <div className="tab-panel">
-                <div className="panel-header">
-                  <h2>Configuración de Notificaciones</h2>
-                  <button 
-                    className="save-btn"
-                    onClick={saveConfigs}
-                    disabled={loading}
-                  >
-                    Guardar Cambios
-                  </button>
-                </div>
-
-                <div className="config-sections">
-                  <div className="config-section">
-                    <h3>Métodos de Notificación</h3>
-                    
-                    <div className="config-item">
-                      <div className="toggle-item">
-                        <label>Notificaciones por Email</label>
-                        <input
-                          type="checkbox"
-                          checked={configuraciones.notificaciones.email}
-                          onChange={(e) => handleConfigChange('notificaciones', 'email', e.target.checked)}
-                          className="toggle-switch"
-                        />
-                      </div>
-                      <p className="config-description">Recibe actualizaciones importantes por correo electrónico</p>
-                    </div>
-
-                    <div className="config-item">
-                      <div className="toggle-item">
-                        <label>Notificaciones Push</label>
-                        <input
-                          type="checkbox"
-                          checked={configuraciones.notificaciones.push}
-                          onChange={(e) => handleConfigChange('notificaciones', 'push', e.target.checked)}
-                          className="toggle-switch"
-                        />
-                      </div>
-                      <p className="config-description">Recibe notificaciones en tiempo real en tu navegador</p>
-                    </div>
-                  </div>
-
-                  <div className="config-section">
-                    <h3>Tipos de Notificación</h3>
-                    
-                    <div className="config-item">
-                      <div className="toggle-item">
-                        <label>Progreso de Cursos</label>
-                        <input
-                          type="checkbox"
-                          checked={configuraciones.notificaciones.progreso}
-                          onChange={(e) => handleConfigChange('notificaciones', 'progreso', e.target.checked)}
-                          className="toggle-switch"
-                        />
-                      </div>
-                      <p className="config-description">Actualizaciones sobre tu progreso de aprendizaje</p>
-                    </div>
-
-                    <div className="config-item">
-                      <div className="toggle-item">
-                        <label>Nuevos Cursos</label>
-                        <input
-                          type="checkbox"
-                          checked={configuraciones.notificaciones.cursos}
-                          onChange={(e) => handleConfigChange('notificaciones', 'cursos', e.target.checked)}
-                          className="toggle-switch"
-                        />
-                      </div>
-                      <p className="config-description">Notificaciones sobre nuevos cursos relevantes</p>
-                    </div>
-
-                    <div className="config-item">
-                      <div className="toggle-item">
-                        <label>Marketing y Promociones</label>
-                        <input
-                          type="checkbox"
-                          checked={configuraciones.notificaciones.marketing}
-                          onChange={(e) => handleConfigChange('notificaciones', 'marketing', e.target.checked)}
-                          className="toggle-switch"
-                        />
-                      </div>
-                      <p className="config-description">Ofertas especiales y contenido promocional</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Privacidad */}
-            {activeTab === "privacidad" && (
-              <div className="tab-panel">
-                <div className="panel-header">
-                  <h2>Configuración de Privacidad</h2>
-                  <button 
-                    className="save-btn"
-                    onClick={saveConfigs}
-                    disabled={loading}
-                  >
-                    Guardar Cambios
-                  </button>
-                </div>
-
-                <div className="config-sections">
-                  <div className="config-section">
-                    <h3>Visibilidad del Perfil</h3>
-                    
-                    <div className="config-item">
-                      <div className="toggle-item">
-                        <label>Perfil Público</label>
-                        <input
-                          type="checkbox"
-                          checked={configuraciones.privacidad.perfilPublico}
-                          onChange={(e) => handleConfigChange('privacidad', 'perfilPublico', e.target.checked)}
-                          className="toggle-switch"
-                        />
-                      </div>
-                      <p className="config-description">Permite que otros usuarios vean tu perfil básico</p>
-                    </div>
-
-                    <div className="config-item">
-                      <div className="toggle-item">
-                        <label>Mostrar Progreso</label>
-                        <input
-                          type="checkbox"
-                          checked={configuraciones.privacidad.mostrarProgreso}
-                          onChange={(e) => handleConfigChange('privacidad', 'mostrarProgreso', e.target.checked)}
-                          className="toggle-switch"
-                        />
-                      </div>
-                      <p className="config-description">Permite que otros vean tu progreso de aprendizaje</p>
-                    </div>
-
-                    <div className="config-item">
-                      <div className="toggle-item">
-                        <label>Mostrar Cursos</label>
-                        <input
-                          type="checkbox"
-                          checked={configuraciones.privacidad.mostrarCursos}
-                          onChange={(e) => handleConfigChange('privacidad', 'mostrarCursos', e.target.checked)}
-                          className="toggle-switch"
-                        />
-                      </div>
-                      <p className="config-description">Permite que otros vean los cursos que estás tomando</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Preferencias de Aprendizaje */}
-            {activeTab === "aprendizaje" && (
-              <div className="tab-panel">
-                <div className="panel-header">
-                  <h2>Preferencias de Aprendizaje</h2>
-                  <button 
-                    className="save-btn"
-                    onClick={saveConfigs}
-                    disabled={loading}
-                  >
-                    Guardar Cambios
-                  </button>
-                </div>
-
-                <div className="config-sections">
-                  <div className="config-section">
-                    <h3>Recordatorios</h3>
-                    
-                    <div className="config-item">
-                      <div className="toggle-item">
-                        <label>Recordatorios Diarios</label>
-                        <input
-                          type="checkbox"
-                          checked={configuraciones.aprendizaje.recordatoriosDiarios}
-                          onChange={(e) => handleConfigChange('aprendizaje', 'recordatoriosDiarios', e.target.checked)}
-                          className="toggle-switch"
-                        />
-                      </div>
-                      <p className="config-description">Recibe recordatorios para estudiar</p>
-                    </div>
-
-                    <div className="config-item">
-                      <label>Hora de Recordatorio</label>
-                      <input
-                        type="time"
-                        value={configuraciones.aprendizaje.horaRecordatorio}
-                        onChange={(e) => handleConfigChange('aprendizaje', 'horaRecordatorio', e.target.value)}
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="config-section">
-                    <h3>Objetivos</h3>
-                    
-                    <div className="config-item">
-                      <label>Meta Semanal (horas)</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="40"
-                        value={configuraciones.aprendizaje.metaSemanal}
-                        onChange={(e) => handleConfigChange('aprendizaje', 'metaSemanal', parseInt(e.target.value))}
-                        className="form-input"
-                      />
-                    </div>
-
-                    <div className="config-item">
-                      <label>Nivel de Dificultad Preferido</label>
-                      <select
-                        value={configuraciones.aprendizaje.dificultadPreferida}
-                        onChange={(e) => handleConfigChange('aprendizaje', 'dificultadPreferida', e.target.value)}
-                        className="form-input"
-                      >
-                        <option value="principiante">Principiante</option>
-                        <option value="intermedio">Intermedio</option>
-                        <option value="avanzado">Avanzado</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="config-section">
-                    <h3>Categorías de Interés</h3>
-                    <div className="categories-grid">
-                      {["Desarrollo Web", "Data Science", "DevOps", "Diseño", "Marketing", "Business"].map(categoria => (
-                        <label key={categoria} className="category-option">
-                          <input
-                            type="checkbox"
-                            checked={configuraciones.aprendizaje.categoriasInteres.includes(categoria)}
-                            onChange={(e) => {
-                              const categorias = configuraciones.aprendizaje.categoriasInteres;
-                              if (e.target.checked) {
-                                handleConfigChange('aprendizaje', 'categoriasInteres', [...categorias, categoria]);
-                              } else {
-                                handleConfigChange('aprendizaje', 'categoriasInteres', categorias.filter(c => c !== categoria));
-                              }
-                            }}
-                          />
-                          <span>{categoria}</span>
-                        </label>
-                      ))}
                     </div>
                   </div>
                 </div>
@@ -1097,14 +773,14 @@ function MiPerfil() {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <h3>Cambiar Contraseña</h3>
-                <button 
+                <button
                   className="modal-close"
                   onClick={() => setShowPasswordModal(false)}
                 >
                   ✕
                 </button>
               </div>
-              
+
               <div className="modal-body">
                 <div className="form-group">
                   <label>Contraseña Actual</label>
@@ -1150,13 +826,13 @@ function MiPerfil() {
               </div>
 
               <div className="modal-footer">
-                <button 
+                <button
                   className="btn-secondary"
                   onClick={() => setShowPasswordModal(false)}
                 >
                   Cancelar
                 </button>
-                <button 
+                <button
                   className="btn-primary"
                   onClick={changePassword}
                   disabled={loading || !passwordData.currentPassword || !passwordData.newPassword || passwordData.newPassword !== passwordData.confirmPassword}
