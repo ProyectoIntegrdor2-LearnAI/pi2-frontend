@@ -67,6 +67,47 @@ function Dashboard() {
     return Math.round(total / rutas.length);
   }, [rutas]);
 
+  useEffect(() => {
+    if (!rutas.length) {
+      return;
+    }
+
+    const totalCursosLocales = rutasStats.totalCursos || 0;
+    const cursosCompletadosLocales =
+      (rutasStats.cursosCompletados || 0) + (rutasStats.cursosOmitidos || 0);
+
+    if (!totalCursosLocales && !cursosCompletadosLocales) {
+      return;
+    }
+
+    const nivelSugerido = rutasRecientes[0]?.nivel || rutas[0]?.nivel || 'En progreso';
+
+    setUserProgress((prev) => {
+      const next = { ...prev };
+      let changed = false;
+
+      if (totalCursosLocales > prev.totalCourses) {
+        next.totalCourses = totalCursosLocales;
+        changed = true;
+      }
+
+      if (cursosCompletadosLocales > prev.completedCourses) {
+        next.completedCourses = cursosCompletadosLocales;
+        changed = true;
+      }
+
+      if (
+        (!prev.currentLevel || prev.currentLevel === 'Sin datos' || prev.currentLevel === 'En progreso') &&
+        nivelSugerido
+      ) {
+        next.currentLevel = nivelSugerido;
+        changed = true;
+      }
+
+      return changed ? next : prev;
+    });
+  }, [rutas, rutasStats, rutasRecientes, setUserProgress]);
+
   
   const navigate = useNavigate();
 
