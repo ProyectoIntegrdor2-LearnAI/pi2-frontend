@@ -35,11 +35,11 @@ const AUTH_BASE_URL = resolveServiceUrl(
 );
 
 const COURSES_BASE_URL = resolveServiceUrl(
-  LAMBDA_ENDPOINTS?.COURSES,
+  'https://bqzuf5lilg.execute-api.us-east-2.amazonaws.com/Prod',
   process.env.REACT_APP_COURSES_API_URL,
   process.env.REACT_APP_COURSES_LAMBDA_URL,
   process.env.REACT_APP_SEARCH_LAMBDA_URL,
-  AUTH_BASE_URL
+  LAMBDA_ENDPOINTS?.COURSES
 );
 
 const SERVICE_BASE_URLS = {

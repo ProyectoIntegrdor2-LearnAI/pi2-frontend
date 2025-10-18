@@ -103,7 +103,14 @@ const HeaderDashboard = () => {
                 className={`nav-item ${isActiveRoute('/visualizador-rutas') ? 'active' : ''}`}
               >
                 <span className="nav-icon"></span>
-                <span>Mis Cursos</span>
+                <span>Mis Rutas</span>
+              </li>
+              <li 
+                onClick={(e) => handleNavigation('/mis-cursos', e)} 
+                className={`nav-item ${isActiveRoute('/mis-cursos') ? 'active' : ''}`}
+              >
+                <span className="nav-icon"></span>
+                <span>Explorar cursos</span>
               </li>
               <li 
                 onClick={(e) => handleNavigation('/mis-favoritos', e)} 

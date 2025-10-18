@@ -89,6 +89,14 @@ export const useRutasAprendizaje = () => {
 
       const origenChat = Boolean(nuevaRuta?.origenChat);
 
+      const guardadoEnServidor = Boolean(
+        nuevaRuta?.guardado ??
+        nuevaRuta?.persisted ??
+        nuevaRuta?.guardadoEnServidor ??
+        nuevaRuta?.persistedEnServidor ??
+        true
+      );
+
       const rutaFormateada = {
         id: rutaId,
         pathId: backendPathId,
@@ -101,7 +109,9 @@ export const useRutasAprendizaje = () => {
         origenChat,
         fechaCreacion: isoNow,
         promptOriginal: nuevaRuta?.promptOriginal || "",
-        cursos: cursosConMeta
+        cursos: cursosConMeta,
+        guardadoEnServidor,
+        persisted: guardadoEnServidor
       };
 
       setRutas((prevRutas) => {

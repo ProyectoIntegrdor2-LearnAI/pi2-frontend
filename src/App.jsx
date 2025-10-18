@@ -25,6 +25,7 @@ import Dashboard from "./pages/Dashboard";
 import MiPerfil from "./pages/MiPerfil";
 import VisualizadorRutas from "./pages/VisualizadorRutas";
 import MisFavoritos from "./pages/MisFavoritos";
+import CatalogoCursos from "./pages/CatalogoCursos";
 import GeneradorRutas from "./pages/GeneradorRutas";
 
 // Estilos
@@ -60,6 +61,7 @@ function AppContent() {
     location.pathname.startsWith("/dashboard") ||
     location.pathname.startsWith("/mi-perfil") ||
     location.pathname.startsWith("/visualizador-rutas") ||
+    location.pathname.startsWith("/mis-cursos") ||
     location.pathname.startsWith("/mis-favoritos") ||
     location.pathname.startsWith("/rutas");
 
@@ -91,6 +93,7 @@ function AppContent() {
               <Route path="/visualizador-rutas" element={<VisualizadorRutas />} />
               <Route path="/mis-favoritos" element={<MisFavoritos />} />
               <Route path="/rutas" element={<GeneradorRutas />} />
+              <Route path="/mis-cursos" element={<CatalogoCursos />} />
             </Routes>
           </div>
         </div>

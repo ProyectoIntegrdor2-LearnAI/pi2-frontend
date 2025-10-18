@@ -13,15 +13,27 @@ function VisualizadorRutas() {
     actualizarCurso
   } = useRutasAprendizaje();
 
+  const navigate = useNavigate();
+  const location = useLocation();
   const [rutaSeleccionadaId, setRutaSeleccionadaId] = useState(null);
   const [cursoSeleccionadoId, setCursoSeleccionadoId] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [accionModal, setAccionModal] = useState(null);
-
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [mensajeRuta, setMensajeRuta] = useState(location.state?.mensaje ?? null);
+  const [mensajeEsAdvertencia, setMensajeEsAdvertencia] = useState(Boolean(location.state?.rutaNoPersistida));
   const nuevaRuta = location.state?.nuevaRuta;
   const rutaSeleccionadaDesdeEstado = location.state?.rutaSeleccionadaId;
+
+  useEffect(() => {
+    if (!mensajeRuta) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setMensajeRuta(null);
+      setMensajeEsAdvertencia(false);
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [mensajeRuta]);
 
   const rutaSeleccionada = useMemo(() => {
     if (!rutas.length) {
@@ -80,11 +92,18 @@ function VisualizadorRutas() {
       return;
     }
 
+    const mensajeEntrante = location.state?.mensaje;
+    const esAdvertencia = Boolean(location.state?.rutaNoPersistida);
+
     const rutaCreada = agregarRuta(nuevaRuta);
     if (rutaCreada) {
       setRutaSeleccionadaId(rutaCreada.id);
       if (rutaCreada.cursos?.length) {
         setCursoSeleccionadoId(rutaCreada.cursos[0].id);
+      }
+      if (mensajeEntrante) {
+        setMensajeRuta(mensajeEntrante);
+        setMensajeEsAdvertencia(esAdvertencia);
       }
     }
 
@@ -302,6 +321,22 @@ function VisualizadorRutas() {
           <p>Sigue tu progreso y continúa tu camino de aprendizaje personalizado</p>
         </div>
       </section>
+
+      {mensajeRuta && (
+        <div
+          className={`route-alert ${mensajeEsAdvertencia ? 'warning' : 'success'}`}
+          style={{
+            marginBottom: '1.5rem',
+            padding: '1rem 1.25rem',
+            borderRadius: '12px',
+            background: mensajeEsAdvertencia ? '#fff3cd' : '#e6f4ea',
+            color: mensajeEsAdvertencia ? '#856404' : '#205522',
+            border: `1px solid ${mensajeEsAdvertencia ? '#ffeeba' : '#b7dfc2'}`
+          }}
+        >
+          {mensajeRuta}
+        </div>
+      )}
 
       {/* Selector de rutas */}
       <section className="route-selector">

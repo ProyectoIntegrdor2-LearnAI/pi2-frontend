@@ -48,11 +48,17 @@ function GeneradorRutas() {
       const response = await apiServices.learningPath.generate(payload);
       
       if (response && response.titulo) {
+        const persisted = response.guardado ?? response.persisted ?? true;
+        const mensaje = persisted
+          ? 'Ruta generada exitosamente'
+          : 'Ruta generada, pero no pudimos guardarla en el servidor. Se mantendrá en este dispositivo.';
+
         // Navegar al visualizador de rutas con la ruta generada
         navigate('/visualizador-rutas', { 
           state: { 
             nuevaRuta: response,
-            mensaje: 'Ruta generada exitosamente'
+            mensaje,
+            rutaNoPersistida: !persisted
           } 
         });
       } else {
