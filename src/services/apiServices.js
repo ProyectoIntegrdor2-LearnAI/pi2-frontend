@@ -2,6 +2,7 @@
 
 import { normalizeToken, buildAuthorizationValue } from '../utils/tokenUtils';
 import { LAMBDA_ENDPOINTS, API_PATHS } from '../config/endpoints';
+import { ensureArray } from '../utils/apiData';
 
 const DEFAULT_AUTH_FALLBACK = 'https://avouruymc3.execute-api.us-east-2.amazonaws.com/Prod';
 const PLACEHOLDER_MARKERS = ['your-', 'example.com'];
@@ -33,6 +34,13 @@ const AUTH_BASE_URL = resolveServiceUrl(
   LAMBDA_ENDPOINTS?.AUTH
 );
 
+const COURSES_BASE_URL = resolveServiceUrl(
+  AUTH_BASE_URL,
+  process.env.REACT_APP_COURSES_API_URL,
+  process.env.REACT_APP_COURSES_LAMBDA_URL,
+  LAMBDA_ENDPOINTS?.COURSES
+);
+
 const SERVICE_BASE_URLS = {
   AUTH: AUTH_BASE_URL,
   USER: AUTH_BASE_URL,
@@ -48,12 +56,7 @@ const SERVICE_BASE_URLS = {
     process.env.REACT_APP_LEARNING_PATH_LAMBDA_URL,
     LAMBDA_ENDPOINTS?.LEARNING_PATH
   ),
-  COURSES: resolveServiceUrl(
-    AUTH_BASE_URL,
-    process.env.REACT_APP_COURSES_API_URL,
-    process.env.REACT_APP_COURSES_LAMBDA_URL,
-    LAMBDA_ENDPOINTS?.COURSES
-  ),
+  COURSES: COURSES_BASE_URL,
   ANALYTICS: resolveServiceUrl(
     AUTH_BASE_URL,
     process.env.REACT_APP_ANALYTICS_API_URL,
@@ -61,10 +64,11 @@ const SERVICE_BASE_URLS = {
     LAMBDA_ENDPOINTS?.ANALYTICS
   ),
   SEARCH: resolveServiceUrl(
-    AUTH_BASE_URL,
+    COURSES_BASE_URL,
     process.env.REACT_APP_SEARCH_API_URL,
     process.env.REACT_APP_SEARCH_LAMBDA_URL,
-    LAMBDA_ENDPOINTS?.SEARCH
+    LAMBDA_ENDPOINTS?.SEARCH,
+    LAMBDA_ENDPOINTS?.COURSES
   ),
 };
 
@@ -223,6 +227,25 @@ const handleResponse = async (response) => {
   }
 
   return data ?? {};
+};
+
+const executeFavoriteRequest = async (id, action) => {
+  const body =
+    action && typeof action === 'string'
+      ? JSON.stringify({ action })
+      : JSON.stringify({});
+
+  const response = await fetch(buildUrl(API_PATHS.COURSES.FAVORITE(id), 'COURSES'), {
+    method: 'POST',
+    headers: buildHeaders({}, true),
+    body,
+  });
+
+  const payload = await handleResponse(response);
+  return {
+    courseId: payload?.course_id ?? id,
+    isFavorite: Boolean(payload?.is_favorite ?? payload?.favorite ?? payload?.isFavorite),
+  };
 };
 
 const apiServices = {
@@ -463,8 +486,8 @@ const apiServices = {
         method: 'GET',
         headers: buildHeaders(),
       });
-      if (!response.ok) throw new Error('Error obteniendo cursos');
-      return response.json();
+      const payload = await handleResponse(response);
+      return ensureArray(payload?.courses ?? payload);
     },
 
     getCourseById: async (id) => {
@@ -472,8 +495,8 @@ const apiServices = {
         method: 'GET',
         headers: buildHeaders(),
       });
-      if (!response.ok) throw new Error('Error obteniendo detalle del curso');
-      return response.json();
+      const payload = await handleResponse(response);
+      return payload?.course ?? payload;
     },
 
     getCategories: async () => {
@@ -481,18 +504,12 @@ const apiServices = {
         method: 'GET',
         headers: buildHeaders(),
       });
-      if (!response.ok) throw new Error('Error obteniendo categorías');
-      return response.json();
+      const payload = await handleResponse(response);
+      return ensureArray(payload?.categories ?? payload);
     },
 
-    addFavorite: async (id) => {
-      const response = await fetch(buildUrl(API_PATHS.COURSES.FAVORITE(id), 'COURSES'), {
-        method: 'POST',
-        headers: buildHeaders({}, true),
-      });
-      if (!response.ok) throw new Error('Error agregando a favoritos');
-      return response.json();
-    },
+    toggleFavorite: executeFavoriteRequest,
+    addFavorite: (id) => executeFavoriteRequest(id, 'add'),
   },
   // 🔹 Analíticas
   analytics: {
@@ -633,14 +650,18 @@ const apiServices = {
 
   // 🔹 Búsqueda principal
   search: {
-    main: async (query) => {
+    main: async ({ query = '', limit = 12, filters = {} } = {}) => {
       const response = await fetch(buildUrl(API_PATHS.SEARCH.MAIN, 'SEARCH'), {
         method: 'POST',
         headers: buildHeaders({}, true),
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, limit, filters }),
       });
-      if (!response.ok) throw new Error('Error en la búsqueda principal');
-      return response.json();
+      const payload = await handleResponse(response);
+      const results = ensureArray(payload?.results ?? payload?.courses ?? payload);
+      return {
+        ...payload,
+        results,
+      };
     },
   },
 

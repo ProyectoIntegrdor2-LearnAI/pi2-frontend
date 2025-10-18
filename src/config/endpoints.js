@@ -58,11 +58,11 @@ export const API_PATHS = {
   
   // Rutas de cursos
   COURSES: {
-    ALL: '/courses',
-    TRENDING: '/courses/trending',
-    CATEGORIES: '/courses/categories',
-    DETAIL: (id) => `/courses/${id}`,
-    FAVORITE: (id) => `/courses/${id}/favorite`
+    ALL: '/api/courses',
+    TRENDING: '/api/courses/trending',
+    CATEGORIES: '/api/courses/categories',
+    DETAIL: (id) => `/api/courses/${id}`,
+    FAVORITE: (id) => `/api/courses/${id}/favorite`
   },
   
   // Rutas de analíticas
@@ -74,7 +74,7 @@ export const API_PATHS = {
   
   // Búsqueda
   SEARCH: {
-    MAIN: '/search',
+    MAIN: '/api/search',
     FILTERS: '/search/filters'
   }
 };

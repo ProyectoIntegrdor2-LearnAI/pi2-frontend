@@ -1,13 +1,30 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
-import { unwrapApiData, normalizeCourse } from "../utils/apiData";
+import { unwrapApiData, normalizeCourse, ensureArray } from "../utils/apiData";
 import avatarIcon from '../imagenes/iconoUsuario.png';
 import logoImage from '../imagenes/logoPrincipal.png';
 import "../styles/Dashboard.css";
 import { useRutasAprendizaje } from "../hooks/useRutasAprendizaje";
 
 function Dashboard() {
+  const FAVORITES_STORAGE_KEY = 'learnia_course_favorites';
+
+  const readStoredFavorites = () => {
+    if (typeof window === 'undefined') return new Set();
+    try {
+      const raw = window.localStorage.getItem(FAVORITES_STORAGE_KEY);
+      if (!raw) return new Set();
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return new Set(parsed);
+      }
+    } catch {
+      // noop
+    }
+    return new Set();
+  };
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -34,6 +51,10 @@ function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [coursesError, setCoursesError] = useState(null);
   const [progressError, setProgressError] = useState(null);
+  const [courseCategories, setCourseCategories] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [favoriteCourseIds, setFavoriteCourseIds] = useState(() => readStoredFavorites());
 
   const {
     rutas,
@@ -115,14 +136,27 @@ function Dashboard() {
     initializeDashboard();
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(
+        FAVORITES_STORAGE_KEY,
+        JSON.stringify(Array.from(favoriteCourseIds))
+      );
+    } catch {
+      // noop
+    }
+  }, [FAVORITES_STORAGE_KEY, favoriteCourseIds]);
+
   const initializeDashboard = async () => {
     setLoading(true);
     setError(null);
 
-    const [dashboardResult, coursesResult, progressResult] = await Promise.allSettled([
+    const [dashboardResult, coursesResult, progressResult, categoriesResult] = await Promise.allSettled([
       loadDashboardData(),
       loadCourseCatalog(),
-      loadUserProgress()
+      loadUserProgress(),
+      loadCourseCategories()
     ]);
 
     if (dashboardResult.status === 'rejected') {
@@ -131,6 +165,10 @@ function Dashboard() {
         dashboardResult.reason?.message ||
           'No fue posible cargar tu información personal'
       );
+    }
+
+    if (categoriesResult.status === 'rejected') {
+      console.error('Error cargando categorías:', categoriesResult.reason);
     }
 
     if (coursesResult.status === 'rejected') {
@@ -268,6 +306,44 @@ function Dashboard() {
     }
   };
 
+  const loadCourseCategories = async () => {
+    try {
+      const response = await apiServices.courses.getCategories();
+      const categories = ensureArray(unwrapApiData(response));
+      const normalized = categories
+        .map((item) => ({
+          name: item?.name || item?.categoria || item?._id || 'General',
+          count: Number(item?.count || item?.total || 0),
+        }))
+        .filter((item) => item.name);
+      setCourseCategories(normalized);
+      return normalized;
+    } catch (error) {
+      console.warn('No fue posible cargar categorías:', error);
+      setCourseCategories([]);
+      return [];
+    }
+  };
+
+  const toggleFavoriteCourse = async (courseId) => {
+    try {
+      const result = await apiServices.courses.toggleFavorite(courseId);
+      setFavoriteCourseIds((prev) => {
+        const next = new Set(prev);
+        const favoriteId = String(result.courseId ?? courseId);
+        if (result.isFavorite) {
+          next.add(favoriteId);
+        } else {
+          next.delete(favoriteId);
+        }
+        return next;
+      });
+    } catch (error) {
+      console.error('No se pudo actualizar el favorito:', error);
+      setSearchError(error?.message || 'No se pudo actualizar el favorito');
+    }
+  };
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -306,57 +382,64 @@ function Dashboard() {
     setShowSearchResults(true);
   };
 
-  const performSearch = (searchTerm, filters = {}) => {
-    const normalizedTerm = (searchTerm || '').trim().toLowerCase();
-    let filteredResults = [...availableCourses];
+  const performSearch = async (query, filters = {}) => {
+    const normalizedTerm = (query || '').trim();
 
-    if (normalizedTerm) {
-      filteredResults = filteredResults.filter((course) =>
-        [
-          course.titulo,
-          course.descripcion,
-          course.categoria,
-          course.instructor,
-        ]
-          .filter(Boolean)
-          .some((value) => value.toLowerCase().includes(normalizedTerm))
-      );
+    if (!normalizedTerm) {
+      clearSearchResults();
+      return;
     }
 
-    if (filters.categoria) {
-      const category = filters.categoria.toLowerCase();
-      filteredResults = filteredResults.filter(
-        (course) => course.categoria?.toLowerCase() === category
-      );
+    if (normalizedTerm.length < 3) {
+      setSearchError('Escribe al menos 3 caracteres para buscar cursos');
+      setSearchResults([]);
+      setShowSearchResults(true);
+      return;
     }
 
-    if (filters.nivel) {
-      const level = filters.nivel.toLowerCase();
-      filteredResults = filteredResults.filter(
-        (course) => course.nivel?.toLowerCase() === level
-      );
-    }
+    setSearchLoading(true);
+    setSearchError(null);
 
-    if (filters.precio) {
-      filteredResults = filteredResults.filter((course) => {
-        const price = (course.precio || '').toString().toLowerCase();
-        if (filters.precio === 'gratis') {
-          return price.includes('gratis') || price === '0' || price === '$0';
-        }
-        if (filters.precio === 'pago') {
-          return price && !price.includes('gratis');
-        }
-        return true;
+    try {
+      const mappedFilters = {};
+      if (filters.categoria) {
+        mappedFilters.category = filters.categoria;
+      }
+      if (filters.nivel) {
+        mappedFilters.level = filters.nivel;
+      }
+      if (filters.precio === 'gratis') {
+        mappedFilters.max_price = 0;
+      }
+
+      const response = await apiServices.search.main({
+        query: normalizedTerm,
+        limit: 20,
+        filters: mappedFilters,
       });
-    }
 
-    handleSearchResults(filteredResults);
+      const data = unwrapApiData(response);
+      const normalized = ensureArray(data?.results ?? response?.results)
+        .map(normalizeCourse)
+        .filter(Boolean);
+
+      handleSearchResults(normalized);
+    } catch (error) {
+      console.error('Error realizando búsqueda:', error);
+      setSearchResults([]);
+      setShowSearchResults(true);
+      setSearchError(error?.message || 'No fue posible realizar la búsqueda');
+    } finally {
+      setSearchLoading(false);
+    }
   };
 
   // Limpiar resultados de búsqueda
   const clearSearchResults = () => {
     setSearchResults([]);
     setShowSearchResults(false);
+    setSearchLoading(false);
+    setSearchError(null);
   };
 
   if (loading) {
@@ -503,10 +586,12 @@ function Dashboard() {
                 className="filter-select"
               >
                 <option value="">Todas las categorías</option>
-                <option value="Desarrollo Web">Desarrollo Web</option>
-                <option value="Programación">Programación</option>
-                <option value="Inteligencia Artificial">Inteligencia Artificial</option>
-                <option value="Diseño">Diseño</option>
+                {courseCategories.map((category) => (
+                  <option key={category.name} value={category.name}>
+                    {category.name}
+                    {category.count ? ` (${category.count})` : ''}
+                  </option>
+                ))}
               </select>
 
               <select
@@ -568,8 +653,22 @@ function Dashboard() {
                 ✕ Cerrar resultados
               </button>
             </div>
+            {searchLoading && (
+              <div className="card-placeholder">
+                <div className="loading-spinner small"></div>
+                <p>Buscando cursos...</p>
+              </div>
+            )}
+            {searchError && !searchLoading && (
+              <div className="card-placeholder">
+                <p>{searchError}</p>
+              </div>
+            )}
             <div className="search-results-grid">
-              {searchResults.map((course) => (
+              {searchResults.map((course) => {
+                const favoriteKey = String(course.id);
+                const isFavorite = favoriteCourseIds.has(favoriteKey);
+                return (
                 <div key={course.id} className="course-card search-result-card">
                   <div className="course-image">
                     <img src={course.imagen} alt={course.titulo} />
@@ -588,29 +687,36 @@ function Dashboard() {
                     <div className="course-actions">
                       <button
                         className="enroll-btn"
-                        onClick={() => console.log(`Inscribirse en: ${course.titulo}`)}
+                        onClick={() => {
+                          if (course.url) {
+                            window.open(course.url, '_blank', 'noopener');
+                          }
+                        }}
                       >
                         Ver Curso
                       </button>
                       <button
-                        className="favorite-btn"
-                        onClick={() => console.log(`Agregar a favoritos: ${course.titulo}`)}
+                        className={`favorite-btn ${isFavorite ? 'active' : ''}`}
+                        onClick={() => toggleFavoriteCourse(course.id)}
+                        title={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                       >
-                        ⭐
+                        {isFavorite ? '⭐' : '☆'}
                       </button>
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
             
             {searchResults.length === 0 && (
-              <div className="no-results">
-                <p>No se encontraron cursos que coincidan con tu búsqueda.</p>
-                <button onClick={clearSearchResults} className="try-again-btn">
-                  Intentar nueva búsqueda
-                </button>
-              </div>
+              !searchLoading && !searchError && (
+                <div className="no-results">
+                  <p>No se encontraron cursos que coincidan con tu búsqueda.</p>
+                  <button onClick={clearSearchResults} className="try-again-btn">
+                    Intentar nueva búsqueda
+                  </button>
+                </div>
+              )
             )}
           </section>
         )}

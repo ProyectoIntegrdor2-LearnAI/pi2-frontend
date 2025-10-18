@@ -780,6 +780,12 @@ body {
   color: white;
 }
 
+.favorite-btn.active {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-dark);
+}
+
 .close-search-btn {
   background: var(--text-light);
   color: white;
