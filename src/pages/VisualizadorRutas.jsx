@@ -37,10 +37,10 @@ function VisualizadorRutas() {
         setRutaSeleccionada(rutaCreada);
       }
       
-      // Limpiar el state de navegación
-      window.history.replaceState({}, document.title);
+      // Limpiar el state de navegación para evitar re-renders infinitos
+      navigate('/visualizador-rutas', { replace: true, state: {} });
     }
-  }, [location.state, agregarRuta]);
+  }, [location.state?.nuevaRuta]);
 
   const manejarAccionCurso = (curso, accion) => {
     setCursoSeleccionado(curso);
