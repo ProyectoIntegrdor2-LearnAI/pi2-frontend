@@ -25,6 +25,7 @@ import Dashboard from "./pages/Dashboard";
 import MiPerfil from "./pages/MiPerfil";
 import VisualizadorRutas from "./pages/VisualizadorRutas";
 import MisFavoritos from "./pages/MisFavoritos";
+import GeneradorRutas from "./pages/GeneradorRutas";
 
 // Estilos
 import "./styles/App.css";
@@ -36,6 +37,7 @@ import './styles/MisionVision.css';
 import './styles/Contacto.css';
 import './styles/PreguntasFrecuentes.css';
 import './styles/VisualizadorRutas.css';
+import './styles/GeneradorRutas.css';
 
 function AppContent() {
   const location = useLocation();
@@ -58,7 +60,8 @@ function AppContent() {
     location.pathname.startsWith("/dashboard") ||
     location.pathname.startsWith("/mi-perfil") ||
     location.pathname.startsWith("/visualizador-rutas") ||
-    location.pathname.startsWith("/mis-favoritos");
+    location.pathname.startsWith("/mis-favoritos") ||
+    location.pathname.startsWith("/rutas");
 
   // Detectar páginas que deben ocupar toda la altura (sin padding-top)
   const isFullPageRoute = 
@@ -87,6 +90,7 @@ function AppContent() {
               <Route path="/mi-perfil" element={<MiPerfil />} />
               <Route path="/visualizador-rutas" element={<VisualizadorRutas />} />
               <Route path="/mis-favoritos" element={<MisFavoritos />} />
+              <Route path="/rutas" element={<GeneradorRutas />} />
             </Routes>
           </div>
         </div>
