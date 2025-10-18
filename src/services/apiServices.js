@@ -35,10 +35,11 @@ const AUTH_BASE_URL = resolveServiceUrl(
 );
 
 const COURSES_BASE_URL = resolveServiceUrl(
-  AUTH_BASE_URL,
+  LAMBDA_ENDPOINTS?.COURSES,
   process.env.REACT_APP_COURSES_API_URL,
   process.env.REACT_APP_COURSES_LAMBDA_URL,
-  LAMBDA_ENDPOINTS?.COURSES
+  process.env.REACT_APP_SEARCH_LAMBDA_URL,
+  AUTH_BASE_URL
 );
 
 const SERVICE_BASE_URLS = {
