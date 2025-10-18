@@ -11,13 +11,13 @@ export const LAMBDA_ENDPOINTS = {
   // Lambda para rutas de aprendizaje
   LEARNING_PATH: process.env.REACT_APP_LEARNING_PATH_LAMBDA_URL || 'https://yhjk0mfvgc.execute-api.us-east-2.amazonaws.com/Prod',
   
-  // Lambda para cursos
-  COURSES: process.env.REACT_APP_COURSES_LAMBDA_URL || 'https://your-courses-lambda.execute-api.region.amazonaws.com/prod',
+  // Lambda para cursos (usa search-api-lambda que maneja todos los endpoints de cursos)
+  COURSES: process.env.REACT_APP_COURSES_LAMBDA_URL || 'https://463dscc3hl.execute-api.us-east-2.amazonaws.com',
   
   // Lambda para analíticas
   ANALYTICS: process.env.REACT_APP_ANALYTICS_LAMBDA_URL || 'https://your-analytics-lambda.execute-api.region.amazonaws.com/prod',
   
-  // Lambda para búsqueda
+  // Lambda para búsqueda (misma que COURSES)
   SEARCH: process.env.REACT_APP_SEARCH_LAMBDA_URL || 'https://463dscc3hl.execute-api.us-east-2.amazonaws.com'
 };
 
