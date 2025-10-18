@@ -96,6 +96,12 @@ export const useRutasAprendizaje = () => {
         nuevaRuta?.persistedEnServidor ??
         true
       );
+      const horasEstimadas = Number(
+        nuevaRuta?.horasEstimadas ??
+        nuevaRuta?.estimated_total_hours ??
+        nuevaRuta?.estimatedTotalHours ??
+        0
+      ) || 0;
 
       const rutaFormateada = {
         id: rutaId,
@@ -111,7 +117,9 @@ export const useRutasAprendizaje = () => {
         promptOriginal: nuevaRuta?.promptOriginal || "",
         cursos: cursosConMeta,
         guardadoEnServidor,
-        persisted: guardadoEnServidor
+        persisted: guardadoEnServidor,
+        horasEstimadas,
+        estimatedTotalHours: horasEstimadas
       };
 
       setRutas((prevRutas) => {

@@ -55,7 +55,7 @@ const MenuPerfil = () => {
                         </Link>
 
                         <Link
-                            to="/mis-cursos"
+                            to="/catalogo"
                             className="dropdown-item"
                             onClick={() => setIsMenuOpen(false)}
                         >

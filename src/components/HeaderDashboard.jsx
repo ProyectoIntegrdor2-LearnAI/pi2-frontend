@@ -106,8 +106,8 @@ const HeaderDashboard = () => {
                 <span>Mis Rutas</span>
               </li>
               <li 
-                onClick={(e) => handleNavigation('/mis-cursos', e)} 
-                className={`nav-item ${isActiveRoute('/mis-cursos') ? 'active' : ''}`}
+                onClick={(e) => handleNavigation('/catalogo', e)} 
+                className={`nav-item ${isActiveRoute('/catalogo') || isActiveRoute('/mis-cursos') ? 'active' : ''}`}
               >
                 <span className="nav-icon"></span>
                 <span>Explorar cursos</span>

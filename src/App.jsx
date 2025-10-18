@@ -61,6 +61,7 @@ function AppContent() {
     location.pathname.startsWith("/dashboard") ||
     location.pathname.startsWith("/mi-perfil") ||
     location.pathname.startsWith("/visualizador-rutas") ||
+    location.pathname.startsWith("/catalogo") ||
     location.pathname.startsWith("/mis-cursos") ||
     location.pathname.startsWith("/mis-favoritos") ||
     location.pathname.startsWith("/rutas");
@@ -93,6 +94,7 @@ function AppContent() {
               <Route path="/visualizador-rutas" element={<VisualizadorRutas />} />
               <Route path="/mis-favoritos" element={<MisFavoritos />} />
               <Route path="/rutas" element={<GeneradorRutas />} />
+              <Route path="/catalogo" element={<CatalogoCursos />} />
               <Route path="/mis-cursos" element={<CatalogoCursos />} />
             </Routes>
           </div>

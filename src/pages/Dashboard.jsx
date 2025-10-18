@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
 import { unwrapApiData, normalizeCourse, ensureArray } from "../utils/apiData";
@@ -88,37 +88,74 @@ function Dashboard() {
     return Math.round(total / rutas.length);
   }, [rutas]);
 
+  const computeLocalProgress = useCallback(() => {
+    const stats = obtenerEstadisticasRutas();
+    const totalCursosLocales = stats.totalCursos || 0;
+    const cursosCompletadosLocales =
+      (stats.cursosCompletados || 0) + (stats.cursosOmitidos || 0);
+    const horasLocales = rutas.reduce((acc, ruta) => {
+      const horas = Number(
+        ruta.horasEstimadas ??
+        ruta.estimatedTotalHours ??
+        ruta.estimacionHoras ??
+        0
+      );
+      return acc + (Number.isNaN(horas) ? 0 : horas);
+    }, 0);
+    const nivelSugerido =
+      rutasRecientes[0]?.nivel || rutas[0]?.nivel || "En progreso";
+    return {
+      totalCursosLocales,
+      cursosCompletadosLocales,
+      horasLocales,
+      nivelSugerido,
+    };
+  }, [obtenerEstadisticasRutas, rutas, rutasRecientes]);
+
   useEffect(() => {
     if (!rutas.length) {
       return;
     }
 
-    const totalCursosLocales = rutasStats.totalCursos || 0;
-    const cursosCompletadosLocales =
-      (rutasStats.cursosCompletados || 0) + (rutasStats.cursosOmitidos || 0);
+    const {
+      totalCursosLocales,
+      cursosCompletadosLocales,
+      horasLocales,
+      nivelSugerido,
+    } = computeLocalProgress();
 
-    if (!totalCursosLocales && !cursosCompletadosLocales) {
+    if (
+      !totalCursosLocales &&
+      !cursosCompletadosLocales &&
+      !horasLocales
+    ) {
       return;
     }
-
-    const nivelSugerido = rutasRecientes[0]?.nivel || rutas[0]?.nivel || 'En progreso';
 
     setUserProgress((prev) => {
       const next = { ...prev };
       let changed = false;
 
-      if (totalCursosLocales > prev.totalCourses) {
+      if (totalCursosLocales !== prev.totalCourses) {
         next.totalCourses = totalCursosLocales;
         changed = true;
       }
 
-      if (cursosCompletadosLocales > prev.completedCourses) {
+      if (cursosCompletadosLocales !== prev.completedCourses) {
         next.completedCourses = cursosCompletadosLocales;
         changed = true;
       }
 
+      if (horasLocales !== prev.totalHours && horasLocales >= 0) {
+        next.totalHours = horasLocales;
+        changed = true;
+      }
+
       if (
-        (!prev.currentLevel || prev.currentLevel === 'Sin datos' || prev.currentLevel === 'En progreso') &&
+        (!prev.currentLevel ||
+          prev.currentLevel === "Sin datos" ||
+          prev.currentLevel === "En progreso" ||
+          prev.currentLevel === "Principiante") &&
         nivelSugerido
       ) {
         next.currentLevel = nivelSugerido;
@@ -127,7 +164,7 @@ function Dashboard() {
 
       return changed ? next : prev;
     });
-  }, [rutas, rutasStats, rutasRecientes, setUserProgress]);
+  }, [rutas, computeLocalProgress, setUserProgress]);
 
   
   const navigate = useNavigate();
@@ -253,6 +290,27 @@ function Dashboard() {
           'En progreso',
       };
 
+      const localProgress = computeLocalProgress();
+      if (localProgress.totalCursosLocales > normalized.totalCourses) {
+        normalized.totalCourses = localProgress.totalCursosLocales;
+      }
+      if (localProgress.cursosCompletadosLocales > normalized.completedCourses) {
+        normalized.completedCourses = localProgress.cursosCompletadosLocales;
+      }
+      if (localProgress.horasLocales > normalized.totalHours) {
+        normalized.totalHours = localProgress.horasLocales;
+      }
+      if (
+        !normalized.currentLevel ||
+        normalized.currentLevel === "Sin datos" ||
+        normalized.currentLevel === "En progreso"
+      ) {
+        normalized.currentLevel = localProgress.nivelSugerido;
+      }
+      if (!normalized.currentLevel) {
+        normalized.currentLevel = "Sin datos";
+      }
+
       setUserProgress((prev) => ({
         ...prev,
         ...normalized,
@@ -264,13 +322,17 @@ function Dashboard() {
       setProgressError(
         error?.message || 'No fue posible obtener tu progreso todavía'
       );
+      const localProgress = computeLocalProgress();
       setUserProgress((prev) => ({
         ...prev,
-        completedCourses: 0,
-        totalCourses: 0,
+        completedCourses: localProgress.cursosCompletadosLocales,
+        totalCourses: localProgress.totalCursosLocales,
         consecutiveDays: 0,
-        totalHours: 0,
-        currentLevel: prev?.currentLevel || 'Sin datos',
+        totalHours: localProgress.horasLocales,
+        currentLevel:
+          localProgress.nivelSugerido ||
+          prev?.currentLevel ||
+          'Sin datos',
       }));
       return null;
     }
@@ -881,7 +943,7 @@ function Dashboard() {
             <h2>Continuar Aprendiendo</h2>
             <button 
               className="see-all-btn"
-              onClick={() => handleNavigation('/mis-cursos')}
+              onClick={() => handleNavigation('/catalogo')}
             >
               Ver todos
             </button>
