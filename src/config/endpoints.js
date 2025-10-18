@@ -9,7 +9,7 @@ export const LAMBDA_ENDPOINTS = {
   CHAT: process.env.REACT_APP_CHAT_LAMBDA_URL || 'https://your-chat-lambda.execute-api.region.amazonaws.com/prod',
   
   // Lambda para rutas de aprendizaje
-  LEARNING_PATH: process.env.REACT_APP_LEARNING_PATH_LAMBDA_URL || 'https://your-learning-path-lambda.execute-api.region.amazonaws.com/prod',
+  LEARNING_PATH: process.env.REACT_APP_LEARNING_PATH_LAMBDA_URL || 'https://yhjk0mfvgc.execute-api.us-east-2.amazonaws.com/Prod',
   
   // Lambda para cursos
   COURSES: process.env.REACT_APP_COURSES_LAMBDA_URL || 'https://your-courses-lambda.execute-api.region.amazonaws.com/prod',
@@ -50,7 +50,7 @@ export const API_PATHS = {
   
   // Rutas de aprendizaje
   LEARNING_PATH: {
-    GENERATE: '/learning-path/generate',
+    GENERATE: '/generate-learning-path',
     UPDATE: (id) => `/learning-path/${id}`,
     CLONE: (id) => `/learning-path/${id}/clone`,
     DELETE: (id) => `/learning-path/${id}`

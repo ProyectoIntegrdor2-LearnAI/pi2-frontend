@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ChatIAPreview.css';
 import apiServices from '../services/apiServices';
+import { useRutasAprendizaje } from '../hooks/useRutasAprendizaje';
+import RutaCreatedMessage from './RutaCreatedMessage';
 
 const ChatIAAuth = () => {
+    const navigate = useNavigate();
+    const { agregarRuta } = useRutasAprendizaje();
     const [chatMessages, setChatMessages] = useState([
         {
             id: 1,
@@ -12,17 +17,61 @@ const ChatIAAuth = () => {
         }
     ]);
     const [inputMessage, setInputMessage] = useState('');
-    // Unificar con chat flotante
     const [isChatOpen, setIsChatOpen] = useState(false);
     const openChat = () => setIsChatOpen(true);
     const closeChat = () => setIsChatOpen(false);
     const [loading, setLoading] = useState(false);
     const [conversationId, setConversationId] = useState(null);
+    const [showRutaCreated, setShowRutaCreated] = useState(false);
+    const [rutaCreada, setRutaCreada] = useState(null);
 
 
+
+    const detectarSolicitudRuta = (mensaje) => {
+        const keywords = [
+            'generar ruta',
+            'crear ruta',
+            'ruta de aprendizaje',
+            'quiero aprender',
+            'necesito aprender',
+            'como aprendo',
+            'enseñame',
+            'curso de',
+            'plan de estudio'
+        ];
+        const mensajeLower = mensaje.toLowerCase();
+        return keywords.some(keyword => mensajeLower.includes(keyword));
+    };
+
+    const generarRutaConLambda = async (userQuery) => {
+        try {
+            // Obtener el user_id del localStorage o auth context
+            const authData = JSON.parse(localStorage.getItem('authData') || '{}');
+            const userId = authData.userId || '57eed54b-5749-47dc-9c15-c56d29ebbc6e'; // Fallback al usuario de prueba
+            
+            const requestData = {
+                user_query: userQuery,
+                user_level: "intermediate",
+                num_courses: 6,
+                time_per_week: 12,
+                response_format: "frontend" // Solicitar formato del frontend
+            };
+
+            const response = await apiServices.learningPath.generate(requestData);
+            
+            // La respuesta ya viene en formato frontend
+            const nuevaRuta = agregarRuta(response);
+            
+            return nuevaRuta;
+        } catch (error) {
+            console.error('Error generando ruta:', error);
+            throw error;
+        }
+    };
 
     const handleSendMessage = async () => {
         if (!inputMessage.trim()) return;
+        
         const newUserMessage = {
             id: Date.now(),
             type: 'user',
@@ -31,19 +80,56 @@ const ChatIAAuth = () => {
         };
         setChatMessages(prev => [...prev, newUserMessage]);
         setLoading(true);
+
+        // Detectar si es una solicitud de ruta de aprendizaje
+        const esSolicitudRuta = detectarSolicitudRuta(inputMessage);
+
         try {
-            const response = await apiServices.chat.sendMessage(inputMessage, conversationId);
-            if (!conversationId && response.conversationId) {
-                setConversationId(response.conversationId);
+            if (esSolicitudRuta) {
+                // Generar ruta con la Lambda
+                const aiResponse1 = {
+                    id: Date.now() + 1,
+                    type: 'ai',
+                    content: '¡Perfecto! Estoy generando tu ruta de aprendizaje personalizada. Esto tomará unos segundos...',
+                    timestamp: new Date()
+                };
+                setChatMessages(prev => [...prev, aiResponse1]);
+
+                const ruta = await generarRutaConLambda(inputMessage);
+                
+                if (ruta) {
+                    setRutaCreada(ruta);
+                    const aiResponse2 = {
+                        id: Date.now() + 2,
+                        type: 'ai',
+                        content: (
+                            <RutaCreatedMessage 
+                                ruta={ruta} 
+                                onDismiss={() => setShowRutaCreated(false)}
+                            />
+                        ),
+                        timestamp: new Date()
+                    };
+                    setChatMessages(prev => [...prev, aiResponse2]);
+                } else {
+                    throw new Error('No se pudo crear la ruta');
+                }
+            } else {
+                // Flujo normal del chat
+                const response = await apiServices.chat.sendMessage(inputMessage, conversationId);
+                if (!conversationId && response.conversationId) {
+                    setConversationId(response.conversationId);
+                }
+                const aiResponse = {
+                    id: Date.now() + 1,
+                    type: 'ai',
+                    content: response.message || '¡Gracias por tu mensaje!',
+                    timestamp: new Date()
+                };
+                setChatMessages(prev => [...prev, aiResponse]);
             }
-            const aiResponse = {
-                id: Date.now() + 1,
-                type: 'ai',
-                content: response.message || '¡Gracias por tu mensaje!',
-                timestamp: new Date()
-            };
-            setChatMessages(prev => [...prev, aiResponse]);
         } catch (error) {
+            console.error('Error:', error);
             setChatMessages(prev => [...prev, {
                 id: Date.now() + 2,
                 type: 'ai',
