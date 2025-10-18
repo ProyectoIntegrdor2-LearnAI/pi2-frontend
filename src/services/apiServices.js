@@ -652,6 +652,10 @@ const apiServices = {
     persistUser,
     getStoredUser,
     clearStoredUser,
+    getUserId: () => {
+      const user = getStoredUser();
+      return user?.user_id || user?.id || null;
+    },
     isMockMode: () => MOCK_API,
   },
 };
