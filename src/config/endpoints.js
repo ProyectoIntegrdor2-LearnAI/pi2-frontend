@@ -18,7 +18,7 @@ export const LAMBDA_ENDPOINTS = {
   ANALYTICS: process.env.REACT_APP_ANALYTICS_LAMBDA_URL || 'https://your-analytics-lambda.execute-api.region.amazonaws.com/prod',
   
   // Lambda para búsqueda
-  SEARCH: process.env.REACT_APP_SEARCH_LAMBDA_URL || 'https://your-search-lambda.execute-api.region.amazonaws.com/prod'
+  SEARCH: process.env.REACT_APP_SEARCH_LAMBDA_URL || 'https://463dscc3hl.execute-api.us-east-2.amazonaws.com'
 };
 
 export const API_PATHS = {
