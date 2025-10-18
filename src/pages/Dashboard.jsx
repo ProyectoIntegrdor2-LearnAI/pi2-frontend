@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
 import { unwrapApiData, normalizeCourse } from "../utils/apiData";
 import avatarIcon from '../imagenes/iconoUsuario.png';
 import logoImage from '../imagenes/logoPrincipal.png';
 import "../styles/Dashboard.css";
+import { useRutasAprendizaje } from "../hooks/useRutasAprendizaje";
 
 function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,6 +34,38 @@ function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [coursesError, setCoursesError] = useState(null);
   const [progressError, setProgressError] = useState(null);
+
+  const {
+    rutas,
+    loading: rutasLoading,
+    obtenerEstadisticas: obtenerEstadisticasRutas
+  } = useRutasAprendizaje();
+
+  const rutasStats = useMemo(() => obtenerEstadisticasRutas(), [obtenerEstadisticasRutas]);
+
+  const rutasRecientes = useMemo(() => {
+    if (!rutas.length) {
+      return [];
+    }
+
+    return [...rutas]
+      .sort((a, b) => {
+        const bTime =
+          new Date(b.ultimaActualizacion || b.fechaCreacion || 0).getTime() || 0;
+        const aTime =
+          new Date(a.ultimaActualizacion || a.fechaCreacion || 0).getTime() || 0;
+        return bTime - aTime;
+      })
+      .slice(0, 3);
+  }, [rutas]);
+
+  const promedioProgresoRutas = useMemo(() => {
+    if (!rutas.length) {
+      return 0;
+    }
+    const total = rutas.reduce((acc, ruta) => acc + (ruta.progreso || 0), 0);
+    return Math.round(total / rutas.length);
+  }, [rutas]);
 
   
   const navigate = useNavigate();
@@ -586,6 +619,114 @@ function Dashboard() {
             {progressError}
           </div>
         )}
+
+        {/* Learning Paths Overview */}
+        <section className="learning-paths-section">
+          <div className="section-header">
+            <div>
+              <h2>Mis Rutas Generadas</h2>
+              <p className="section-subtitle">
+                Seguimiento en tiempo real de las rutas creadas con la IA
+              </p>
+            </div>
+            <button 
+              className="see-all-btn"
+              onClick={() => handleNavigation('/visualizador-rutas')}
+            >
+              Ver todas
+            </button>
+          </div>
+
+          {rutasLoading ? (
+            <div className="card-placeholder">
+              <div className="loading-spinner small"></div>
+              <p>Cargando tus rutas personalizadas...</p>
+            </div>
+          ) : rutas.length === 0 ? (
+            <div className="card-placeholder">
+              <p>Aún no has generado una ruta de aprendizaje.</p>
+              <button 
+                className="action-card primary compact"
+                type="button"
+                onClick={() => handleNavigation('/rutas')}
+              >
+                <span className="action-icon">🗺️</span>
+                <span>Crear mi primera ruta</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="learning-paths-summary">
+                <div className="summary-item">
+                  <span className="summary-label">Activas</span>
+                  <strong>{rutasStats.rutasEnProgreso || 0}</strong>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Completadas</span>
+                  <strong>{rutasStats.rutasCompletadas || 0}</strong>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Cursos totales</span>
+                  <strong>{rutasStats.totalCursos || 0}</strong>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Avance global</span>
+                  <strong>
+                    {promedioProgresoRutas}%
+                  </strong>
+                </div>
+              </div>
+
+              <div className="learning-paths-grid">
+                {rutasRecientes.map((ruta) => {
+                  const cursosRegulares = (ruta.cursos || []).filter((c) => !c.esMeta);
+                  const cursosCompletados = cursosRegulares.filter(
+                    (c) => c.estado === 'completado'
+                  ).length;
+                  const siguienteCurso = cursosRegulares.find(
+                    (c) => c.estado === 'disponible' || c.estado === 'en-progreso'
+                  );
+                  return (
+                    <div key={ruta.id} className="learning-path-card">
+                      <div className="path-card-header">
+                        <h3>{ruta.titulo}</h3>
+                        <span className="progress-chip">{ruta.progreso || 0}%</span>
+                      </div>
+                      <p className="path-description">
+                        {ruta.descripcion && ruta.descripcion.length > 140
+                          ? `${ruta.descripcion.slice(0, 140)}…`
+                          : ruta.descripcion || 'Ruta generada por la IA LearnIA'}
+                      </p>
+                      <div className="path-meta">
+                        <span>📚 {cursosCompletados}/{cursosRegulares.length} cursos completados</span>
+                        <span>🕒 {ruta.estimacion || 'Estimación pendiente'}</span>
+                      </div>
+                      {siguienteCurso && (
+                        <div className="path-next-course">
+                          <span>Próximo curso:</span>
+                          <strong>{siguienteCurso.titulo}</strong>
+                        </div>
+                      )}
+                      <div className="path-actions">
+                        <button
+                          className="continue-btn"
+                          type="button"
+                          onClick={() =>
+                            navigate('/visualizador-rutas', {
+                              state: { rutaSeleccionadaId: ruta.id }
+                            })
+                          }
+                        >
+                          Gestionar ruta
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </section>
 
         {/* Recent Courses */}
         <section className="recent-courses">

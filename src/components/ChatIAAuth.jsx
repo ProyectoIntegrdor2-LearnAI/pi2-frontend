@@ -45,11 +45,13 @@ const ChatIAAuth = () => {
 
     const generarRutaConLambda = async (userQuery) => {
         try {
-            // Obtener el user_id del localStorage o auth context
-            const authData = JSON.parse(localStorage.getItem('authData') || '{}');
-            const userId = authData.userId || '57eed54b-5749-47dc-9c15-c56d29ebbc6e'; // Fallback al usuario de prueba
+            const userId = apiServices.utils.getUserId();
+            if (!userId) {
+                throw new Error('No se encontró el usuario autenticado. Inicia sesión e inténtalo de nuevo.');
+            }
             
             const requestData = {
+                user_id: userId,
                 user_query: userQuery,
                 user_level: "intermediate",
                 num_courses: 6,
@@ -60,7 +62,7 @@ const ChatIAAuth = () => {
             const response = await apiServices.learningPath.generate(requestData);
             
             // La respuesta ya viene en formato frontend
-            const nuevaRuta = agregarRuta(response);
+            const nuevaRuta = agregarRuta({ ...response, origenChat: true });
             
             return nuevaRuta;
         } catch (error) {

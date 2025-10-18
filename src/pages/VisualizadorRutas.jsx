@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useRutasAprendizaje } from "../hooks/useRutasAprendizaje";
 import "../styles/Dashboard.css";
@@ -10,40 +10,98 @@ function VisualizadorRutas() {
     loading,
     error,
     agregarRuta,
-    actualizarCurso,
-    obtenerEstadisticas
+    actualizarCurso
   } = useRutasAprendizaje();
 
-  const [rutaSeleccionada, setRutaSeleccionada] = useState(null);
-  const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
+  const [rutaSeleccionadaId, setRutaSeleccionadaId] = useState(null);
+  const [cursoSeleccionadoId, setCursoSeleccionadoId] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [accionModal, setAccionModal] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
+  const nuevaRuta = location.state?.nuevaRuta;
+  const rutaSeleccionadaDesdeEstado = location.state?.rutaSeleccionadaId;
 
-  // Manejar ruta seleccionada cuando cambien las rutas
-  useEffect(() => {
-    if (rutas.length > 0 && !rutaSeleccionada) {
-      setRutaSeleccionada(rutas[0]);
+  const rutaSeleccionada = useMemo(() => {
+    if (!rutas.length) {
+      return null;
     }
-  }, [rutas, rutaSeleccionada]);
+    if (!rutaSeleccionadaId) {
+      return rutas[0];
+    }
+    return rutas.find((ruta) => ruta.id === rutaSeleccionadaId) || rutas[0];
+  }, [rutas, rutaSeleccionadaId]);
+
+  const cursoSeleccionado = useMemo(() => {
+    if (!rutaSeleccionada || !rutaSeleccionada.cursos?.length) {
+      return null;
+    }
+    if (!cursoSeleccionadoId) {
+      return rutaSeleccionada.cursos[0];
+    }
+    return (
+      rutaSeleccionada.cursos.find((curso) => curso.id === cursoSeleccionadoId) ||
+      rutaSeleccionada.cursos[0]
+    );
+  }, [rutaSeleccionada, cursoSeleccionadoId]);
+
+  // Garantizar selección inicial cuando cambian las rutas disponibles
+  useEffect(() => {
+    if (!rutas.length) {
+      setRutaSeleccionadaId(null);
+      setCursoSeleccionadoId(null);
+      return;
+    }
+
+    if (!rutaSeleccionadaId || !rutas.some((ruta) => ruta.id === rutaSeleccionadaId)) {
+      setRutaSeleccionadaId(rutas[0].id);
+    }
+  }, [rutas, rutaSeleccionadaId]);
+
+  // Ajustar curso seleccionado si la ruta activa cambia
+  useEffect(() => {
+    if (!rutaSeleccionada?.cursos?.length) {
+      setCursoSeleccionadoId(null);
+      return;
+    }
+
+    if (
+      !cursoSeleccionadoId ||
+      !rutaSeleccionada.cursos.some((curso) => curso.id === cursoSeleccionadoId)
+    ) {
+      setCursoSeleccionadoId(rutaSeleccionada.cursos[0].id);
+    }
+  }, [rutaSeleccionada, cursoSeleccionadoId]);
 
   // Verificar si llegamos desde el chat con una nueva ruta
   useEffect(() => {
-    if (location.state?.nuevaRuta) {
-      const rutaCreada = agregarRuta(location.state.nuevaRuta);
-      if (rutaCreada) {
-        setRutaSeleccionada(rutaCreada);
-      }
-      
-      // Limpiar el state de navegación para evitar re-renders infinitos
-      navigate('/visualizador-rutas', { replace: true, state: {} });
+    if (!nuevaRuta) {
+      return;
     }
-  }, [location.state?.nuevaRuta]);
+
+    const rutaCreada = agregarRuta(nuevaRuta);
+    if (rutaCreada) {
+      setRutaSeleccionadaId(rutaCreada.id);
+      if (rutaCreada.cursos?.length) {
+        setCursoSeleccionadoId(rutaCreada.cursos[0].id);
+      }
+    }
+
+    navigate('/visualizador-rutas', { replace: true, state: {} });
+  }, [nuevaRuta, agregarRuta, navigate]);
+
+  useEffect(() => {
+    if (!rutaSeleccionadaDesdeEstado) {
+      return;
+    }
+
+    setRutaSeleccionadaId(rutaSeleccionadaDesdeEstado);
+    navigate('/visualizador-rutas', { replace: true, state: {} });
+  }, [rutaSeleccionadaDesdeEstado, navigate]);
 
   const manejarAccionCurso = (curso, accion) => {
-    setCursoSeleccionado(curso);
+    setCursoSeleccionadoId(curso.id);
     setAccionModal(accion);
     setShowConfirmModal(true);
   };
@@ -73,24 +131,39 @@ function VisualizadorRutas() {
         break;
     }
 
-    const exito = actualizarCurso(rutaSeleccionada.id, cursoSeleccionado.id, nuevoEstado, accionModal);
-    
-    if (exito) {
-      // Actualizar ruta seleccionada
-      const rutaActualizada = rutas.find(r => r.id === rutaSeleccionada.id);
-      if (rutaActualizada) {
-        setRutaSeleccionada(rutaActualizada);
+    const rutaActualizada = actualizarCurso(
+      rutaSeleccionada.id,
+      cursoSeleccionado.id,
+      nuevoEstado,
+      accionModal
+    );
+
+    if (rutaActualizada) {
+      const cursoActualizado = rutaActualizada.cursos.find((c) => c.id === cursoSeleccionado.id);
+
+      if (accionModal === 'completar' || accionModal === 'omitir') {
+        const siguienteDisponible = rutaActualizada.cursos.find(
+          (c) =>
+            !c.esMeta &&
+            (c.estado === 'disponible' || c.estado === 'en-progreso') &&
+            c.id !== cursoSeleccionado.id
+        );
+        if (siguienteDisponible) {
+          setCursoSeleccionadoId(siguienteDisponible.id);
+        } else if (cursoActualizado) {
+          setCursoSeleccionadoId(cursoActualizado.id);
+        }
+      } else if (cursoActualizado) {
+        setCursoSeleccionadoId(cursoActualizado.id);
       }
     }
     
     setShowConfirmModal(false);
-    setCursoSeleccionado(null);
     setAccionModal(null);
   };
 
   const cancelarAccion = () => {
     setShowConfirmModal(false);
-    setCursoSeleccionado(null);
     setAccionModal(null);
   };
 
@@ -237,7 +310,7 @@ function VisualizadorRutas() {
             <button
               key={ruta.id}
               className={`route-tab ${rutaSeleccionada?.id === ruta.id ? 'active' : ''}`}
-              onClick={() => setRutaSeleccionada(ruta)}
+                onClick={() => setRutaSeleccionadaId(ruta.id)}
             >
               <div className="route-tab-content">
                 <h4>{ruta.titulo}</h4>
@@ -327,12 +400,18 @@ function VisualizadorRutas() {
                     <div 
                       className={`node-circle ${curso.estado} ${puedeInteractuar(curso.estado) ? '' : 'disabled'}`}
                       style={{ backgroundColor: getEstadoColor(curso.estado) }}
-                      onClick={() => puedeInteractuar(curso.estado) && setCursoSeleccionado(curso)}
+                    onClick={() => {
+                      if (puedeInteractuar(curso.estado)) {
+                        setCursoSeleccionadoId(curso.id);
+                      }
+                    }}
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
-                          puedeInteractuar(curso.estado) && setCursoSeleccionado(curso);
+                          if (puedeInteractuar(curso.estado)) {
+                            setCursoSeleccionadoId(curso.id);
+                          }
                         }
                       }}
                     >

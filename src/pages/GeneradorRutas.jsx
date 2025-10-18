@@ -68,19 +68,26 @@ function GeneradorRutas() {
   };
 
   return (
-    <div className="generador-rutas-container">
-      <div className="generador-rutas-header">
-        <button 
-          className="btn-back"
-          onClick={() => navigate('/dashboard')}
-        >
-          ← Volver al Dashboard
-        </button>
-        <h1>Generador de Rutas de Aprendizaje</h1>
-        <p className="subtitle">Crea una ruta personalizada con Inteligencia Artificial</p>
-      </div>
+    <div className="dashboard-main generador-rutas-page">
+      <section className="generador-rutas-header-card">
+        <div className="header-actions">
+          <button 
+            className="btn-back"
+            type="button"
+            onClick={() => navigate('/dashboard')}
+          >
+            ← Volver al Dashboard
+          </button>
+        </div>
+        <div className="header-text">
+          <h1>Generador de Rutas de Aprendizaje</h1>
+          <p className="subtitle">
+            Diseña un plan personalizado y continúa tu progreso desde el dashboard
+          </p>
+        </div>
+      </section>
 
-      <div className="generador-rutas-content">
+      <div className="generador-rutas-content-grid">
         <form onSubmit={handleSubmit} className="ruta-form">
           <div className="form-group">
             <label htmlFor="query">
