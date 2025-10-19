@@ -10,6 +10,7 @@ const readCache = () => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
+    console.log('Rutas cargadas del cache:', Array.isArray(parsed) ? parsed.length : 0);
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
     console.warn('No se pudo leer rutas en cache:', error);
@@ -19,9 +20,16 @@ const readCache = () => {
 
 const writeCache = (routes) => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(routes));
+    const serialized = JSON.stringify(routes);
+    localStorage.setItem(STORAGE_KEY, serialized);
+    console.log('Rutas guardadas en cache:', routes.length, 'rutas, tamaño:', serialized.length, 'bytes');
   } catch (error) {
-    console.warn('No se pudo escribir rutas en cache:', error);
+    console.error('Error escribiendo rutas en cache:', {
+      error: error.message,
+      errorType: error.name,
+      routesCount: routes.length,
+      routeIds: routes.map(r => r.id || r.pathId).slice(0, 3),
+    });
   }
 };
 
@@ -282,13 +290,29 @@ export const useRutasAprendizaje = () => {
   }, []);
 
   const agregarRuta = useCallback((rutaNueva) => {
-    const normalizada = normalizeFrontendRoute(rutaNueva);
-    setRutas((prev) => {
-      const actualizado = [...prev, normalizada];
-      writeCache(actualizado);
-      return actualizado;
-    });
-    return normalizada;
+    try {
+      console.log('agregarRuta: Normalizando ruta nueva', {
+        rutaId: rutaNueva?.path_id || rutaNueva?.id,
+        tieneCursos: Boolean(rutaNueva?.cursos?.length),
+        cursosCount: rutaNueva?.cursos?.length || 0,
+      });
+      const normalizada = normalizeFrontendRoute(rutaNueva);
+      console.log('agregarRuta: Ruta normalizada', {
+        id: normalizada.id,
+        titulo: normalizada.titulo,
+        cursosCount: normalizada.cursos?.length || 0,
+      });
+      setRutas((prev) => {
+        const actualizado = [...prev, normalizada];
+        console.log('agregarRuta: Guardando', actualizado.length, 'rutas al cache');
+        writeCache(actualizado);
+        return actualizado;
+      });
+      return normalizada;
+    } catch (error) {
+      console.error('Error en agregarRuta:', error);
+      throw error;
+    }
   }, []);
 
   const actualizarCurso = useCallback(async (rutaId, cursoId, nuevoEstado, accion = null) => {

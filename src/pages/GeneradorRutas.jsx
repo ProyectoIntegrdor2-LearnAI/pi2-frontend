@@ -47,6 +47,15 @@ function GeneradorRutas() {
 
       const response = await apiServices.learningPath.generate(payload);
       
+      console.log('Respuesta del Lambda recibida:', {
+        tieneTitulo: Boolean(response?.titulo),
+        titulo: response?.titulo,
+        tieneCursos: Boolean(response?.cursos?.length),
+        cursosCount: response?.cursos?.length || 0,
+        tienePath_id: Boolean(response?.path_id),
+        persisted: response?.persisted || response?.guardado,
+      });
+      
       if (response && response.titulo) {
         const persisted = response.guardado ?? response.persisted ?? true;
         const mensaje = persisted

@@ -93,10 +93,20 @@ function VisualizadorRutas() {
       return;
     }
 
+    console.log('VisualizadorRutas: Nueva ruta recibida en state', {
+      rutaId: nuevaRuta?.path_id || nuevaRuta?.id,
+      titulo: nuevaRuta?.titulo,
+      cursosCount: nuevaRuta?.cursos?.length || 0,
+    });
+
     const mensajeEntrante = location.state?.mensaje;
     const esAdvertencia = Boolean(location.state?.rutaNoPersistida);
 
     const rutaCreada = agregarRuta(nuevaRuta);
+    console.log('VisualizadorRutas: Ruta agregada y guardada', {
+      id: rutaCreada?.id,
+      titulo: rutaCreada?.titulo,
+    });
     if (rutaCreada) {
       setRutaSeleccionadaId(rutaCreada.id);
       if (rutaCreada.cursos?.length) {
