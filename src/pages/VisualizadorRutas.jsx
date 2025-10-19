@@ -150,7 +150,7 @@ function VisualizadorRutas() {
     setShowConfirmModal(true);
   };
 
-  const confirmarAccion = () => {
+  const confirmarAccion = async () => {
     if (!cursoSeleccionado || !accionModal || !rutaSeleccionada) return;
 
     let nuevoEstado = cursoSeleccionado.estado;
@@ -175,31 +175,35 @@ function VisualizadorRutas() {
         break;
     }
 
-    const rutaActualizada = actualizarCurso(
-      rutaSeleccionada.id,
-      cursoSeleccionado.id,
-      nuevoEstado,
-      accionModal
-    );
+    try {
+      const rutaActualizada = await actualizarCurso(
+        rutaSeleccionada.id,
+        cursoSeleccionado.courseId || cursoSeleccionado.course_id || cursoSeleccionado.id,
+        nuevoEstado,
+        accionModal
+      );
 
-    if (rutaActualizada) {
-      const cursoActualizado = rutaActualizada.cursos.find((c) => c.id === cursoSeleccionado.id);
+      if (rutaActualizada) {
+        const cursoActualizado = rutaActualizada.cursos.find((c) => c.id === cursoSeleccionado.id);
 
-      if (accionModal === 'completar' || accionModal === 'omitir') {
-        const siguienteDisponible = rutaActualizada.cursos.find(
-          (c) =>
-            !c.esMeta &&
-            (c.estado === 'disponible' || c.estado === 'en-progreso') &&
-            c.id !== cursoSeleccionado.id
-        );
-        if (siguienteDisponible) {
-          setCursoSeleccionadoId(siguienteDisponible.id);
+        if (accionModal === 'completar' || accionModal === 'omitir') {
+          const siguienteDisponible = rutaActualizada.cursos.find(
+            (c) =>
+              !c.esMeta &&
+              (c.estado === 'disponible' || c.estado === 'en-progreso') &&
+              c.id !== cursoSeleccionado.id
+          );
+          if (siguienteDisponible) {
+            setCursoSeleccionadoId(siguienteDisponible.id);
+          } else if (cursoActualizado) {
+            setCursoSeleccionadoId(cursoActualizado.id);
+          }
         } else if (cursoActualizado) {
           setCursoSeleccionadoId(cursoActualizado.id);
         }
-      } else if (cursoActualizado) {
-        setCursoSeleccionadoId(cursoActualizado.id);
       }
+    } catch (error) {
+      console.error('Error al confirmar acción:', error);
     }
     
     setShowConfirmModal(false);
