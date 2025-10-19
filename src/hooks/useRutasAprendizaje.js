@@ -446,7 +446,7 @@ export const useRutasAprendizaje = () => {
 
   useEffect(() => {
     cargarRutas();
-  }, [cargarRutas]);
+  }, []);
 
   useEffect(() => {
     writeCache(rutas);
