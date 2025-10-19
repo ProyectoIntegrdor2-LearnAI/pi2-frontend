@@ -257,7 +257,8 @@ export const useRutasAprendizaje = () => {
     setError(null);
     try {
       if (!ENABLE_SERVER_SYNC) {
-        setRutas(readCache());
+        const cached = readCache();
+        setRutas(cached);
         return;
       }
       const response = await apiServices.learningPath.list();
@@ -272,8 +273,23 @@ export const useRutasAprendizaje = () => {
         normalized.push(formatted);
       }
 
-      setRutas(normalized);
-      writeCache(normalized);
+      // Merge con cache local
+      const cached = readCache();
+      const mergedMap = new Map();
+      
+      // Primero agregar rutas del servidor
+      normalized.forEach(r => mergedMap.set(r.id, r));
+      
+      // Luego agregar rutas del cache que no estén en servidor (locales)
+      cached.forEach(r => {
+        if (!mergedMap.has(r.id)) {
+          mergedMap.set(r.id, r);
+        }
+      });
+      
+      const merged = Array.from(mergedMap.values());
+      setRutas(merged);
+      writeCache(merged);
     } catch (fetchError) {
       console.error('Error cargando rutas desde API:', fetchError);
       setError('Error cargando las rutas de aprendizaje');
