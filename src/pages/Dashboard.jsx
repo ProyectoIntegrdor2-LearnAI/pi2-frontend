@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import apiServices from "../services/apiServices";
 import { unwrapApiData, normalizeCourse, ensureArray } from "../utils/apiData";
@@ -31,13 +31,7 @@ function Dashboard() {
   const [error, setError] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [dashboardInfo, setDashboardInfo] = useState(null);
-  const [userProgress, setUserProgress] = useState({
-    completedCourses: 0,
-    totalCourses: 0,
-    consecutiveDays: 0,
-    totalHours: 0,
-    currentLevel: "Principiante"
-  });
+  const [apiProgress, setApiProgress] = useState(null);
   const [recentCourses, setRecentCourses] = useState([]);
   const [availableCourses, setAvailableCourses] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -88,83 +82,78 @@ function Dashboard() {
     return Math.round(total / rutas.length);
   }, [rutas]);
 
-  const computeLocalProgress = useCallback(() => {
-    const stats = obtenerEstadisticasRutas();
-    const totalCursosLocales = stats.totalCursos || 0;
-    const cursosCompletadosLocales =
-      (stats.cursosCompletados || 0) + (stats.cursosOmitidos || 0);
-    const horasLocales = rutas.reduce((acc, ruta) => {
+  const localProgress = useMemo(() => {
+    if (!rutas.length) {
+      return {
+        totalCourses: 0,
+        completedCourses: 0,
+        totalHours: 0,
+        latestLevel: null,
+      };
+    }
+
+    let totalCourses = 0;
+    let completedCourses = 0;
+    let totalHours = 0;
+    let latestLevel = rutasRecientes[0]?.nivel || rutas[0]?.nivel || null;
+    let latestTimestamp = rutasRecientes[0]?.ultimaActualizacion
+      ? Date.parse(rutasRecientes[0]?.ultimaActualizacion)
+      : rutasRecientes[0]?.fechaCreacion
+      ? Date.parse(rutasRecientes[0]?.fechaCreacion)
+      : 0;
+
+    rutas.forEach((ruta) => {
+      const cursosRegulares = (ruta.cursos || []).filter((c) => !c.esMeta);
+      totalCourses += cursosRegulares.length;
+
+      completedCourses += cursosRegulares.filter((c) =>
+        ['completado', 'omitido'].includes(c.estado)
+      ).length;
+
       const horas = Number(
         ruta.horasEstimadas ??
         ruta.estimatedTotalHours ??
         ruta.estimacionHoras ??
         0
       );
-      return acc + (Number.isNaN(horas) ? 0 : horas);
-    }, 0);
-    const nivelSugerido =
-      rutasRecientes[0]?.nivel || rutas[0]?.nivel || "En progreso";
-    return {
-      totalCursosLocales,
-      cursosCompletadosLocales,
-      horasLocales,
-      nivelSugerido,
-    };
-  }, [obtenerEstadisticasRutas, rutas, rutasRecientes]);
-
-  useEffect(() => {
-    if (!rutas.length) {
-      return;
-    }
-
-    const {
-      totalCursosLocales,
-      cursosCompletadosLocales,
-      horasLocales,
-      nivelSugerido,
-    } = computeLocalProgress();
-
-    if (
-      !totalCursosLocales &&
-      !cursosCompletadosLocales &&
-      !horasLocales
-    ) {
-      return;
-    }
-
-    setUserProgress((prev) => {
-      const next = { ...prev };
-      let changed = false;
-
-      if (totalCursosLocales !== prev.totalCourses) {
-        next.totalCourses = totalCursosLocales;
-        changed = true;
+      if (!Number.isNaN(horas)) {
+        totalHours += horas;
       }
 
-      if (cursosCompletadosLocales !== prev.completedCourses) {
-        next.completedCourses = cursosCompletadosLocales;
-        changed = true;
-      }
+      const rutaTimestamp = ruta.ultimaActualizacion
+        ? Date.parse(ruta.ultimaActualizacion)
+        : ruta.fechaCreacion
+        ? Date.parse(ruta.fechaCreacion)
+        : 0;
 
-      if (horasLocales !== prev.totalHours && horasLocales >= 0) {
-        next.totalHours = horasLocales;
-        changed = true;
+      if (rutaTimestamp && rutaTimestamp > latestTimestamp) {
+        latestTimestamp = rutaTimestamp;
+        latestLevel = ruta.nivel || latestLevel;
       }
-
-      if (
-        (!prev.currentLevel ||
-          prev.currentLevel === "Sin datos" ||
-          prev.currentLevel === "En progreso" ||
-          prev.currentLevel === "Principiante") &&
-        nivelSugerido
-      ) {
-        next.currentLevel = nivelSugerido;
-        changed = true;
-      }
-
-      return changed ? next : prev;
     });
-  }, [rutas, computeLocalProgress, setUserProgress]);
+
+    return {
+      totalCourses,
+      completedCourses,
+      totalHours: Math.round(totalHours),
+      latestLevel: latestLevel || 'Sin datos',
+    };
+  }, [rutas, rutasRecientes]);
+
+  const combinedProgress = useMemo(() => {
+    const api = apiProgress ?? {};
+    const completedRemote = Number(api.completedCourses ?? api.completed_courses ?? 0);
+    const totalRemote = Number(api.totalCourses ?? api.total_courses ?? 0);
+    const hoursRemote = Number(api.totalHours ?? api.horasTotales ?? 0);
+    const levelRemote = api.currentLevel && api.currentLevel !== 'Sin datos' ? api.currentLevel : null;
+
+    return {
+      completedCourses: Math.max(localProgress.completedCourses, completedRemote),
+      totalCourses: Math.max(localProgress.totalCourses, totalRemote),
+      totalHours: Math.max(localProgress.totalHours, hoursRemote),
+      currentLevel: levelRemote || localProgress.latestLevel || 'Sin datos',
+    };
+  }, [apiProgress, localProgress]);
 
   
   const navigate = useNavigate();
@@ -290,50 +279,21 @@ function Dashboard() {
           'En progreso',
       };
 
-      const localProgress = computeLocalProgress();
-      if (localProgress.totalCursosLocales > normalized.totalCourses) {
-        normalized.totalCourses = localProgress.totalCursosLocales;
-      }
-      if (localProgress.cursosCompletadosLocales > normalized.completedCourses) {
-        normalized.completedCourses = localProgress.cursosCompletadosLocales;
-      }
-      if (localProgress.horasLocales > normalized.totalHours) {
-        normalized.totalHours = localProgress.horasLocales;
-      }
-      if (
-        !normalized.currentLevel ||
-        normalized.currentLevel === "Sin datos" ||
-        normalized.currentLevel === "En progreso"
-      ) {
-        normalized.currentLevel = localProgress.nivelSugerido;
-      }
-      if (!normalized.currentLevel) {
-        normalized.currentLevel = "Sin datos";
+      normalized.totalCourses = Math.max(normalized.totalCourses || 0, localProgress.totalCourses);
+      normalized.completedCourses = Math.max(normalized.completedCourses || 0, localProgress.completedCourses);
+      normalized.totalHours = Math.max(normalized.totalHours || 0, localProgress.totalHours);
+      if (!normalized.currentLevel || normalized.currentLevel === 'Sin datos') {
+        normalized.currentLevel = localProgress.latestLevel || 'En progreso';
       }
 
-      setUserProgress((prev) => ({
-        ...prev,
-        ...normalized,
-      }));
-
+      setApiProgress(normalized);
       return normalized;
     } catch (error) {
       console.warn('Error cargando progreso:', error);
       setProgressError(
         error?.message || 'No fue posible obtener tu progreso todavía'
       );
-      const localProgress = computeLocalProgress();
-      setUserProgress((prev) => ({
-        ...prev,
-        completedCourses: localProgress.cursosCompletadosLocales,
-        totalCourses: localProgress.totalCursosLocales,
-        consecutiveDays: 0,
-        totalHours: localProgress.horasLocales,
-        currentLevel:
-          localProgress.nivelSugerido ||
-          prev?.currentLevel ||
-          'Sin datos',
-      }));
+      setApiProgress(null);
       return null;
     }
   };
@@ -792,8 +752,8 @@ function Dashboard() {
                 <h3>Progreso</h3>
               </div>
               <div className="stat-body">
-                <div className="progress-circle" style={{'--progress': userProgress.totalCourses > 0 ? (userProgress.completedCourses / userProgress.totalCourses) * 100 : 0}}>
-                  <span className="progress-number">{userProgress.completedCourses}/{userProgress.totalCourses}</span>
+                <div className="progress-circle" style={{'--progress': combinedProgress.totalCourses > 0 ? (combinedProgress.completedCourses / combinedProgress.totalCourses) * 100 : 0}}>
+                  <span className="progress-number">{combinedProgress.completedCourses}/{combinedProgress.totalCourses}</span>
                 </div>
                 <p>Cursos Completados</p>
               </div>
@@ -805,7 +765,7 @@ function Dashboard() {
                 <h3>Tiempo</h3>
               </div>
               <div className="stat-body">
-                <span className="stat-number">{userProgress.totalHours}h</span>
+                <span className="stat-number">{combinedProgress.totalHours}h</span>
                 <p>Tiempo total</p>
               </div>
             </div>
@@ -816,7 +776,7 @@ function Dashboard() {
                 <h3>Nivel</h3>
               </div>
               <div className="stat-body">
-                <span className="stat-level">{userProgress.currentLevel}</span>
+                <span className="stat-level">{combinedProgress.currentLevel}</span>
                 <p>Nivel actual</p>
               </div>
             </div>

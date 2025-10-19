@@ -621,8 +621,27 @@ const apiServices = {
           body: JSON.stringify(data),
         }
       );
-      if (!response.ok) throw new Error('Error generando ruta de aprendizaje');
-      return response.json();
+      return handleResponse(response);
+    },
+    list: async () => {
+      const response = await fetch(
+        buildUrl(API_PATHS.LEARNING_PATH.LIST, 'USER'),
+        {
+          method: 'GET',
+          headers: buildHeaders({}, true),
+        }
+      );
+      return handleResponse(response);
+    },
+    get: async (pathId) => {
+      const response = await fetch(
+        buildUrl(API_PATHS.LEARNING_PATH.DETAIL(pathId), 'USER'),
+        {
+          method: 'GET',
+          headers: buildHeaders({}, true),
+        }
+      );
+      return handleResponse(response);
     },
     update: async (pathId, data) => {
       const response = await fetch(
@@ -635,6 +654,17 @@ const apiServices = {
       );
       if (!response.ok) throw new Error('Error actualizando ruta de aprendizaje');
       return response.json();
+    },
+    updateCourse: async (pathId, courseId, data) => {
+      const response = await fetch(
+        buildUrl(API_PATHS.LEARNING_PATH.COURSE_PROGRESS(pathId, courseId), 'USER'),
+        {
+          method: 'PATCH',
+          headers: buildHeaders({}, true),
+          body: JSON.stringify(data ?? {}),
+        }
+      );
+      return handleResponse(response);
     },
     clone: async (pathId) => {
       const response = await fetch(
