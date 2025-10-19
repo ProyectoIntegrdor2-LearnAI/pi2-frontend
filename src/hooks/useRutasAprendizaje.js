@@ -3,6 +3,7 @@ import apiServices from '../services/apiServices';
 import { normalizeCourse, unwrapApiData, ensureArray } from '../utils/apiData';
 
 const STORAGE_KEY = 'misRutasAprendizaje';
+const ENABLE_SERVER_SYNC = process.env.REACT_APP_ENABLE_LEARNING_PATH_API === 'true';
 
 const readCache = () => {
   try {
@@ -247,6 +248,10 @@ export const useRutasAprendizaje = () => {
     setLoading(true);
     setError(null);
     try {
+      if (!ENABLE_SERVER_SYNC) {
+        setRutas(readCache());
+        return;
+      }
       const response = await apiServices.learningPath.list();
       const payload = unwrapApiData(response);
       const backendPaths = ensureArray(payload?.learning_paths ?? payload?.paths ?? payload);
@@ -289,6 +294,9 @@ export const useRutasAprendizaje = () => {
   const actualizarCurso = useCallback(async (rutaId, cursoId, nuevoEstado, accion = null) => {
     const backendStatus = mapFrontendStatusToBackend[nuevoEstado] || 'in_progress';
     try {
+      if (!ENABLE_SERVER_SYNC) {
+        throw new Error('SYNC_DISABLED');
+      }
       const response = await apiServices.learningPath.updateCourse(rutaId, cursoId, {
         status: backendStatus,
         action: accion,
@@ -307,9 +315,45 @@ export const useRutasAprendizaje = () => {
       });
       return rutaNormalizada;
     } catch (updateError) {
-      console.error('Error actualizando progreso en el backend:', updateError);
-      setError('No fue posible actualizar el progreso');
-      return null;
+      if (updateError.message !== 'SYNC_DISABLED') {
+        console.error('Error actualizando progreso en el backend:', updateError);
+        setError('No fue posible actualizar el progreso');
+      }
+      let rutaActualizada = null;
+      const fechaHoy = new Date().toISOString().split('T')[0];
+      setRutas((prev) => {
+        const actualizado = prev.map((ruta) => {
+          if (ruta.id !== rutaId && ruta.pathId !== rutaId) {
+            return ruta;
+          }
+          const cursosActualizados = ruta.cursos.map((curso) => {
+            if (
+              curso.id === `${ruta.pathId}-${cursoId}` ||
+              curso.course_id === cursoId ||
+              curso.courseId === cursoId ||
+              curso.id === cursoId
+            ) {
+              const cursoActualizado = { ...curso, estado: nuevoEstado };
+              if (nuevoEstado === 'completado') {
+                cursoActualizado.completadoEn = fechaHoy;
+              } else if (nuevoEstado === 'omitido') {
+                cursoActualizado.omitidoEn = fechaHoy;
+              }
+              return cursoActualizado;
+            }
+            return curso;
+          });
+          rutaActualizada = {
+            ...ruta,
+            cursos: cursosActualizados,
+            ultimaActualizacion: new Date().toISOString(),
+          };
+          return rutaActualizada;
+        });
+        writeCache(actualizado);
+        return actualizado;
+      });
+      return rutaActualizada;
     }
   }, [normalizeBackendPath]);
 
