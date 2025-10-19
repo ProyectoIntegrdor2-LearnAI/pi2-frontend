@@ -177,6 +177,140 @@ const getStoredUser = () => {
   }
 };
 
+// ——————————————————————————————————————————
+// Learning Path Cache Helpers
+// ——————————————————————————————————————————
+
+const LEARNING_PATH_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutos
+
+// structuredClone fallback for older browsers
+const cloneDeep = (value) => {
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+  if (typeof structuredClone === 'function') {
+    try {
+      return structuredClone(value);
+    } catch (error) {
+      // fallback below
+    }
+  }
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch (error) {
+    return value;
+  }
+};
+
+const learningPathCacheState = {
+  list: null,
+  listFetchedAt: 0,
+  listPromise: null,
+  listPromiseMarker: null,
+  byId: new Map(),
+};
+
+const nowTs = () => Date.now();
+
+const resetLearningPathCachePromise = (promiseRef) => {
+  if (learningPathCacheState.listPromise === promiseRef) {
+    learningPathCacheState.listPromise = null;
+  }
+};
+
+const clearLearningPathCache = () => {
+  learningPathCacheState.list = null;
+  learningPathCacheState.listFetchedAt = 0;
+  learningPathCacheState.listPromise = null;
+  learningPathCacheState.listPromiseMarker = null;
+  learningPathCacheState.byId.clear();
+};
+
+const invalidateLearningPathListCache = () => {
+  learningPathCacheState.list = null;
+  learningPathCacheState.listFetchedAt = 0;
+  learningPathCacheState.listPromise = null;
+  learningPathCacheState.listPromiseMarker = null;
+};
+
+const invalidateLearningPathResponse = (pathId) => {
+  if (!pathId) return;
+  learningPathCacheState.byId.delete(String(pathId));
+};
+
+const isCacheEntryFresh = (timestamp) =>
+  Boolean(timestamp) && nowTs() - timestamp <= LEARNING_PATH_CACHE_TTL_MS;
+
+const getCachedLearningPathList = () => {
+  if (!learningPathCacheState.list) {
+    return null;
+  }
+  if (!isCacheEntryFresh(learningPathCacheState.listFetchedAt)) {
+    invalidateLearningPathListCache();
+    return null;
+  }
+  return cloneDeep(learningPathCacheState.list);
+};
+
+const cacheLearningPathList = (payload) => {
+  learningPathCacheState.list = cloneDeep(payload);
+  learningPathCacheState.listFetchedAt = nowTs();
+};
+
+const extractLearningPathFromPayload = (payload) => {
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+  if (payload.learning_path && typeof payload.learning_path === 'object') {
+    return payload.learning_path;
+  }
+  if (payload.path && typeof payload.path === 'object') {
+    return payload.path;
+  }
+  if (payload.data && typeof payload.data === 'object') {
+    return extractLearningPathFromPayload(payload.data);
+  }
+  if (payload.path_id || payload.pathId || payload.id) {
+    return payload;
+  }
+  return null;
+};
+
+const cacheLearningPathResponse = (payload) => {
+  const learningPath = extractLearningPathFromPayload(payload);
+  const pathId =
+    learningPath?.path_id ||
+    learningPath?.pathId ||
+    learningPath?.id ||
+    payload?.path_id ||
+    payload?.pathId ||
+    payload?.id;
+
+  if (!pathId) {
+    return;
+  }
+
+  learningPathCacheState.byId.set(String(pathId), {
+    payload: cloneDeep(payload),
+    fetchedAt: nowTs(),
+  });
+};
+
+const getCachedLearningPathResponse = (pathId) => {
+  if (!pathId) {
+    return null;
+  }
+  const entry = learningPathCacheState.byId.get(String(pathId));
+  if (!entry) {
+    return null;
+  }
+  if (!isCacheEntryFresh(entry.fetchedAt)) {
+    invalidateLearningPathResponse(pathId);
+    return null;
+  }
+  return cloneDeep(entry.payload);
+};
+
 const resolveTargetUserId = (userId) => {
   if (!userId || userId === 'profile' || userId === 'me') {
     return 'me';
@@ -351,6 +485,7 @@ const apiServices = {
           // noop
         }
       }
+      clearLearningPathCache();
 
       return apiResult ?? { success: true };
     },
@@ -621,19 +756,66 @@ const apiServices = {
           body: JSON.stringify(data),
         }
       );
-      return handleResponse(response);
+      const payload = await handleResponse(response);
+      cacheLearningPathResponse(payload);
+      invalidateLearningPathListCache();
+      return payload;
     },
-    list: async () => {
-      const response = await fetch(
-        buildUrl(API_PATHS.LEARNING_PATH.LIST, 'USER'),
-        {
-          method: 'GET',
-          headers: buildHeaders({}, true),
+    list: async ({ forceRefresh = false } = {}) => {
+      if (forceRefresh) {
+        invalidateLearningPathListCache();
+      } else {
+        const cached = getCachedLearningPathList();
+        if (cached) {
+          return cached;
         }
-      );
-      return handleResponse(response);
+        if (learningPathCacheState.listPromise) {
+          return learningPathCacheState.listPromise;
+        }
+      }
+
+      const requestMarker = Symbol('learningPathList');
+      learningPathCacheState.listPromiseMarker = requestMarker;
+
+      const requestPromise = (async () => {
+        const response = await fetch(
+          buildUrl(API_PATHS.LEARNING_PATH.LIST, 'USER'),
+          {
+            method: 'GET',
+            headers: buildHeaders({}, true),
+          }
+        );
+        const payload = await handleResponse(response);
+        if (learningPathCacheState.listPromiseMarker === requestMarker) {
+          cacheLearningPathList(payload);
+        }
+        return payload;
+      })();
+
+      learningPathCacheState.listPromise = requestPromise;
+      requestPromise.finally(() => {
+        resetLearningPathCachePromise(requestPromise);
+        if (learningPathCacheState.listPromiseMarker === requestMarker) {
+          learningPathCacheState.listPromiseMarker = null;
+        }
+      });
+
+      return requestPromise;
     },
-    get: async (pathId) => {
+    get: async (pathId, { forceRefresh = false } = {}) => {
+      if (!pathId) {
+        throw new Error('pathId es requerido');
+      }
+
+      if (forceRefresh) {
+        invalidateLearningPathResponse(pathId);
+      } else {
+        const cached = getCachedLearningPathResponse(pathId);
+        if (cached) {
+          return cached;
+        }
+      }
+
       const response = await fetch(
         buildUrl(API_PATHS.LEARNING_PATH.DETAIL(pathId), 'USER'),
         {
@@ -641,9 +823,12 @@ const apiServices = {
           headers: buildHeaders({}, true),
         }
       );
-      return handleResponse(response);
+      const payload = await handleResponse(response);
+      cacheLearningPathResponse(payload);
+      return payload;
     },
     update: async (pathId, data) => {
+      invalidateLearningPathResponse(pathId);
       const response = await fetch(
         buildUrl(API_PATHS.LEARNING_PATH.UPDATE(pathId), 'LEARNING_PATH'),
         {
@@ -653,9 +838,13 @@ const apiServices = {
         }
       );
       if (!response.ok) throw new Error('Error actualizando ruta de aprendizaje');
-      return response.json();
+      const payload = await response.json();
+      cacheLearningPathResponse(payload);
+      invalidateLearningPathListCache();
+      return payload;
     },
     updateCourse: async (pathId, courseId, data) => {
+      invalidateLearningPathResponse(pathId);
       const response = await fetch(
         buildUrl(API_PATHS.LEARNING_PATH.COURSE_PROGRESS(pathId, courseId), 'USER'),
         {
@@ -664,7 +853,10 @@ const apiServices = {
           body: JSON.stringify(data ?? {}),
         }
       );
-      return handleResponse(response);
+      const payload = await handleResponse(response);
+      cacheLearningPathResponse(payload);
+      invalidateLearningPathListCache();
+      return payload;
     },
     clone: async (pathId) => {
       const response = await fetch(
@@ -675,7 +867,10 @@ const apiServices = {
         }
       );
       if (!response.ok) throw new Error('Error clonando ruta de aprendizaje');
-      return response.json();
+      const payload = await response.json();
+      cacheLearningPathResponse(payload);
+      invalidateLearningPathListCache();
+      return payload;
     },
   },
 
