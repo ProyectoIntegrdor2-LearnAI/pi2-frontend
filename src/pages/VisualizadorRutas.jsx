@@ -9,7 +9,6 @@ function VisualizadorRutas() {
     rutas,
     loading,
     error,
-    cargarRutas,
     agregarRuta,
     actualizarCurso
   } = useRutasAprendizaje();
@@ -134,8 +133,7 @@ function VisualizadorRutas() {
     }
 
     navigate('/visualizador-rutas', { replace: true, state: {} });
-    cargarRutas();
-  }, [nuevaRuta, agregarRuta, cargarRutas, navigate]);
+  }, [nuevaRuta, agregarRuta, navigate]);
 
   useEffect(() => {
     if (!rutaSeleccionadaDesdeEstado) {
