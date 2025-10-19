@@ -3,7 +3,8 @@ import apiServices from '../services/apiServices';
 import { normalizeCourse, unwrapApiData, ensureArray } from '../utils/apiData';
 
 const STORAGE_KEY = 'misRutasAprendizaje';
-const ENABLE_SERVER_SYNC = process.env.REACT_APP_ENABLE_LEARNING_PATH_API === 'true';
+// Always try server first, fallback to cache if fails
+const ENABLE_SERVER_SYNC = true;
 
 const readCache = () => {
   try {
@@ -253,17 +254,26 @@ export const useRutasAprendizaje = () => {
   }, [fetchCourseSnapshot]);
 
   const cargarRutas = useCallback(async () => {
+    console.log('cargarRutas: iniciando, ENABLE_SERVER_SYNC:', ENABLE_SERVER_SYNC);
     setLoading(true);
     setError(null);
     try {
       if (!ENABLE_SERVER_SYNC) {
+        console.log('cargarRutas: server sync deshabilitado, usando cache');
         const cached = readCache();
         setRutas(cached);
         return;
       }
+      
+      console.log('cargarRutas: obteniendo rutas del servidor');
       const response = await apiServices.learningPath.list();
+      console.log('cargarRutas: respuesta recibida', { status: response.status, ok: response.ok });
+      
       const payload = unwrapApiData(response);
+      console.log('cargarRutas: payload unwrapped', { tipo: typeof payload, tiene_learning_paths: !!payload?.learning_paths });
+      
       const backendPaths = ensureArray(payload?.learning_paths ?? payload?.paths ?? payload);
+      console.log('cargarRutas: rutas del servidor:', backendPaths.length);
 
       const normalized = [];
       // eslint-disable-next-line no-restricted-syntax
@@ -272,6 +282,8 @@ export const useRutasAprendizaje = () => {
         const formatted = await normalizeBackendPath(backendPath);
         normalized.push(formatted);
       }
+      
+      console.log('cargarRutas: rutas normalizadas:', normalized.length);
 
       // Merge con cache local
       const cached = readCache();
@@ -288,12 +300,15 @@ export const useRutasAprendizaje = () => {
       });
       
       const merged = Array.from(mergedMap.values());
+      console.log('cargarRutas: rutas merged finales:', merged.length);
+      
       setRutas(merged);
       writeCache(merged);
     } catch (fetchError) {
-      console.error('Error cargando rutas desde API:', fetchError);
+      console.error('cargarRutas: Error cargando rutas desde API:', fetchError);
       setError('Error cargando las rutas de aprendizaje');
       const fallback = readCache();
+      console.log('cargarRutas: usando fallback cache, rutas:', fallback.length);
       setRutas(fallback);
     } finally {
       setLoading(false);
