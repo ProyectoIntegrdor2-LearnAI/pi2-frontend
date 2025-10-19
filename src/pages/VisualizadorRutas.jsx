@@ -89,7 +89,17 @@ function VisualizadorRutas() {
 
   // Verificar si llegamos desde el chat con una nueva ruta
   useEffect(() => {
+    console.log('VisualizadorRutas useEffect: Evaluando nuevaRuta', {
+      tieneNuevaRuta: !!nuevaRuta,
+      nuevaRutaInfo: nuevaRuta ? {
+        rutaId: nuevaRuta?.path_id || nuevaRuta?.id,
+        titulo: nuevaRuta?.titulo,
+        cursosCount: nuevaRuta?.cursos?.length || 0,
+      } : null,
+    });
+
     if (!nuevaRuta) {
+      console.log('VisualizadorRutas useEffect: No hay nuevaRuta, retornando');
       return;
     }
 
@@ -102,10 +112,15 @@ function VisualizadorRutas() {
     const mensajeEntrante = location.state?.mensaje;
     const esAdvertencia = Boolean(location.state?.rutaNoPersistida);
 
+    console.log('VisualizadorRutas: Llamando agregarRuta', {
+      agregarRutaFunctionExists: typeof agregarRuta === 'function',
+    });
+
     const rutaCreada = agregarRuta(nuevaRuta);
     console.log('VisualizadorRutas: Ruta agregada y guardada', {
       id: rutaCreada?.id,
       titulo: rutaCreada?.titulo,
+      cursosCount: rutaCreada?.cursos?.length,
     });
     if (rutaCreada) {
       setRutaSeleccionadaId(rutaCreada.id);
