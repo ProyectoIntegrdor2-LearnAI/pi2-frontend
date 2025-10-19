@@ -51,7 +51,7 @@ export const API_PATHS = {
   // Rutas de aprendizaje
   LEARNING_PATH: {
     GENERATE: '/generate-learning-path',
-    LIST: '/learning-paths',
+    LIST: '/learning-paths/public/list',
     DETAIL: (id) => `/learning-paths/${id}`,
     COURSE_PROGRESS: (pathId, courseId) => `/learning-paths/${pathId}/courses/${courseId}`,
     UPDATE: (id) => `/learning-path/${id}`,
