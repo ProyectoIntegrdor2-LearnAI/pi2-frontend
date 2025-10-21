@@ -532,6 +532,12 @@ body {
 
 .tab-label {
   font-weight: 500;
+  /* Asegura que el texto largo se muestre completo */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  flex: 1;
+  text-align: center;
 }
 
 /* Contenido de tabs */
@@ -1140,6 +1146,8 @@ body {
   .tab-btn {
     white-space: nowrap;
     min-width: 140px;
+    justify-content: center;
+    text-align: center;
   }
   
   .form-grid {

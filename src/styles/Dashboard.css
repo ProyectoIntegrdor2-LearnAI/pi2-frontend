@@ -928,7 +928,7 @@ body {
 .stat-header h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(#000000);
   margin: 0;
 }
 
@@ -1626,6 +1626,15 @@ body {
 @media (max-width: 480px) {
   .dashboard-main {
     padding: 0.75rem;
+  }
+  /* Filtros: una sola columna y elementos a 100% */
+  .filters-container {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .filter-select,
+  .clear-filters-btn {
+    width: 100%;
   }
   
   .welcome-section {

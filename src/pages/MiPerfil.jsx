@@ -137,22 +137,22 @@ function MiPerfil() {
 
     const summary = [
       {
-        icon: '🧩',
+        icon: '',
         label: 'Tipo de usuario',
         value: perfilData.type_user || 'Sin definir',
       },
       {
-        icon: '🔒',
+        icon: '',
         label: 'Estado de la cuenta',
         value: dashboardInfo?.account_status || perfilData.account_status || 'No disponible',
       },
       {
-        icon: '📅',
+        icon: '',
         label: 'Miembro desde',
         value: membershipDate || 'No disponible',
       },
       {
-        icon: '⏱️',
+        icon: '',
         label: 'Última actualización',
         value: lastUpdate || 'No disponible',
       },
@@ -160,7 +160,7 @@ function MiPerfil() {
 
     if (lastLogin) {
       summary.push({
-        icon: '🔄',
+        icon: '',
         label: 'Último acceso',
         value: lastLogin,
       });
@@ -732,34 +732,6 @@ function MiPerfil() {
                         </div>
                       </div>
                     ))}
-                  </div>
-
-                  <div className="additional-info">
-                    <div className="info-card">
-                      <h3>Información de contacto</h3>
-                      <div className="info-item">
-                        <span className="info-label">Identificación:</span>
-                        <span className="info-value">{perfilData.identification || 'No registrada'}</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Correo:</span>
-                        <span className="info-value">{perfilData.email || 'No registrado'}</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Teléfono:</span>
-                        <span className="info-value">{perfilData.phone || 'No registrado'}</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Dirección:</span>
-                        <span className="info-value">{perfilData.address || 'No registrada'}</span>
-                      </div>
-                      {!dashboardInfo && (
-                        <div className="info-item">
-                          <span className="info-label">Métricas:</span>
-                          <span className="info-value">Aún no hay estadísticas de progreso disponibles</span>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 </div>
               </div>

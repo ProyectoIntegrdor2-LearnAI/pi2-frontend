@@ -7,15 +7,16 @@
   --primary-dark: #5a0a9a;
   --secondary-color: #007bff;
   --success-color: #28a745;
-  --warning-color: #ff9800;
-  --danger-color: #dc3545;
+  --warning-color: #31eb36;
+  --danger-color: #117ef3;
+
   
   --bg-main: #f8f9fa;
   --bg-card: #ffffff;
   --bg-sidebar: #ffffff;
   
   --text-primary: #2d3748;
-  --text-secondary: #718096;
+  --text-secondary: #000000;
   --text-light: #a0aec0;
   
   --border-color: #e2e8f0;
