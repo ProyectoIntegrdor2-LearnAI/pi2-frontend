@@ -788,7 +788,7 @@ body {
 .stat-label {
     font-size: 0.875rem;
     opacity: 1 !important; /* Máxima opacidad */
-    color: #ffffff !important; /* Forzar blanco puro */
+    color: #3f0259 !important; /* Forzar color específico */
     text-transform: uppercase;
     letter-spacing: 0.5px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Sombra para mejor contraste */
@@ -1039,7 +1039,7 @@ body {
 
     .stat-number {
         font-size: 2.75rem;
-        color: #ffffff !important; /* Forzar blanco en tablet */
+        color: #2d0142 !important; /* Forzar color específico en tablet */
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
 
@@ -1152,13 +1152,13 @@ body {
 
     .stat-number {
         font-size: 2rem;
-        color: #ffffff !important; /* Forzar blanco en móviles */
+        color: #2d0142 !important; /* Forzar color específico en móviles */
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
 
     .stat-label {
         font-size: 0.7rem;
-        color: #ffffff !important; /* Forzar blanco en móviles */
+        color: #3f0259 !important; /* Forzar color específico en móviles */
         opacity: 1 !important;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
@@ -1298,13 +1298,13 @@ body {
 
     .stat-number {
         font-size: 2.25rem;
-        color: #ffffff !important; /* Forzar blanco en móviles medianos */
+        color: #2d0142 !important; /* Forzar color específico en móviles medianos */
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
 
     .stat-label {
         font-size: 0.75rem;
-        color: #ffffff !important; /* Forzar blanco en móviles medianos */
+        color: #3f0259 !important; /* Forzar color específico en móviles medianos */
         opacity: 1 !important;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
@@ -1390,7 +1390,7 @@ body {
 
     .stat-number {
         font-size: 2.5rem;
-        color: #ffffff !important; /* Forzar blanco en tablets */
+        color: #2d0142 !important; /* Forzar color específico en tablets */
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
 
@@ -1602,12 +1602,12 @@ body {
     }
     
     .stat-number {
-        color: #ffffff !important;
+        color: #2d0142 !important;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
     
     .stat-label {
-        color: #ffffff !important;
+        color: #3f0259 !important;
         opacity: 1 !important;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
     }

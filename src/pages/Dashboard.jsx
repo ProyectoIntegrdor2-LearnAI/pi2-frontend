@@ -692,17 +692,13 @@ function Dashboard() {
                 const isFavorite = favoriteCourseIds.has(favoriteKey);
                 return (
                 <div key={course.id} className="course-card search-result-card">
-                  <div className="course-image">
-                    <img src={course.imagen} alt={course.titulo} />
-                    <div className="course-price">{course.precio}</div>
-                    <div className="course-level">{course.nivel}</div>
-                  </div>
+                  {/* Imagen removida para mostrar solo la información del curso */}
                   <div className="course-info">
                     <h3>{course.titulo}</h3>
                     <p className="course-desc">{course.descripcion}</p>
                     <div className="course-meta">
-                      <span><strong>👨‍🏫</strong> {course.instructor}</span>
-                      <span><strong>📚</strong> {course.categoria}</span>
+                      <span><strong></strong> {course.instructor}</span>
+                      <span><strong></strong> {course.categoria}</span>
                       <span><strong>⏱️</strong> {course.duracion}</span>
                       <span><strong>⭐</strong> {course.calificacion}</span>
                     </div>
