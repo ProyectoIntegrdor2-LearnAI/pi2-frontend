@@ -160,7 +160,8 @@ function VisualizadorRutas() {
         nuevoEstado = 'completado';
         break;
       case 'omitir':
-        nuevoEstado = 'omitido';
+        // Para UX: omitir deja el curso como pendiente, pero permite avanzar
+        nuevoEstado = 'pendiente';
         break;
       case 'continuar':
         if (cursoSeleccionado.url) {
@@ -223,6 +224,8 @@ function VisualizadorRutas() {
       case 'disponible': return '#6a0dad';
       case 'bloqueado': return '#6c757d';
       case 'pendiente': return '#6a0dad';
+      case 'meta-disponible': return '#28a745';
+      case 'meta': return '#6a0dad';
       default: return '#6c757d';
     }
   };
@@ -235,6 +238,8 @@ function VisualizadorRutas() {
       case 'disponible': return '▶️';
       case 'bloqueado': return '🔒';
       case 'pendiente': return '⏳';
+      case 'meta-disponible': return '🏆';
+      case 'meta': return '⏳';
       default: return '⏳';
     }
   };
@@ -247,6 +252,8 @@ function VisualizadorRutas() {
       case 'disponible': return 'Disponible';
       case 'bloqueado': return 'Bloqueado';
       case 'pendiente': return 'Pendiente';
+      case 'meta-disponible': return 'Completado';
+      case 'meta': return 'Pendiente';
       default: return 'Pendiente';
     }
   };

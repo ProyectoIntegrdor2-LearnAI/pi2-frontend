@@ -40,6 +40,7 @@ const mapFrontendStatusToBackend = {
   'en-progreso': 'in_progress',
   'disponible': 'not_started',
   'bloqueado': 'not_started',
+  'pendiente': 'skipped',
   'meta': 'completed',
   'meta-disponible': 'completed',
 };
@@ -186,7 +187,7 @@ export const useRutasAprendizaje = () => {
           estado = 'completado';
           break;
         case 'skipped':
-          estado = 'omitido';
+          estado = 'pendiente';
           break;
         case 'in_progress':
           estado = 'en-progreso';
@@ -381,26 +382,56 @@ export const useRutasAprendizaje = () => {
           if (ruta.id !== rutaId && ruta.pathId !== rutaId) {
             return ruta;
           }
-          const cursosActualizados = ruta.cursos.map((curso) => {
-            if (
-              curso.id === `${ruta.pathId}-${cursoId}` ||
-              curso.course_id === cursoId ||
-              curso.courseId === cursoId ||
-              curso.id === cursoId
-            ) {
-              const cursoActualizado = { ...curso, estado: nuevoEstado };
-              if (nuevoEstado === 'completado') {
-                cursoActualizado.completadoEn = fechaHoy;
-              } else if (nuevoEstado === 'omitido') {
-                cursoActualizado.omitidoEn = fechaHoy;
-              }
-              return cursoActualizado;
+          const cursosActualizados = [...ruta.cursos];
+          const targetIndex = cursosActualizados.findIndex((curso) => (
+            curso.id === `${ruta.pathId}-${cursoId}` ||
+            curso.course_id === cursoId ||
+            curso.courseId === cursoId ||
+            curso.id === cursoId
+          ));
+          if (targetIndex !== -1) {
+            const cursoActual = cursosActualizados[targetIndex];
+            const cursoActualizado = { ...cursoActual, estado: nuevoEstado };
+            if (nuevoEstado === 'completado') {
+              cursoActualizado.completadoEn = fechaHoy;
+            } else if (nuevoEstado === 'omitido' || nuevoEstado === 'pendiente') {
+              cursoActualizado.omitidoEn = fechaHoy;
             }
-            return curso;
+            cursosActualizados[targetIndex] = cursoActualizado;
+
+            // Desbloquear siguiente curso regular si aplica
+            if (nuevoEstado === 'completado' || nuevoEstado === 'omitido' || nuevoEstado === 'pendiente') {
+              for (let i = targetIndex + 1; i < cursosActualizados.length; i += 1) {
+                const c = cursosActualizados[i];
+                if (c && !c.esMeta) {
+                  if (c.estado === 'bloqueado') {
+                    cursosActualizados[i] = { ...c, estado: 'disponible' };
+                  }
+                  break;
+                }
+              }
+            }
+          }
+          // Recalcular progreso localmente y estado de meta
+          const regulares = cursosActualizados.filter((c) => !c.esMeta);
+          const finalizados = regulares.filter((c) => (
+            c.estado === 'completado' || c.estado === 'omitido' || c.estado === 'pendiente'
+          )).length;
+          const progresoLocal = regulares.length > 0
+            ? Math.round((finalizados / regulares.length) * 100)
+            : 0;
+
+          const cursosConMetaActual = cursosActualizados.map((c) => {
+            if (c.esMeta) {
+              return { ...c, estado: progresoLocal >= 100 ? 'meta-disponible' : 'meta' };
+            }
+            return c;
           });
+
           rutaActualizada = {
             ...ruta,
-            cursos: cursosActualizados,
+            cursos: cursosConMetaActual,
+            progreso: progresoLocal,
             ultimaActualizacion: new Date().toISOString(),
           };
           return rutaActualizada;
@@ -451,6 +482,7 @@ export const useRutasAprendizaje = () => {
             stats.cursosCompletados += 1;
             break;
           case 'omitido':
+          case 'pendiente':
             stats.cursosOmitidos += 1;
             break;
           case 'en-progreso':

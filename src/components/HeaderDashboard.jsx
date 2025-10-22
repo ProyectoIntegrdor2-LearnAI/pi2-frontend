@@ -69,7 +69,7 @@ const HeaderDashboard = () => {
     <>
       {/* Header */}
       <header className="dashboard-header">
-        <div className="header-container">
+        <div className="header-content">
           <div className="header-left">
             <div className="user-info" onClick={toggleSidebar}>
               <img src={avatarIcon} alt="Usuario" className="sidebar-avatar" />
@@ -104,13 +104,6 @@ const HeaderDashboard = () => {
               >
                 <span className="nav-icon"></span>
                 <span>Mis Rutas</span>
-              </li>
-              <li 
-                onClick={(e) => handleNavigation('/catalogo', e)} 
-                className={`nav-item ${isActiveRoute('/catalogo') || isActiveRoute('/mis-cursos') ? 'active' : ''}`}
-              >
-                <span className="nav-icon"></span>
-                <span>Explorar cursos</span>
               </li>
               <li 
                 onClick={(e) => handleNavigation('/mis-favoritos', e)} 

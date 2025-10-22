@@ -48,8 +48,7 @@
 }
 
 .auth-modal-logo {
-    width: 60px;
-    height: 60px;
+    width: 100px;
     border-radius: 12px;
     object-fit: cover;
     box-shadow: 0 4px 12px rgba(63, 2, 89, 0.2);
@@ -435,8 +434,7 @@
     }
 
     .auth-modal-logo {
-        width: 50px;
-        height: 50px;
+        width: 100px;
     }
 
     .auth-brand-name {
@@ -496,8 +494,7 @@
     }
 
     .auth-modal-logo {
-        width: 45px;
-        height: 45px;
+    width: 100px;
     }
 
     .feature-item-improved {
