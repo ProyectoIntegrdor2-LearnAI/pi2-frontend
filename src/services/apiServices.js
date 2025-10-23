@@ -46,7 +46,7 @@ const SERVICE_BASE_URLS = {
   AUTH: AUTH_BASE_URL,
   USER: AUTH_BASE_URL,
   CHAT: resolveServiceUrl(
-    AUTH_BASE_URL,
+    'https://your-chat-lambda.execute-api.us-east-2.amazonaws.com/Prod',
     process.env.REACT_APP_CHAT_API_URL,
     process.env.REACT_APP_CHAT_LAMBDA_URL,
     LAMBDA_ENDPOINTS?.CHAT
@@ -74,6 +74,22 @@ const SERVICE_BASE_URLS = {
 };
 
 const MOCK_API = process.env.REACT_APP_MOCK_API === 'true';
+
+const isChatEndpointConfigured = (() => {
+  const base = SERVICE_BASE_URLS.CHAT || '';
+  if (!base) {
+    return false;
+  }
+  return !PLACEHOLDER_MARKERS.some((marker) => base.includes(marker));
+})();
+
+const ensureChatConfigured = () => {
+  if (!isChatEndpointConfigured) {
+    const error = new Error('CHAT_API_NOT_CONFIGURED');
+    error.code = 'CHAT_API_NOT_CONFIGURED';
+    throw error;
+  }
+};
 
 const STORAGE_KEYS = ['token', 'authToken'];
 const USER_STORAGE_KEY = 'learnia_user';
@@ -711,6 +727,7 @@ const apiServices = {
   // 🔹 Servicio de chat con IA
   chat: {
     sendMessage: async (message, sessionId, learningPathId) => {
+      ensureChatConfigured();
       const payload = {
         message,
         session_id: sessionId || undefined,
@@ -726,6 +743,7 @@ const apiServices = {
     },
 
     getHistory: async (sessionId) => {
+      ensureChatConfigured();
       const response = await fetch(
         buildUrl(API_PATHS.CHAT.HISTORY(sessionId), 'CHAT'),
         {
@@ -737,6 +755,7 @@ const apiServices = {
     },
 
     listSessions: async (learningPathId) => {
+      ensureChatConfigured();
       const url = new URL(buildUrl(API_PATHS.CHAT.SESSIONS, 'CHAT'));
       if (learningPathId) {
         url.searchParams.set('learning_path_id', learningPathId);
@@ -749,6 +768,7 @@ const apiServices = {
     },
 
     deleteSession: async (sessionId) => {
+      ensureChatConfigured();
       const response = await fetch(
         buildUrl(API_PATHS.CHAT.SESSION(sessionId), 'CHAT'),
         {

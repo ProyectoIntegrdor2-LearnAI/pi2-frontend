@@ -159,7 +159,9 @@ const ChatIAAuth = () => {
             const status = error?.status;
             const errorCode = error?.data?.error;
             let friendlyMessage = 'Lo siento, hubo un error procesando tu mensaje. Intenta de nuevo.';
-            if (status === 400 && errorCode === 'NO_LEARNING_PATH') {
+            if (error?.code === 'CHAT_API_NOT_CONFIGURED') {
+                friendlyMessage = 'La API de chat no está configurada. Define REACT_APP_CHAT_LAMBDA_URL con la URL del asistente en tu entorno.';
+            } else if (status === 400 && errorCode === 'NO_LEARNING_PATH') {
                 friendlyMessage = 'Debes seleccionar una ruta de aprendizaje antes de usar el chat.';
             } else if (status === 404 && errorCode === 'SESSION_NOT_FOUND') {
                 friendlyMessage = 'La sesión de chat expiró. Intenta iniciar una conversación nueva.';
