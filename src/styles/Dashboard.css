@@ -128,7 +128,8 @@ body {
   align-items: center;
   justify-content: space-between;
   height: 100%;
-  padding: 0 2rem;
+  /* Acerca el bloque del usuario y logo más hacia la izquierda */
+  padding: 0 0.75rem;
   max-width: 100%;
 }
 
@@ -1534,7 +1535,7 @@ body {
   }
   
   .header-content {
-    padding: 0 1rem;
+    padding: 0 0.5rem;
   }
   
   .user-info .user-name {
