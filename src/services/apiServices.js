@@ -728,15 +728,21 @@ const apiServices = {
   chat: {
     sendMessage: async (message, sessionId, learningPathId) => {
       ensureChatConfigured();
+      const storedUser = getStoredUser();
+      const userId = storedUser?.user_id || storedUser?.id || null;
       const payload = {
         message,
         session_id: sessionId || undefined,
         learning_path_id: learningPathId,
+        user_id: userId || undefined,
       };
-
+      const extraHeaders = {};
+      if (userId) {
+        extraHeaders['X-User-Id'] = userId;
+      }
       const response = await fetch(buildUrl(API_PATHS.CHAT.MESSAGE, 'CHAT'), {
         method: 'POST',
-        headers: buildHeaders({}, true),
+        headers: buildHeaders(extraHeaders, true),
         body: JSON.stringify(payload),
       });
       return handleResponse(response);
@@ -744,11 +750,17 @@ const apiServices = {
 
     getHistory: async (sessionId) => {
       ensureChatConfigured();
+      const storedUser = getStoredUser();
+      const userId = storedUser?.user_id || storedUser?.id || null;
+      const extraHeaders = {};
+      if (userId) {
+        extraHeaders['X-User-Id'] = userId;
+      }
       const response = await fetch(
         buildUrl(API_PATHS.CHAT.HISTORY(sessionId), 'CHAT'),
         {
           method: 'GET',
-          headers: buildHeaders({}, true),
+          headers: buildHeaders(extraHeaders, true),
         }
       );
       return handleResponse(response);
@@ -756,24 +768,36 @@ const apiServices = {
 
     listSessions: async (learningPathId) => {
       ensureChatConfigured();
+      const storedUser = getStoredUser();
+      const userId = storedUser?.user_id || storedUser?.id || null;
+      const extraHeaders = {};
+      if (userId) {
+        extraHeaders['X-User-Id'] = userId;
+      }
       const url = new URL(buildUrl(API_PATHS.CHAT.SESSIONS, 'CHAT'));
       if (learningPathId) {
         url.searchParams.set('learning_path_id', learningPathId);
       }
       const response = await fetch(url.toString(), {
         method: 'GET',
-        headers: buildHeaders({}, true),
+        headers: buildHeaders(extraHeaders, true),
       });
       return handleResponse(response);
     },
 
     deleteSession: async (sessionId) => {
       ensureChatConfigured();
+      const storedUser = getStoredUser();
+      const userId = storedUser?.user_id || storedUser?.id || null;
+      const extraHeaders = {};
+      if (userId) {
+        extraHeaders['X-User-Id'] = userId;
+      }
       const response = await fetch(
         buildUrl(API_PATHS.CHAT.SESSION(sessionId), 'CHAT'),
         {
           method: 'DELETE',
-          headers: buildHeaders({}, true),
+          headers: buildHeaders(extraHeaders, true),
         }
       );
       return handleResponse(response);
