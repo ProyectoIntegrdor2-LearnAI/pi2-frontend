@@ -4,6 +4,9 @@ import { useRutasAprendizaje } from "../hooks/useRutasAprendizaje";
 import "../styles/Dashboard.css";
 import "../styles/VisualizadorRutas.css";
 
+const ACTIVE_LEARNING_PATH_STORAGE_KEY = 'learnia_active_learning_path_id';
+const isBrowser = typeof window !== 'undefined';
+
 function VisualizadorRutas() {
   const {
     rutas,
@@ -85,6 +88,21 @@ function VisualizadorRutas() {
       setCursoSeleccionadoId(rutaSeleccionada.cursos[0].id);
     }
   }, [rutaSeleccionada, cursoSeleccionadoId]);
+
+  useEffect(() => {
+    if (!isBrowser) {
+      return;
+    }
+    try {
+      if (rutaSeleccionada?.id) {
+        window.sessionStorage.setItem(ACTIVE_LEARNING_PATH_STORAGE_KEY, rutaSeleccionada.id);
+      } else {
+        window.sessionStorage.removeItem(ACTIVE_LEARNING_PATH_STORAGE_KEY);
+      }
+    } catch (storageError) {
+      console.warn('No se pudo sincronizar la ruta activa en sessionStorage:', storageError);
+    }
+  }, [rutaSeleccionada]);
 
   // Verificar si llegamos desde el chat con una nueva ruta
   useEffect(() => {

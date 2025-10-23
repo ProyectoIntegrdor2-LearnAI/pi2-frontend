@@ -5,6 +5,19 @@ import apiServices from '../services/apiServices';
 import { useRutasAprendizaje } from '../hooks/useRutasAprendizaje';
 import RutaCreatedMessage from './RutaCreatedMessage';
 
+const ACTIVE_LEARNING_PATH_STORAGE_KEY = 'learnia_active_learning_path_id';
+const isBrowser = typeof window !== 'undefined';
+
+const readActiveLearningPathId = () => {
+    if (!isBrowser) return null;
+    try {
+        return window.sessionStorage.getItem(ACTIVE_LEARNING_PATH_STORAGE_KEY);
+    } catch (error) {
+        console.warn('No se pudo leer la ruta activa del sessionStorage:', error);
+        return null;
+    }
+};
+
 const ChatIAAuth = () => {
     const navigate = useNavigate();
     const { agregarRuta } = useRutasAprendizaje();
@@ -117,25 +130,45 @@ const ChatIAAuth = () => {
                     throw new Error('No se pudo crear la ruta');
                 }
             } else {
-                // Flujo normal del chat
-                const response = await apiServices.chat.sendMessage(inputMessage, conversationId);
-                if (!conversationId && response.conversationId) {
-                    setConversationId(response.conversationId);
+                const learningPathId = readActiveLearningPathId();
+                if (!learningPathId) {
+                    const warningMessage = {
+                        id: Date.now() + 2,
+                        type: 'ai',
+                        content: 'Antes de chatear conmigo debes seleccionar una ruta de aprendizaje. Ve al visualizador, elige tu ruta y vuelve a intentarlo.',
+                        timestamp: new Date()
+                    };
+                    setChatMessages(prev => [...prev, warningMessage]);
+                    return;
+                }
+
+                const response = await apiServices.chat.sendMessage(inputMessage, conversationId, learningPathId);
+                if (!conversationId && response?.session_id) {
+                    setConversationId(response.session_id);
                 }
                 const aiResponse = {
                     id: Date.now() + 1,
                     type: 'ai',
-                    content: response.message || '¡Gracias por tu mensaje!',
+                    content: response?.response || '¡Gracias por tu mensaje!',
                     timestamp: new Date()
                 };
                 setChatMessages(prev => [...prev, aiResponse]);
             }
         } catch (error) {
             console.error('Error:', error);
+            const status = error?.status;
+            const errorCode = error?.data?.error;
+            let friendlyMessage = 'Lo siento, hubo un error procesando tu mensaje. Intenta de nuevo.';
+            if (status === 400 && errorCode === 'NO_LEARNING_PATH') {
+                friendlyMessage = 'Debes seleccionar una ruta de aprendizaje antes de usar el chat.';
+            } else if (status === 404 && errorCode === 'SESSION_NOT_FOUND') {
+                friendlyMessage = 'La sesión de chat expiró. Intenta iniciar una conversación nueva.';
+                setConversationId(null);
+            }
             setChatMessages(prev => [...prev, {
                 id: Date.now() + 2,
                 type: 'ai',
-                content: 'Lo siento, hubo un error procesando tu mensaje. Intenta de nuevo.',
+                content: friendlyMessage,
                 timestamp: new Date()
             }]);
         } finally {

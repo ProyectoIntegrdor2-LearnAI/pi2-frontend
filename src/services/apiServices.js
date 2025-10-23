@@ -710,39 +710,53 @@ const apiServices = {
 
   // 🔹 Servicio de chat con IA
   chat: {
-    sendMessage: async (message, sessionId) => {
-      const response = await fetch(buildUrl(API_PATHS.CHAT.SESSION, 'CHAT'), {
+    sendMessage: async (message, sessionId, learningPathId) => {
+      const payload = {
+        message,
+        session_id: sessionId || undefined,
+        learning_path_id: learningPathId,
+      };
+
+      const response = await fetch(buildUrl(API_PATHS.CHAT.MESSAGE, 'CHAT'), {
         method: 'POST',
         headers: buildHeaders({}, true),
-        body: JSON.stringify({ message, sessionId }),
+        body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error('Error en el chat');
-      return response.json();
+      return handleResponse(response);
     },
 
-    getSession: async (id) => {
-      const response = await fetch(buildUrl(API_PATHS.CHAT.SESSION_BY_ID(id), 'CHAT'), {
-        headers: buildHeaders({}, true),
-      });
-      if (!response.ok) throw new Error('Error obteniendo sesión de chat');
-      return response.json();
+    getHistory: async (sessionId) => {
+      const response = await fetch(
+        buildUrl(API_PATHS.CHAT.HISTORY(sessionId), 'CHAT'),
+        {
+          method: 'GET',
+          headers: buildHeaders({}, true),
+        }
+      );
+      return handleResponse(response);
     },
-    updateSession: async (id, data) => {
-      const response = await fetch(buildUrl(API_PATHS.CHAT.SESSION_BY_ID(id), 'CHAT'), {
-        method: 'PUT',
+
+    listSessions: async (learningPathId) => {
+      const url = new URL(buildUrl(API_PATHS.CHAT.SESSIONS, 'CHAT'));
+      if (learningPathId) {
+        url.searchParams.set('learning_path_id', learningPathId);
+      }
+      const response = await fetch(url.toString(), {
+        method: 'GET',
         headers: buildHeaders({}, true),
-        body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Error actualizando sesión de chat');
-      return response.json();
+      return handleResponse(response);
     },
-    deleteSession: async (id) => {
-      const response = await fetch(buildUrl(API_PATHS.CHAT.DELETE_SESSION(id), 'CHAT'), {
-        method: 'DELETE',
-        headers: buildHeaders({}, true),
-      });
-      if (!response.ok) throw new Error('Error eliminando sesión de chat');
-      return response.json();
+
+    deleteSession: async (sessionId) => {
+      const response = await fetch(
+        buildUrl(API_PATHS.CHAT.SESSION(sessionId), 'CHAT'),
+        {
+          method: 'DELETE',
+          headers: buildHeaders({}, true),
+        }
+      );
+      return handleResponse(response);
     },
   },
   // 🔹 Rutas de aprendizaje

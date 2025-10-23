@@ -42,10 +42,10 @@ export const API_PATHS = {
   
   // Rutas de chat
   CHAT: {
-    SESSION: '/chat/session',
-    SESSION_BY_ID: (id) => `/chat/session/${id}`,
-    HISTORY: '/chat/history',
-    DELETE_SESSION: (id) => `/chat/session/${id}`
+    MESSAGE: '/chat/message',
+    HISTORY: (id) => `/chat/history/${id}`,
+    SESSIONS: '/chat/sessions',
+    SESSION: (id) => `/chat/session/${id}`,
   },
   
   // Rutas de aprendizaje
