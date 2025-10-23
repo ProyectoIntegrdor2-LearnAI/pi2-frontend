@@ -41,19 +41,19 @@ const ChatIAAuth = () => {
 
 
     const detectarSolicitudRuta = (mensaje) => {
-        const keywords = [
-            'generar ruta',
-            'crear ruta',
-            'ruta de aprendizaje',
-            'quiero aprender',
-            'necesito aprender',
-            'como aprendo',
-            'enseñame',
-            'curso de',
-            'plan de estudio'
+        if (!mensaje) return false;
+        const normalized = mensaje
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/\p{Diacritic}/gu, '');
+
+        const patterns = [
+            /(generar|crear|construir|dise[ñn]ar)\s+(una\s+)?(nueva\s+)?ruta/,
+            /(necesito|quiero)\s+(que\s+)?(me\s+)?(generes|crees)\s+(una\s+)?(nueva\s+)?ruta/,
+            /(nueva|otra)\s+ruta(\s+de\s+aprendizaje)?/,
         ];
-        const mensajeLower = mensaje.toLowerCase();
-        return keywords.some(keyword => mensajeLower.includes(keyword));
+
+        return patterns.some((regex) => regex.test(normalized));
     };
 
     const generarRutaConLambda = async (userQuery) => {
