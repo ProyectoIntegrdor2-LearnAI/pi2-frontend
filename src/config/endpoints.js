@@ -6,7 +6,7 @@ export const LAMBDA_ENDPOINTS = {
   AUTH: process.env.REACT_APP_AUTH_LAMBDA_URL || 'https://avouruymc3.execute-api.us-east-2.amazonaws.com/Prod',
   
   // Lambda para chat con IA
-  CHAT: process.env.REACT_APP_CHAT_LAMBDA_URL || 'https://your-chat-lambda.execute-api.region.amazonaws.com/prod',
+  CHAT: process.env.REACT_APP_CHAT_LAMBDA_URL || 'https://h1u7vl2kdg.execute-api.us-east-2.amazonaws.com/Prod',
   
   // Lambda para rutas de aprendizaje
   LEARNING_PATH: process.env.REACT_APP_LEARNING_PATH_LAMBDA_URL || 'https://yhjk0mfvgc.execute-api.us-east-2.amazonaws.com/Prod',
