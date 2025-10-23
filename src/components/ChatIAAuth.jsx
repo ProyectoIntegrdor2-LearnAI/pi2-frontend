@@ -47,13 +47,30 @@ const ChatIAAuth = () => {
             .normalize('NFD')
             .replace(/\p{Diacritic}/gu, '');
 
-        const patterns = [
-            /(generar|crear|construir|dise[ñn]ar)\s+(una\s+)?(nueva\s+)?ruta/,
-            /(necesito|quiero)\s+(que\s+)?(me\s+)?(generes|crees)\s+(una\s+)?(nueva\s+)?ruta/,
-            /(nueva|otra)\s+ruta(\s+de\s+aprendizaje)?/,
+        const triggers = [
+            'generar una ruta',
+            'generar ruta',
+            'crear una ruta',
+            'crear ruta',
+            'construir una ruta',
+            'nueva ruta',
+            'otra ruta',
+            'haz una ruta',
+            'hazme una ruta',
+            'armar una ruta',
+            'arma una ruta',
+            'disenar una ruta',
+            'diséñame una ruta',
+            'generame una ruta',
+            'generarme una ruta',
         ];
 
-        return patterns.some((regex) => regex.test(normalized));
+        const result = triggers.some((trigger) => normalized.includes(trigger));
+        if (process.env.REACT_APP_DEBUG === 'true') {
+            // eslint-disable-next-line no-console
+            console.log('detectarSolicitudRuta', { mensaje, normalized, result });
+        }
+        return result;
     };
 
     const generarRutaConLambda = async (userQuery) => {
