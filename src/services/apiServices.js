@@ -403,6 +403,9 @@ const executeFavoriteRequest = async (id, action) => {
   return {
     courseId: payload?.course_id ?? id,
     isFavorite: Boolean(payload?.is_favorite ?? payload?.favorite ?? payload?.isFavorite),
+    course:
+      (payload?.course && normalizeCourse(payload.course)) ||
+      (payload?.course_id ? { id: payload.course_id, course_id: payload.course_id } : null),
   };
 };
 

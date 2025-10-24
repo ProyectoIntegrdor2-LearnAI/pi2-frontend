@@ -41,47 +41,99 @@ function MisFavoritos() {
       setLoading(true);
       setFavoritesError(null);
 
-      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const favoritesFromStorage = [];
 
-      if (!Array.isArray(stored) || stored.length === 0) {
-        setCursosFavoritos([]);
-        return;
+      try {
+        const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
+        if (Array.isArray(stored)) {
+          stored.forEach((item) => {
+            if (!item) return;
+            if (typeof item === 'object') {
+              const normalized = normalizeCourse(item) || {
+                ...item,
+                calificacion: Number(item.calificacion || 0),
+              };
+              favoritesFromStorage.push({
+                ...normalized,
+                ...item,
+                fechaAgregado: item.fechaAgregado || new Date().toISOString(),
+              });
+            } else {
+              favoritesFromStorage.push(String(item));
+            }
+          });
+        }
+      } catch (error) {
+        console.warn('No se pudo leer favoritos locales:', error);
       }
 
-      const resolved = await Promise.all(
-        stored.map(async (item) => {
-          if (item && typeof item === 'object') {
-            const normalized = normalizeCourse(item) || {
-              ...item,
-              calificacion: Number(item.calificacion || 0),
-            };
+      let favoritesFromBackend = [];
+      const storedUser = apiServices.utils.getStoredUser();
+      const userId = storedUser?.user_id || storedUser?.id || null;
 
-            return {
-              ...normalized,
-              ...item,
-              fechaAgregado: item.fechaAgregado || new Date().toISOString(),
-            };
-          }
+      if (userId) {
+        try {
+          const response = await apiServices.user.getFavorites?.();
+          const payload = unwrapApiData(response);
+          const backendFavorites = Array.isArray(payload?.favorites || payload)
+            ? payload.favorites || payload
+            : [];
 
-          try {
-            const response = await apiServices.courses.getCourseById(item);
-            const data = unwrapApiData(response);
-            const normalized = normalizeCourse(data);
-            if (!normalized) {
-              return null;
+          favoritesFromBackend = backendFavorites
+            .map((fav) => {
+              const courseData = fav.course || fav;
+              const normalized = normalizeCourse(courseData);
+              if (!normalized) return null;
+              const fechaAgregado = fav.fecha_agregado || fav.created_at || new Date().toISOString();
+              return {
+                ...normalized,
+                fechaAgregado,
+              };
+            })
+            .filter(Boolean);
+        } catch (backendError) {
+          console.warn('No se pudo obtener favoritos del backend:', backendError);
+        }
+      }
+
+      const mergedMap = new Map();
+
+      favoritesFromBackend.forEach((fav) => {
+        const key = fav.id || fav.course_id || fav.courseId;
+        if (!key) return;
+        mergedMap.set(String(key), fav);
+      });
+
+      await Promise.all(
+        favoritesFromStorage.map(async (fav) => {
+          if (!fav) return;
+          if (typeof fav === 'string') {
+            const key = fav;
+            if (!mergedMap.has(key)) {
+              try {
+                const response = await apiServices.courses.getCourseById(key);
+                const data = unwrapApiData(response);
+                const normalized = normalizeCourse(data);
+                if (normalized) {
+                  mergedMap.set(key, {
+                    ...normalized,
+                    fechaAgregado: new Date().toISOString(),
+                  });
+                }
+              } catch (error) {
+                console.warn(`No se pudo resolver curso favorito ${key}:`, error);
+              }
             }
-            return {
-              ...normalized,
-              fechaAgregado: new Date().toISOString(),
-            };
-          } catch (error) {
-            console.warn('No se pudo obtener el curso favorito', error);
-            return null;
+            return;
           }
+
+          const key = fav.id || fav.course_id || fav.courseId;
+          if (!key) return;
+          mergedMap.set(String(key), fav);
         })
       );
 
-      const favorites = resolved.filter(Boolean);
+      const favorites = Array.from(mergedMap.values());
       setCursosFavoritos(favorites);
     } catch (error) {
       console.error('Error cargando favoritos:', error);
