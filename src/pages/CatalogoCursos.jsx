@@ -13,6 +13,16 @@ const readStoredFavorites = () => {
     const raw = window.localStorage.getItem(FAVORITES_STORAGE_KEY);
     if (!raw) return new Set();
     const parsed = JSON.parse(raw);
+    const storedUser = apiServices.utils?.getStoredUser?.();
+    const currentUserId =
+      storedUser?.user_id || storedUser?.id || storedUser?.sub || null;
+
+    if (parsed && typeof parsed === "object" && Array.isArray(parsed.items)) {
+      if (!currentUserId || parsed.userId !== currentUserId) {
+        return new Set();
+      }
+      return new Set(parsed.items);
+    }
     if (Array.isArray(parsed)) {
       return new Set(parsed);
     }
@@ -25,9 +35,16 @@ const readStoredFavorites = () => {
 const writeStoredFavorites = (favoriteSet) => {
   if (typeof window === "undefined") return;
   try {
+    const storedUser = apiServices.utils?.getStoredUser?.();
+    const userId =
+      storedUser?.user_id || storedUser?.id || storedUser?.sub || null;
     window.localStorage.setItem(
       FAVORITES_STORAGE_KEY,
-      JSON.stringify(Array.from(favoriteSet))
+      JSON.stringify({
+        userId,
+        items: Array.from(favoriteSet),
+        updatedAt: new Date().toISOString(),
+      })
     );
   } catch {
     // noop

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiServices from '../services/apiServices';
 
 const SearchResults = ({ results, isVisible }) => {
     const navigate = useNavigate();
@@ -71,10 +72,35 @@ const SearchResults = ({ results, isVisible }) => {
                                 <button 
                                     className="course-action-button secondary"
                                     onClick={() => {
-                                        const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
-                                        const favorites = Array.isArray(stored) ? stored : [];
+                                        const storedUser = apiServices.utils.getStoredUser?.();
+                                        const currentUserId = storedUser?.user_id || storedUser?.id || storedUser?.sub || null;
+                                        const raw = localStorage.getItem('favorites');
+                                        let favoritesPayload = {
+                                            userId: currentUserId,
+                                            favorites: [],
+                                            updatedAt: new Date().toISOString(),
+                                        };
+
+                                        if (raw) {
+                                            try {
+                                                const parsed = JSON.parse(raw);
+                                                if (parsed && typeof parsed === 'object' && Array.isArray(parsed.favorites)) {
+                                                    if (!currentUserId || parsed.userId === currentUserId) {
+                                                        favoritesPayload = parsed;
+                                                    }
+                                                } else if (Array.isArray(parsed)) {
+                                                    favoritesPayload.favorites = parsed;
+                                                }
+                                            } catch (error) {
+                                                console.warn('No se pudo leer favoritos locales:', error);
+                                            }
+                                        }
+
+                                        const favorites = Array.isArray(favoritesPayload.favorites)
+                                            ? favoritesPayload.favorites
+                                            : [];
                                         const exists = favorites.some((fav) =>
-                                            typeof fav === 'object' ? fav.id === curso.id : fav === curso.id
+                                            typeof fav === 'object' ? (fav.id || fav.course_id) === curso.id : fav === curso.id
                                         );
 
                                         if (exists) {
@@ -99,7 +125,12 @@ const SearchResults = ({ results, isVisible }) => {
                                     };
 
                                         favorites.push(courseToSave);
-                                        localStorage.setItem('favorites', JSON.stringify(favorites));
+                                        favoritesPayload = {
+                                            userId: currentUserId,
+                                            favorites,
+                                            updatedAt: new Date().toISOString(),
+                                        };
+                                        localStorage.setItem('favorites', JSON.stringify(favoritesPayload));
                                         alert('Curso agregado a favoritos');
                                     }}
                                 >

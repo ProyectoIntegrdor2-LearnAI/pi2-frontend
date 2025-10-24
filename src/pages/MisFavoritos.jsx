@@ -45,24 +45,32 @@ function MisFavoritos() {
 
       try {
         const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
-        if (Array.isArray(stored)) {
-          stored.forEach((item) => {
-            if (!item) return;
-            if (typeof item === 'object') {
-              const normalized = normalizeCourse(item) || {
-                ...item,
-                calificacion: Number(item.calificacion || 0),
-              };
-              favoritesFromStorage.push({
-                ...normalized,
-                ...item,
-                fechaAgregado: item.fechaAgregado || new Date().toISOString(),
-              });
-            } else {
-              favoritesFromStorage.push(String(item));
-            }
-          });
-        }
+        const storedUser = apiServices.utils.getStoredUser?.();
+        const currentUserId = storedUser?.user_id || storedUser?.id || storedUser?.sub || null;
+
+        const items =
+          stored && typeof stored === 'object' && Array.isArray(stored.favorites)
+            ? (stored.userId && stored.userId !== currentUserId ? [] : stored.favorites)
+            : Array.isArray(stored)
+            ? stored
+            : [];
+
+        items.forEach((item) => {
+          if (!item) return;
+          if (typeof item === 'object') {
+            const normalized = normalizeCourse(item) || {
+              ...item,
+              calificacion: Number(item.calificacion || 0),
+            };
+            favoritesFromStorage.push({
+              ...normalized,
+              ...item,
+              fechaAgregado: item.fechaAgregado || item.added_at || new Date().toISOString(),
+            });
+          } else {
+            favoritesFromStorage.push(String(item));
+          }
+        });
       } catch (error) {
         console.warn('No se pudo leer favoritos locales:', error);
       }
@@ -249,13 +257,40 @@ function MisFavoritos() {
     setCursosFavoritos((prev) => prev.filter((curso) => curso.id !== cursoId));
 
     try {
-      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const updated = Array.isArray(stored)
-        ? stored.filter((item) =>
+      const raw = localStorage.getItem('favorites');
+      const storedUser = apiServices.utils.getStoredUser?.();
+      const currentUserId = storedUser?.user_id || storedUser?.id || storedUser?.sub || null;
+      let payload = {
+        userId: currentUserId,
+        favorites: [],
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.favorites)) {
+          if (!currentUserId || parsed.userId === currentUserId) {
+            payload = {
+              userId: currentUserId,
+              favorites: parsed.favorites.filter((item) => {
+                if (!item) return false;
+                if (typeof item === 'object') {
+                  const key = item.id || item.course_id || item.courseId;
+                  return key !== cursoId;
+                }
+                return item !== cursoId;
+              }),
+              updatedAt: new Date().toISOString(),
+            };
+          }
+        } else if (Array.isArray(parsed)) {
+          payload.favorites = parsed.filter((item) => (
             typeof item === 'object' ? item.id !== cursoId : item !== cursoId
-          )
-        : [];
-      localStorage.setItem('favorites', JSON.stringify(updated));
+          ));
+        }
+      }
+
+      localStorage.setItem('favorites', JSON.stringify(payload));
     } catch (error) {
       console.error('Error actualizando favoritos:', error);
     }

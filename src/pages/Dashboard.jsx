@@ -16,6 +16,17 @@ function Dashboard() {
       const raw = window.localStorage.getItem(FAVORITES_STORAGE_KEY);
       if (!raw) return new Set();
       const parsed = JSON.parse(raw);
+      const currentUserId = apiServices.utils?.getStoredUser?.()?.user_id
+        || apiServices.utils?.getStoredUser?.()?.id
+        || apiServices.utils?.getStoredUser?.()?.sub
+        || null;
+
+      if (parsed && typeof parsed === 'object' && Array.isArray(parsed.items)) {
+        if (!currentUserId || parsed.userId !== currentUserId) {
+          return new Set();
+        }
+        return new Set(parsed.items);
+      }
       if (Array.isArray(parsed)) {
         return new Set(parsed);
       }
@@ -165,9 +176,16 @@ function Dashboard() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
+      const storedUser = apiServices.utils.getStoredUser?.();
+      const userId = storedUser?.user_id || storedUser?.id || storedUser?.sub || null;
+      const payload = {
+        userId,
+        items: Array.from(favoriteCourseIds),
+        updatedAt: new Date().toISOString(),
+      };
       window.localStorage.setItem(
         FAVORITES_STORAGE_KEY,
-        JSON.stringify(Array.from(favoriteCourseIds))
+        JSON.stringify(payload)
       );
     } catch {
       // noop

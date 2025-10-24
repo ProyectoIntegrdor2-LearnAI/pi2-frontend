@@ -6,11 +6,28 @@ const STORAGE_KEY = 'misRutasAprendizaje';
 // Always try server first, fallback to cache if fails
 const ENABLE_SERVER_SYNC = true;
 
+const getCurrentUserId = () => {
+  const storedUser = apiServices.utils?.getStoredUser?.();
+  return storedUser?.user_id || storedUser?.id || storedUser?.sub || null;
+};
+
 const readCache = () => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
+    const currentUserId = getCurrentUserId();
+
+    if (parsed && typeof parsed === 'object' && Array.isArray(parsed.routes)) {
+      if (!currentUserId || parsed.userId !== currentUserId) {
+        console.log('Cache de rutas pertenece a otro usuario, limpiando...');
+        localStorage.removeItem(STORAGE_KEY);
+        return [];
+      }
+      console.log('Rutas cargadas del cache:', parsed.routes.length);
+      return parsed.routes;
+    }
+
     console.log('Rutas cargadas del cache:', Array.isArray(parsed) ? parsed.length : 0);
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
@@ -21,7 +38,13 @@ const readCache = () => {
 
 const writeCache = (routes) => {
   try {
-    const serialized = JSON.stringify(routes);
+    const userId = getCurrentUserId();
+    const payload = {
+      userId,
+      routes,
+      updatedAt: new Date().toISOString(),
+    };
+    const serialized = JSON.stringify(payload);
     localStorage.setItem(STORAGE_KEY, serialized);
     console.log('Rutas guardadas en cache:', routes.length, 'rutas, tamaño:', serialized.length, 'bytes');
   } catch (error) {
