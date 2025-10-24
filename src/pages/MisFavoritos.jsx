@@ -431,24 +431,6 @@ function MisFavoritos() {
             <div className={`cursos-grid ${vistaGrid ? 'grid-view' : 'list-view'}`}>
               {cursosFiltrados.map((curso) => (
                 <div key={curso.id} className="curso-card">
-                  <div className="curso-imagen">
-                    <img
-                      src={curso.imagen || 'https://via.placeholder.com/400x250?text=Curso'}
-                      alt={curso.titulo || 'Curso'}
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Curso';
-                      }}
-                    />
-                    <div className="curso-overlay">
-                      <button 
-                        className="preview-btn"
-                        onClick={() => irAlCurso(curso.url, curso.id)}
-                      >
-                        Ver Curso
-                      </button>
-                    </div>
-                  </div>
-                  
                   <div className="curso-content">
                     <div className="curso-header">
                       <div className="plataforma-badge">{curso.plataforma || 'LearnIA'}</div>

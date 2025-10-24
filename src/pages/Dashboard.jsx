@@ -897,12 +897,7 @@ function Dashboard() {
         <section className="recent-courses">
           <div className="section-header">
             <h2>Continuar Aprendiendo</h2>
-            <button 
-              className="see-all-btn"
-              onClick={() => handleNavigation('/catalogo')}
-            >
-              Ver todos
-            </button>
+            
           </div>
           <div className="courses-grid">
             {recentCourses.length === 0 ? (
