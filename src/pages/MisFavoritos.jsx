@@ -135,6 +135,12 @@ function MisFavoritos() {
 
       const favorites = Array.from(mergedMap.values());
       setCursosFavoritos(favorites);
+
+      try {
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+      } catch (error) {
+        console.warn('No se pudo sincronizar favoritos locales:', error);
+      }
     } catch (error) {
       console.error('Error cargando favoritos:', error);
       setFavoritesError(

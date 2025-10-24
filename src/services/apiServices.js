@@ -568,6 +568,20 @@ const apiServices = {
       }
     },
 
+    getFavorites: async () => {
+      const storedUser = getStoredUser();
+      const userId = storedUser?.user_id || storedUser?.id || storedUser?.sub || null;
+      const extraHeaders = {};
+      if (userId) {
+        extraHeaders['X-User-Id'] = userId;
+      }
+      const response = await fetch(buildUrl('/api/courses/favorites', 'COURSES'), {
+        method: 'GET',
+        headers: buildHeaders(extraHeaders, true),
+      });
+      return handleResponse(response);
+    },
+
     getCurrentProfile: async () => apiServices.user.getProfile('profile'),
 
     getProgress: async (userId = 'profile') => {
