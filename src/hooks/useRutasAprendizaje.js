@@ -176,11 +176,14 @@ export const useRutasAprendizaje = () => {
       ? backendPath.target_hours_per_week * estimatedWeeks
       : 0;
 
+    const backendCourses = ensureArray(backendPath.courses);
+    const snapshots = await Promise.all(
+      backendCourses.map((course) => fetchCourseSnapshot(course.mongodb_course_id)),
+    );
+
     let firstAvailableAssigned = false;
-    const courses = [];
-    for (let index = 0; index < backendPath.courses.length; index += 1) {
-      const course = backendPath.courses[index];
-      const snapshot = await fetchCourseSnapshot(course.mongodb_course_id);
+    const courses = backendCourses.map((course, index) => {
+      const snapshot = snapshots[index];
       let estado = 'disponible';
       switch (course.status) {
         case 'completed':
@@ -205,7 +208,7 @@ export const useRutasAprendizaje = () => {
         }
       }
 
-      courses.push({
+      return {
         id: `${backendPath.path_id}-${course.mongodb_course_id}`,
         titulo: snapshot?.titulo || `Curso ${index + 1}`,
         descripcion: snapshot?.descripcion || '',
@@ -225,8 +228,8 @@ export const useRutasAprendizaje = () => {
         startedAt: course.started_at,
         completedAt: course.completed_at,
         fechaCreacion: course.created_at || createdAt,
-      });
-    }
+      };
+    });
 
     const progreso = Math.round(Number(backendPath.progress_percentage ?? 0));
     const cursosConMeta = courses.concat([
@@ -276,14 +279,10 @@ export const useRutasAprendizaje = () => {
       const backendPaths = ensureArray(payload?.learning_paths ?? payload?.paths ?? payload);
       console.log('cargarRutas: rutas del servidor:', backendPaths.length);
 
-      const normalized = [];
-      // eslint-disable-next-line no-restricted-syntax
-      for (const backendPath of backendPaths) {
-        // eslint-disable-next-line no-await-in-loop
-        const formatted = await normalizeBackendPath(backendPath);
-        normalized.push(formatted);
-      }
-      
+      const normalized = (await Promise.all(
+        backendPaths.map((backendPath) => normalizeBackendPath(backendPath)),
+      )).filter(Boolean);
+
       console.log('cargarRutas: rutas normalizadas:', normalized.length);
 
       // Merge con cache local
