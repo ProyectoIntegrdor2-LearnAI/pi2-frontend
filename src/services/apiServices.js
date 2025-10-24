@@ -381,6 +381,13 @@ const handleResponse = async (response) => {
 };
 
 const executeFavoriteRequest = async (id, action) => {
+  const storedUser = getStoredUser();
+  const userId = storedUser?.user_id || storedUser?.id || storedUser?.sub || null;
+  const extraHeaders = {};
+  if (userId) {
+    extraHeaders['X-User-Id'] = userId;
+  }
+
   const body =
     action && typeof action === 'string'
       ? JSON.stringify({ action })
@@ -388,7 +395,7 @@ const executeFavoriteRequest = async (id, action) => {
 
   const response = await fetch(buildUrl(API_PATHS.COURSES.FAVORITE(id), 'COURSES'), {
     method: 'POST',
-    headers: buildHeaders({}, true),
+    headers: buildHeaders(extraHeaders, true),
     body,
   });
 
