@@ -177,9 +177,17 @@ export const useRutasAprendizaje = () => {
       : 0;
 
     const backendCourses = ensureArray(backendPath.courses);
-    const snapshots = await Promise.all(
-      backendCourses.map((course) => fetchCourseSnapshot(course.mongodb_course_id)),
-    );
+
+    const COURSE_SNAPSHOT_BATCH = 5;
+    const snapshots = [];
+    for (let i = 0; i < backendCourses.length; i += COURSE_SNAPSHOT_BATCH) {
+      const batch = backendCourses.slice(i, i + COURSE_SNAPSHOT_BATCH);
+      // eslint-disable-next-line no-await-in-loop
+      const batchSnapshots = await Promise.all(
+        batch.map((course) => fetchCourseSnapshot(course.mongodb_course_id)),
+      );
+      snapshots.push(...batchSnapshots);
+    }
 
     let firstAvailableAssigned = false;
     const courses = backendCourses.map((course, index) => {
@@ -279,9 +287,16 @@ export const useRutasAprendizaje = () => {
       const backendPaths = ensureArray(payload?.learning_paths ?? payload?.paths ?? payload);
       console.log('cargarRutas: rutas del servidor:', backendPaths.length);
 
-      const normalized = (await Promise.all(
-        backendPaths.map((backendPath) => normalizeBackendPath(backendPath)),
-      )).filter(Boolean);
+      const PATH_NORMALIZATION_BATCH = 4;
+      const normalized = [];
+      for (let i = 0; i < backendPaths.length; i += PATH_NORMALIZATION_BATCH) {
+        const batch = backendPaths.slice(i, i + PATH_NORMALIZATION_BATCH);
+        // eslint-disable-next-line no-await-in-loop
+        const batchResults = await Promise.all(
+          batch.map((backendPath) => normalizeBackendPath(backendPath)),
+        );
+        normalized.push(...batchResults.filter(Boolean));
+      }
 
       console.log('cargarRutas: rutas normalizadas:', normalized.length);
 
