@@ -193,12 +193,13 @@ export const useRutasAprendizaje = () => {
     const courses = backendCourses.map((course, index) => {
       const snapshot = snapshots[index];
       let estado = 'disponible';
+      const isSkipped = course.status === 'skipped';
       switch (course.status) {
         case 'completed':
           estado = 'completado';
           break;
         case 'skipped':
-          estado = 'pendiente';
+          estado = 'omitido';
           break;
         case 'in_progress':
           estado = 'en-progreso';
@@ -235,6 +236,7 @@ export const useRutasAprendizaje = () => {
         timeInvestedMinutes: course.time_invested_minutes ?? 0,
         startedAt: course.started_at,
         completedAt: course.completed_at,
+        omitidoEn: isSkipped ? (course.updated_at || course.last_activity) : undefined,
         fechaCreacion: course.created_at || createdAt,
       };
     });

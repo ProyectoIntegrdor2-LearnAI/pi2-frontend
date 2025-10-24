@@ -178,8 +178,8 @@ function VisualizadorRutas() {
         nuevoEstado = 'completado';
         break;
       case 'omitir':
-        // Para UX: omitir deja el curso como pendiente, pero permite avanzar
-        nuevoEstado = 'pendiente';
+        // Marcar como omitido desbloquea el siguiente curso pero mantiene registro claro
+        nuevoEstado = 'omitido';
         break;
       case 'continuar':
         if (cursoSeleccionado.url) {
