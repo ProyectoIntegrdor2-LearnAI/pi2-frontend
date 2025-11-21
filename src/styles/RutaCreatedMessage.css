@@ -59,11 +59,11 @@
 }
 
 .ruta-preview {
-  background: rgba(106, 13, 173, 0.05);
+  background: rgba(7, 113, 135, 0.05);
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
-  border: 1px solid rgba(106, 13, 173, 0.1);
+  border: 1px solid rgba(7, 113, 135, 0.1);
 }
 
 .ruta-preview h4 {
@@ -186,7 +186,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #6a0dad 0%, #8a2be2 100%);
+  background: linear-gradient(135deg, #074F57 0%, #077187 100%);
   color: white;
   flex: 1;
   justify-content: center;
@@ -196,7 +196,7 @@
 .btn-primary:hover {
   background: linear-gradient(135deg, #5a0a9a 0%, #7a1bd2 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(106, 13, 173, 0.3);
+  box-shadow: 0 4px 12px rgba(7, 79, 87, 0.3);
 }
 
 .btn-secondary {

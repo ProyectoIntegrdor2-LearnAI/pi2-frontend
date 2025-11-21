@@ -16,10 +16,10 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: radial-gradient(circle at 70% 30%, #a259c4 0%, #68148C 70%, #3F0259 100%);
+  background: radial-gradient(circle at 70% 30%, #74A57F 0%, #077187 70%, #074F57 100%);
   color: #fff;
   border: none;
-  box-shadow: 0 8px 32px 0 rgba(104,20,140,0.25), 0 2px 8px #0003;
+  box-shadow: 0 8px 32px 0 rgba(7,79,87,0.25), 0 2px 8px #0003;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,8 +31,8 @@
   animation: chat-bounce 1.2s infinite alternate cubic-bezier(.4,2,.6,1);
 }
 .chat-bubble-float:hover {
-  background: radial-gradient(circle at 70% 30%, #c084fc 0%, #68148C 60%, #3F0259 100%);
-  box-shadow: 0 16px 40px 0 rgba(104,20,140,0.35), 0 4px 16px #0004;
+  background: radial-gradient(circle at 70% 30%, #9ECE9A 0%, #077187 60%, #074F57 100%);
+  box-shadow: 0 16px 40px 0 rgba(7,79,87,0.35), 0 4px 16px #0004;
   transform: translateY(-6px) scale(1.08);
   animation: none;
 }
@@ -71,7 +71,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(90deg, #3F0259 60%, #68148C 100%);
+  background: linear-gradient(90deg, #074F57 60%, #077187 100%);
   color: #fff;
   padding: 0.7rem 1.2rem;
   font-size: 1.1rem;
@@ -111,7 +111,7 @@
   outline: none;
 }
 .chat-send {
-  background: linear-gradient(90deg, #3F0259 60%, #68148C 100%);
+  background: linear-gradient(90deg, #074F57 60%, #077187 100%);
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -124,7 +124,7 @@
   transition: background 0.2s;
 }
 .chat-send:hover {
-  background: linear-gradient(90deg, #68148C 60%, #3F0259 100%);
+  background: linear-gradient(90deg, #077187 60%, #074F57 100%);
 }
 /* Estilos para el chat de vista previa (ChatIAPreview) */
 .chat-preview-access-msg {
@@ -152,7 +152,7 @@
   text-align: center;
 }
 .chat-preview-btn {
-  background: linear-gradient(90deg, #3F0259 60%, #68148C 100%);
+  background: linear-gradient(90deg, #074F57 60%, #077187 100%);
   color: #fff;
   border: none;
   border-radius: 2rem;
@@ -164,5 +164,5 @@
   transition: background 0.2s;
 }
 .chat-preview-btn:hover {
-  background: linear-gradient(90deg, #68148C 60%, #3F0259 100%);
+  background: linear-gradient(90deg, #077187 60%, #074F57 100%);
 }

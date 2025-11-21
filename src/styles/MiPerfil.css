@@ -2,9 +2,9 @@
 
 /* Variables CSS base - Tema Claro */
 :root {
-  --primary-color: #6a0dad;
-  --primary-light: #8a2be2;
-  --primary-dark: #5a0a9a;
+  --primary-color: #074F57;
+  --primary-light: #077187;
+  --primary-dark: #053a3b;
   --secondary-color: #007bff;
   --success-color: #28a745;
   --warning-color: #ff9800;
@@ -36,9 +36,9 @@
 [data-theme="dark"], 
 .dark-theme,
 body.dark-theme {
-  --primary-color: #9b59b6;
-  --primary-light: #bb7dc8;
-  --primary-dark: #8e44ad;
+  --primary-color: #074F57;
+  --primary-light: #077187;
+  --primary-dark: #053a3b;
   --secondary-color: #4d9cdb;
   --success-color: #2ecc71;
   --warning-color: #f39c12;
@@ -515,7 +515,7 @@ body {
 }
 
 .tab-btn:hover {
-  background: rgba(106, 13, 173, 0.05);
+  background: rgba(7, 113, 135, 0.05);
   color: var(--primary-color);
 }
 
@@ -701,7 +701,7 @@ body {
 .form-textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.1);
+  box-shadow: 0 0 0 3px rgba(7, 113, 135, 0.1);
   transform: translateY(-1px);
 }
 
@@ -835,7 +835,7 @@ body {
 
 .radio-option:hover {
   border-color: var(--primary-color);
-  background: rgba(106, 13, 173, 0.05);
+  background: rgba(7, 113, 135, 0.05);
 }
 
 .radio-option input[type="radio"] {
@@ -905,7 +905,7 @@ body {
 
 .category-option:hover {
   border-color: var(--primary-color);
-  background: rgba(106, 13, 173, 0.05);
+  background: rgba(7, 113, 135, 0.05);
 }
 
 .category-option input[type="checkbox"]:checked + span {
@@ -1264,7 +1264,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(106, 13, 173, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(7, 79, 87, 0.3), transparent);
   animation: loading 1.5s infinite;
 }
 
@@ -1539,7 +1539,7 @@ body {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   color: white;
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(106, 13, 173, 0.3);
+  box-shadow: 0 4px 12px rgba(7, 79, 87, 0.3);
 }
 
 .avatar-option-image {

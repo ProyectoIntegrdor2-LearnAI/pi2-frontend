@@ -53,7 +53,7 @@ const Home = ({ onChatToggle }) => {
                 <div className="hero-container-full">
                     <div className="hero-content-centered">
                         <h1 className="hero-title">
-                            Descubre el futuro del aprendizaje con <span className="brand-highlight">LearnIA</span>
+                            Descubre el futuro del aprendizaje con <span className="brand-highlight">SARVIAI</span>
                         </h1>
                         <p className="hero-description">
                             Plataforma inteligente que utiliza IA y web scraping para generar rutas de aprendizaje
@@ -105,7 +105,7 @@ const Home = ({ onChatToggle }) => {
                                 <span className="text-gradient"> aprendizaje</span>?
                             </h2>
                             <p className="cta-enhanced-description">
-                                Únete a LearnIA y descubre cómo la inteligencia artificial puede acelerar
+                                Únete a SARVIAI y descubre cómo la inteligencia artificial puede acelerar
                                 tu crecimiento educativo con rutas de aprendizaje completamente personalizadas
                             </p>
 
@@ -155,15 +155,15 @@ const Home = ({ onChatToggle }) => {
             </section>
 
             {/* Footer Informativo */}
-            <footer className="learnia-footer">
+            <footer className="sarviai-footer">
                 <div className="section-container">
                     <div className="footer-main">
                         <div className="footer-section footer-about">
                             <h3 className="footer-brand">
-                                Learn<span className="brand-accent">IA</span>
+                                SARVIAI
                             </h3>
                             <p className="footer-description">
-                                <strong>"Learn" + "IA"</strong> = Aprender con Inteligencia Artificial.
+                                <strong>SARVIAI</strong> — Aprender con Inteligencia Artificial.
                                 Revolucionamos la educación digital combinando el poder del machine learning
                                 con web scraping avanzado para crear la experiencia de aprendizaje más
                                 personalizada del mercado. Tu ruta única hacia el conocimiento.
@@ -175,7 +175,7 @@ const Home = ({ onChatToggle }) => {
                         </div>
 
                         <div className="footer-section">
-                            <h4 className="footer-section-title">¿Por qué LearnIA?</h4>
+                            <h4 className="footer-section-title">¿Por qué SARVIAI?</h4>
                             <ul className="footer-list">
                                 <li><Brain className="list-icon" />Algoritmos que aprenden de ti</li>
                                 <li><Target className="list-icon" />Rutas 100% personalizadas</li>
@@ -217,18 +217,18 @@ const Home = ({ onChatToggle }) => {
                             <div className="stat-description">Plataformas Conectadas</div>
                         </div>
                         <div className="footer-stat">
-                            <div className="stat-value purple">24/7</div>
+                            <div className="stat-value green">24/7</div>
                             <div className="stat-description">Disponibilidad Total</div>
                         </div>
                         <div className="footer-stat">
-                            <div className="stat-value pink">∞</div>
+                            <div className="stat-value green">∞</div>
                             <div className="stat-description">Posibilidades de Aprender</div>
                         </div>
                     </div>
 
                     <div className="footer-bottom">
                         <div className="footer-copyright">
-                            <p>© 2025 LearnIA.</p>
+                            <p>© 2025 SARVIAI.</p>
                         </div>
                     </div>
                 </div>

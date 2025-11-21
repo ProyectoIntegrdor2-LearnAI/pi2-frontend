@@ -25,7 +25,7 @@ const ChatIAAuth = () => {
         {
             id: 1,
             type: 'ai',
-            content: '¡Hola! Soy LearnIA, tu asistente inteligente. ¿En qué puedo ayudarte hoy?',
+            content: '¡Hola! Soy SARVIAI, tu asistente inteligente. ¿En qué puedo ayudarte hoy?',
             timestamp: new Date()
         }
     ]);
@@ -210,9 +210,9 @@ const ChatIAAuth = () => {
             {isChatOpen ? (
                 <div className="fixed-ai-chat-float">
                     <div className="chat-header-bar">
-                        <span className="chat-title">LearnIA Assistant</span>
-                        <button className="chat-close-btn" onClick={closeChat} aria-label="Cerrar chat">×</button>
-                    </div>
+                            <span className="chat-title">SARVIAI Assistant</span>
+                            <button className="chat-close-btn" onClick={closeChat} aria-label="Cerrar chat">×</button>
+                        </div>
                     <div className="chat-messages">
                         {chatMessages.map(message => (
                             <div key={message.id} className={`chat-message ${message.type}`}>

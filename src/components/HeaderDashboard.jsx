@@ -76,7 +76,7 @@ const HeaderDashboard = () => {
               {userProfile?.name && <span className="user-name">{userProfile.name}</span>}
             </div>
             <div className="logo-section">
-              <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
+              <img src={logoImage} alt="SARVIAI Logo" className="logo-img" />
             </div>
           </div>
         </div>

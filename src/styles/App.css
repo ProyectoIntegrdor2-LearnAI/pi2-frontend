@@ -1,19 +1,19 @@
-/* Variables CSS - Paleta LearnIA */
+/* Variables CSS - Paleta SARVIAI (verdes) */
 :root {
-    --primary-color: #3F0259;
-    --primary-dark: #2d0142;
-    --primary-light: #68148C;
-    --secondary-color: #025373;
-    --secondary-light: #037F8C;
-    --accent-color: #038C4C;
-    --accent-light: #10b981;
+    --primary-color: #074F57; /* Dark Teal */
+    --primary-dark: #053a3b;
+    --primary-light: #077187; /* Cerulean */
+    --secondary-color: #077187;
+    --secondary-light: #74A57F; /* Muted Teal */
+    --accent-color: #74A57F;
+    --accent-light: #9ECE9A; /* Celadon */
     --text-primary: #1f2937;
     --text-secondary: #6b7280;
     --text-light: #9ca3af;
     --background: #ffffff;
     --background-secondary: #f9fafb;
     --background-tertiary: #f3f4f6;
-    --background-gradient: linear-gradient(135deg, #3F0259 0%, #68148C 50%, #025373 100%);
+    --background-gradient: linear-gradient(135deg, #074F57 0%, #74A57F 50%, #077187 100%);
     --border-color: #e5e7eb;
     --border-light: #f3f4f6;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -70,7 +70,7 @@ body {
     border-bottom: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
     z-index: 1000;
-    height: 80px;
+    height: 160px;
 }
 
 .header-container {
@@ -103,6 +103,26 @@ body {
     object-fit: contain;
     border-radius: var(--radius-sm);
     flex-shrink: 0;
+}
+
+/* Reduce logo size specifically on the Home page (scoped) */
+.home-header .logo-icon {
+    width: auto; /* allow natural width */
+    max-height: 78px; /* slightly smaller than dashboard header height */
+}
+
+/* Reduce public/home header height so it doesn't look huge */
+.home-header {
+    height: 92px; /* compact header for Home */
+}
+
+.home-header .header-container {
+    align-items: center; /* vertical center actions */
+}
+
+.home-header .logo-icon {
+    max-height: 78px; /* ensure logo fits nicely and doesn't exceed dashboard header */
+    width: auto;
 }
 
 /* Header Actions - Botones de auth + hamburguesa */
@@ -153,7 +173,7 @@ body {
     background: var(--primary-dark);
     border-color: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(106, 13, 173, 0.3);
+    box-shadow: 0 4px 12px rgba(7, 79, 87, 0.3);
 }
 
 /* Botón hamburguesa */
@@ -164,7 +184,7 @@ body {
     align-items: center;
     width: 44px;
     height: 44px;
-    background: rgba(106, 13, 173, 0.1); /* Color original morado suave */
+    background: rgba(7, 113, 135, 0.1); /* Fondo verde suave */
     border: 2px solid var(--primary-color); /* Borde morado original */
     cursor: pointer;
     padding: 8px;
@@ -179,7 +199,7 @@ body {
 }
 
 .hamburger-menu:hover {
-    background-color: rgba(106, 13, 173, 0.1);
+    background-color: rgba(7, 113, 135, 0.1);
 }
 
 .hamburger-line {
@@ -259,7 +279,7 @@ body {
 
 .nav-link:hover {
     color: var(--primary-color);
-    background-color: rgba(63, 2, 89, 0.05);
+    background-color: rgba(7, 113, 135, 0.05);
     border-radius: var(--radius-md);
     padding: 16px 12px;
 }
@@ -293,7 +313,7 @@ body {
 
 .dropdown-toggle:hover {
     color: var(--primary-color);
-    background-color: rgba(63, 2, 89, 0.05);
+    background-color: rgba(7, 113, 135, 0.05);
     border-radius: var(--radius-md);
     padding: 16px 12px;
 }
@@ -324,7 +344,7 @@ body {
 
 .dropdown-item:hover {
     color: var(--primary-color);
-    background-color: rgba(63, 2, 89, 0.1);
+    background-color: rgba(7, 113, 135, 0.1);
 }
 
 .dropdown-icon {
@@ -390,7 +410,7 @@ body {
     background: var(--primary-dark);
     border-color: var(--primary-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(63, 2, 89, 0.3);
+    box-shadow: 0 4px 12px rgba(7, 79, 87, 0.3);
 }
 
 /* Overlay para cerrar menú */
@@ -666,7 +686,7 @@ body {
 
 .chat-input:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(63, 2, 89, 0.1);
+    box-shadow: 0 0 0 3px rgba(7, 113, 135, 0.1);
 }
 
 .chat-send {
@@ -736,9 +756,8 @@ body {
 
 /* Asegurar que el texto con clase brand-highlight también sea visible */
 .brand-highlight {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%); /* Usar verdes más brillantes */
+    background: rgba(7, 79, 87, 0.3); /* Usar verdes más brillantes */
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     background-clip: text;
     text-shadow: none; /* Quitar sombra para gradientes de texto */
 }
@@ -788,7 +807,7 @@ body {
 .stat-label {
     font-size: 0.875rem;
     opacity: 1 !important; /* Máxima opacidad */
-    color: #3f0259 !important; /* Forzar color específico */
+    color: #074F57 !important; /* Forzar color específico */
     text-transform: uppercase;
     letter-spacing: 0.5px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Sombra para mejor contraste */
@@ -950,7 +969,7 @@ body {
         width: 42px; /* Ajustado */
         height: 42px;
         padding: 7px;
-        background-color: rgba(106, 13, 173, 0.1);
+        background-color: rgba(7, 113, 135, 0.1);
         border: 2px solid var(--primary-color);
     }
     
@@ -1002,7 +1021,7 @@ body {
         width: 42px;
         height: 42px;
         padding: 7px;
-        background-color: rgba(106, 13, 173, 0.1) !important; /* Fondo temporal */
+        background-color: rgba(7, 113, 135, 0.1) !important; /* Fondo temporal */
         border: 2px solid var(--primary-color) !important; /* Borde temporal */
     }
     
@@ -1039,7 +1058,7 @@ body {
 
     .stat-number {
         font-size: 2.75rem;
-        color: #2d0142 !important; /* Forzar color específico en tablet */
+        color: #053a3b !important; /* Forzar color específico en tablet */
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
 
@@ -1111,7 +1130,7 @@ body {
         width: 38px !important; /* Más pequeño */
         height: 38px !important;
         padding: 6px !important;
-        background: rgba(106, 13, 173, 0.1); /* Color original */
+        background: rgba(7, 113, 135, 0.1); /* Color original */
         border: 2px solid var(--primary-color); /* Borde original */
     }
     
@@ -1152,13 +1171,13 @@ body {
 
     .stat-number {
         font-size: 2rem;
-        color: #2d0142 !important; /* Forzar color específico en móviles */
+        color: #053a3b !important; /* Forzar color específico en móviles */
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
 
     .stat-label {
         font-size: 0.7rem;
-        color: #3f0259 !important; /* Forzar color específico en móviles */
+        color: #074F57 !important; /* Forzar color específico en móviles */
         opacity: 1 !important;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
@@ -1209,7 +1228,7 @@ body {
         width: 36px !important; /* Tamaño compacto */
         height: 36px !important;
         padding: 5px !important;
-        background: rgba(106, 13, 173, 0.2) !important; /* Fondo más visible */
+        background: rgba(7, 113, 135, 0.2) !important; /* Fondo más visible */
         border: 2px solid var(--primary-color) !important;
         flex-shrink: 0 !important; /* No permitir que se encoja */
         margin-left: 0.25rem !important; /* Pequeño margen para separar */
@@ -1298,13 +1317,13 @@ body {
 
     .stat-number {
         font-size: 2.25rem;
-        color: #2d0142 !important; /* Forzar color específico en móviles medianos */
+        color: #053a3b !important; /* Forzar color específico en móviles medianos */
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
 
     .stat-label {
         font-size: 0.75rem;
-        color: #3f0259 !important; /* Forzar color específico en móviles medianos */
+        color: #074F57 !important; /* Forzar color específico en móviles medianos */
         opacity: 1 !important;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
@@ -1390,7 +1409,7 @@ body {
 
     .stat-number {
         font-size: 2.5rem;
-        color: #2d0142 !important; /* Forzar color específico en tablets */
+        color: #053a3b !important; /* Forzar color específico en tablets */
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
 
@@ -1602,12 +1621,12 @@ body {
     }
     
     .stat-number {
-        color: #2d0142 !important;
+        color: #053a3b !important;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
     
     .stat-label {
-        color: #3f0259 !important;
+        color: #074F57 !important;
         opacity: 1 !important;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
@@ -1685,7 +1704,7 @@ body {
         display: flex !important;
         width: 44px;
         height: 44px;
-        background-color: rgba(106, 13, 173, 0.1);
+        background-color: rgba(7, 113, 135, 0.1);
         border: 2px solid var(--primary-color);
     }
     
@@ -1773,7 +1792,7 @@ body {
 .final-cta-section {
     background: linear-gradient(135deg, 
         var(--background-secondary) 0%, 
-        rgba(63, 2, 89, 0.05) 50%, 
+        rgba(7, 113, 135, 0.05) 50%, 
         var(--background-secondary) 100%);
     padding: 5rem 0;
     position: relative;
@@ -1787,7 +1806,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="rgba(63,2,89,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="rgba(7,113,135,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
     opacity: 0.4;
 }
 
@@ -1835,7 +1854,7 @@ body {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     border-radius: var(--radius-lg);
-    border: 1px solid rgba(63, 2, 89, 0.1);
+    border: 1px solid rgba(7, 113, 135, 0.1);
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
     font-weight: 600;
@@ -1845,7 +1864,7 @@ body {
 .cta-feature-item:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
-    border-color: rgba(63, 2, 89, 0.2);
+    border-color: rgba(7, 113, 135, 0.2);
 }
 
 .feature-icon {
@@ -1921,7 +1940,7 @@ body {
     background: var(--primary-color);
     color: white;
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(63, 2, 89, 0.3);
+    box-shadow: 0 8px 25px rgba(7, 79, 87, 0.3);
 }
 
 .button-icon {
@@ -1960,14 +1979,14 @@ body {
 }
 
 /* Footer Styles - AÑADIR ESTOS ESTILOS */
-.learnia-footer {
+.sarviai-footer {
     background: linear-gradient(135deg, 
-        rgba(15, 23, 42, 0.98) 0%, 
-        rgba(30, 1, 44, 0.96) 50%, 
-        rgba(15, 23, 42, 0.98) 100%);
+        var(--primary-dark, #053a3b) 0%, 
+        var(--primary-color, #074F57) 50%, 
+        var(--primary-dark, #053a3b) 100%);
     color: white;
     padding: 4rem 0 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     position: relative;
 }
 
@@ -2105,7 +2124,7 @@ body {
 }
 
 .stat-value.purple {
-    color: #68148C;
+    color: #077187;
 }
 
 .stat-value.pink {
