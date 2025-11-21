@@ -485,7 +485,7 @@ function MiPerfil() {
               <span className="user-name">{perfilData?.name || "Usuario"}</span>
             </div>
             <div className="logo-section">
-              <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
+              <img src={logoImage} alt="SARVIAI Logo" className="logo-img" />
             </div>
           </div>
         </div>

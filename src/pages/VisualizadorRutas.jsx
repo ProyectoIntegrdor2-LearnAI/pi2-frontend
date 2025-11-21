@@ -239,11 +239,11 @@ function VisualizadorRutas() {
       case 'completado': return '#28a745';
       case 'omitido': return '#ffc107';
       case 'en-progreso': return '#007bff';
-      case 'disponible': return '#6a0dad';
+      case 'disponible': return '#074F57';
       case 'bloqueado': return '#6c757d';
-      case 'pendiente': return '#6a0dad';
+      case 'pendiente': return '#074F57';
       case 'meta-disponible': return '#28a745';
-      case 'meta': return '#6a0dad';
+      case 'meta': return '#074F57';
       default: return '#6c757d';
     }
   };

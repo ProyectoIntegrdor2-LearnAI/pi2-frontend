@@ -332,7 +332,7 @@ function MisFavoritos() {
               {userProfile?.name && <span className="user-name">{userProfile.name}</span>}
             </div>
             <div className="logo-section">
-              <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
+              <img src={logoImage} alt="SARVIAI Logo" className="logo-img" />
             </div>
           </div>
         </div>
@@ -468,7 +468,7 @@ function MisFavoritos() {
                 <div key={curso.id} className="curso-card">
                   <div className="curso-content">
                     <div className="curso-header">
-                      <div className="plataforma-badge">{curso.plataforma || 'LearnIA'}</div>
+                      <div className="plataforma-badge">{curso.plataforma || 'SARVIAI'}</div>
                       <button 
                         className="favorite-btn active"
                         onClick={() => removerDeFavoritos(curso.id)}

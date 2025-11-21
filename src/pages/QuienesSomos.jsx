@@ -13,12 +13,12 @@ const QuienesSomos = () => {
     return (
         <div className="home-page">
 
-            {/* Hero Section - Acerca de LearnIA */}
+            {/* Hero Section - Acerca de SARVIAI */}
             <section className="hero-section">
                 <div className="hero-container-full">
                     <div className="hero-content-centered">
                         <h1 className="hero-title">
-                            Acerca de <span className="brand-highlight">LearnIA</span>
+                            Acerca de <span className="brand-highlight">SARVIAI</span>
                         </h1>
                         <p className="hero-description">
                             Una plataforma inteligente que utiliza inteligencia artificial y web scraping 
@@ -43,10 +43,10 @@ const QuienesSomos = () => {
                 </div>
             </section>
 
-            {/* Qué es LearnIA - Sección Principal */}
+            {/* Qué es SARVIAI - Sección Principal */}
             <section className="cursos-section">
                 <div className="section-container">
-                    <h2 className="section-title">¿Qué es LearnIA?</h2>
+                    <h2 className="section-title">¿Qué es SARVIAI?</h2>
                     <p className="section-subtitle">
                         Democratizamos el acceso a rutas de aprendizaje personalizadas mediante 
                         la automatización inteligente de la curación de contenido educativo
@@ -57,7 +57,7 @@ const QuienesSomos = () => {
                             <div className="description-card">
                                 <h3>Nuestra Plataforma</h3>
                                 <p>
-                                    LearnIA es una plataforma web inteligente que democratiza el acceso a rutas 
+                                    SARVIAI es una plataforma web inteligente que democratiza el acceso a rutas 
                                     de aprendizaje personalizadas. Mediante técnicas avanzadas de inteligencia 
                                     artificial y web scraping, procesamos contenido educativo de múltiples 
                                     plataformas para crear experiencias de aprendizaje únicas.

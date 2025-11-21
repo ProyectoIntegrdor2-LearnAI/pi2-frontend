@@ -7,9 +7,9 @@ const ChatIAPreview = () => {
             id: 1,
             type: 'ai',
             content: (
-                <div className="chat-preview-access-msg">
+                    <div className="chat-preview-access-msg">
                     <div className="chat-preview-icon"></div>
-                    <div className="chat-preview-title">¡Hola! Soy LearnIA</div>
+                    <div className="chat-preview-title">¡Hola! Soy SARVIAI</div>
                     <div className="chat-preview-desc">Para acceder al chat completo, por favor inicia sesión o regístrate.</div>
                                 <button className="chat-preview-btn" onClick={() => window.dispatchEvent(new CustomEvent('openAuthModal', { detail: { tab: 'login' } }))}>
                                     Iniciar sesión / Registrarse
@@ -70,7 +70,7 @@ const ChatIAPreview = () => {
             {isChatOpen ? (
                 <div className="fixed-ai-chat-float">
                     <div className="chat-header-bar">
-                        <span className="chat-title">LearnIA Assistant</span>
+                        <span className="chat-title">SARVIAI Assistant</span>
                         <button className="chat-close-btn" onClick={closeChat} aria-label="Cerrar chat">×</button>
                     </div>
                     <div className="chat-messages">

@@ -34,7 +34,7 @@
 
 .btn-back {
   background: none;
-  color: var(--primary-color, #6a0dad);
+  color: var(--primary-color, #074F57);
   border: none;
   padding: 0.5rem 0;
   cursor: pointer;
@@ -47,7 +47,7 @@
 }
 
 .btn-back:hover {
-  color: var(--primary-dark, #5a0a9a);
+  color: var(--primary-dark, #053a3b);
   transform: translateX(-4px);
 }
 
@@ -136,7 +136,7 @@
 }
 
 .btn-primary {
-  background: var(--primary-color, #6a0dad);
+  background: var(--primary-color, #074F57);
   color: white;
 }
 
@@ -181,7 +181,7 @@
 }
 
 .info-panel h3 {
-  color: var(--primary-color, #6a0dad);
+  color: var(--primary-color, #074F57);
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }

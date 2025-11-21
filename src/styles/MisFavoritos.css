@@ -2,9 +2,9 @@
 
 /* Variables CSS (heredadas del Dashboard) */
 :root {
-  --primary-color: #6a0dad;
-  --primary-light: #8a2be2;
-  --primary-dark: #5a0a9a;
+  --primary-color: #074F57;
+  --primary-light: #077187;
+  --primary-dark: #053a3b;
   --secondary-color: #007bff;
   --success-color: #28a745;
   --warning-color: #31eb36;
@@ -78,7 +78,7 @@
 .filter-select:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.1);
+  box-shadow: 0 0 0 3px rgba(7, 113, 135, 0.1);
 }
 
 .filter-select:hover {
@@ -110,7 +110,7 @@
 }
 
 .view-btn:hover:not(.active) {
-  background: rgba(106, 13, 173, 0.1);
+  background: rgba(7, 113, 135, 0.1);
   color: var(--primary-color);
 }
 
@@ -386,13 +386,13 @@
 }
 
 .tag {
-  background: rgba(106, 13, 173, 0.1);
+  background: rgba(7, 113, 135, 0.1);
   color: var(--primary-color);
   padding: 4px 8px;
   border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 500;
-  border: 1px solid rgba(106, 13, 173, 0.2);
+  border: 1px solid rgba(7, 113, 135, 0.2);
 }
 
 /* Precio del curso */

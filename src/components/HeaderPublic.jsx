@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import logoImage from '../imagenes/logoPrincipal.png';
 import logoImageMini from '../imagenes/logoMini.png';
 import AuthModal from './AuthModal';
@@ -54,15 +54,18 @@ const HeaderPublic = () => {
         setIsAboutDropdownOpen(false);
     };
 
+    const location = useLocation();
+    const isHome = location.pathname === "/" || location.pathname === "";
+
     return (
         <>
-            <header className="header">
+            <header className={`header ${isHome ? 'home-header' : ''}`}>
                 <div className="header-container">
                     <div className="logo-section">
                         <Link to="/" className="logo">
                             <img
                                 src={logoImage}
-                                alt="LearnIA Logo"
+                                alt="SARVIAI Logo"
                                 className="logo-icon"
                             />
                         </Link>

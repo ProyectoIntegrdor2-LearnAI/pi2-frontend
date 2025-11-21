@@ -51,7 +51,7 @@
     width: 100px;
     border-radius: 12px;
     object-fit: cover;
-    box-shadow: 0 4px 12px rgba(63, 2, 89, 0.2);
+    box-shadow: 0 4px 12px rgba(7, 79, 87, 0.2);
 }
 
 .auth-brand-text {
@@ -62,7 +62,7 @@
 .auth-brand-name {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #3F0259;
+    color: #074F57;
     margin: 0;
     line-height: 1;
 }
@@ -94,7 +94,7 @@
 
 .close-modal-improved:hover {
     background: #f1f5f9;
-    color: #3F0259;
+    color: #074F57;
 }
 
 /* Tabs de Login/Register */
@@ -123,8 +123,8 @@
 }
 
 .auth-tab.active {
-    color: #3F0259;
-    background: linear-gradient(135deg, rgba(63, 2, 89, 0.05) 0%, rgba(3, 140, 76, 0.05) 100%);
+    color: #074F57;
+    background: linear-gradient(135deg, rgba(7, 79, 87, 0.05) 0%, rgba(116,165,127,0.05) 100%);
 }
 
 .auth-tab.active::after {
@@ -134,7 +134,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(135deg, #3F0259 0%, #038C4C 100%);
+    background: linear-gradient(135deg, #074F57 0%, #74A57F 100%);
 }
 
 /* Contenido principal del modal */
@@ -186,7 +186,7 @@
 }
 
 .form-group-improved label svg {
-    color: #3F0259;
+    color: #074F57;
     flex-shrink: 0;
 }
 
@@ -228,16 +228,16 @@
 }
 
 .password-toggle:hover {
-    color: #3F0259;
-    background: rgba(63, 2, 89, 0.1);
+    color: #074F57;
+    background: rgba(7, 79, 87, 0.1);
 }
 
 /* Focus en inputs */
 .form-group-improved input:focus {
     outline: none;
-    border-color: #3F0259;
+    border-color: #074F57;
     background: white;
-    box-shadow: 0 0 0 3px rgba(63, 2, 89, 0.1);
+    box-shadow: 0 0 0 3px rgba(7, 79, 87, 0.1);
 }
 
 /* Checkbox personalizado */
@@ -273,8 +273,8 @@
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkmark {
-    background: #3F0259;
-    border-color: #3F0259;
+    background: #074F57;
+    border-color: #074F57;
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
@@ -286,7 +286,7 @@
 
 /* Enlaces de términos */
 .terms-link {
-    color: #3F0259;
+    color: #074F57;
     text-decoration: none;
     font-weight: 600;
 }
@@ -297,7 +297,7 @@
 
 /* Botón principal de envío */
 .auth-submit-btn {
-    background: linear-gradient(135deg, #3F0259 0%, #038C4C 100%);
+    background: linear-gradient(135deg, #074F57 0%, #74A57F 100%);
     color: white;
     border: none;
     padding: 1rem 1.5rem;
@@ -310,32 +310,18 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    box-shadow: 0 4px 15px rgba(63, 2, 89, 0.3);
+    box-shadow: 0 4px 15px rgba(7, 79, 87, 0.3);
     margin-top: 0.5rem;
 }
-
-.auth-submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(63, 2, 89, 0.4);
-}
-
-/* Opciones del footer (olvido contraseña) */
-.auth-footer-options {
-    text-align: center;
-    margin-top: 1rem;
-}
-
 .forgot-password {
-    color: #3F0259;
+    color: #074F57;
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 600;
 }
-
 .forgot-password:hover {
     text-decoration: underline;
 }
-
 /* Sección de features */
 .auth-features-improved {
     border-top: 1px solid #f1f5f9;
@@ -363,13 +349,13 @@
     padding: 0.75rem;
     background: #f8fafc;
     border-radius: 8px;
-    border-left: 3px solid #3F0259;
+    border-left: 3px solid #074F57;
 }
 
 .feature-icon-improved {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #3F0259 0%, #038C4C 100%);
+    background: linear-gradient(135deg, #074F57 0%, #74A57F 100%);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -545,17 +531,17 @@
 }
 
 .avatar-option:hover {
-    border-color: #8b5cf6;
+    border-color: #074F57;
     background: #f3f4f6;
     transform: translateY(-2px);
 }
 
 .avatar-option.selected {
-    border-color: #8b5cf6;
-    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+    border-color: #074F57;
+    background: linear-gradient(135deg, #074F57 0%, #74A57F 100%);
     color: white;
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(7, 79, 87, 0.3);
 }
 
 .avatar-image-container {

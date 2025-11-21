@@ -109,7 +109,7 @@ const AuthModal = ({ showAuthModal, closeAuthModal, initialTab = 'login' }) => {
                     <div className="auth-logo-container">
                         <img
                             src={logoImage}
-                            alt="LearnIA Logo"
+                            alt="SARVIAI Logo"
                             className="auth-modal-logo"
                         />
                         <div className="auth-brand-text">
@@ -145,7 +145,7 @@ const AuthModal = ({ showAuthModal, closeAuthModal, initialTab = 'login' }) => {
                 {/* Formulario */}
                 <div className="auth-modal-content-improved">
                     <div className="auth-welcome-text">
-                        <h3>{activeTab === 'login' ? '¡Bienvenido de vuelta!' : '¡Únete a LearnIA!'}</h3>
+                        <h3>{activeTab === 'login' ? '¡Bienvenido de vuelta!' : '¡Únete a SARVIAI!'}</h3>
                         <p>{activeTab === 'login'
                             ? 'Accede a tu cuenta y continúa tu viaje de aprendizaje personalizado con IA.'
                             : 'Crea tu cuenta y descubre rutas de aprendizaje personalizadas con inteligencia artificial.'

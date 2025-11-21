@@ -103,7 +103,7 @@
   position: absolute;
   bottom: -5px;
   right: -5px;
-  background: var(--primary-color, #6a0dad);
+  background: var(--primary-color, #074F57);
   color: white;
   width: 32px;
   height: 32px;
@@ -134,7 +134,7 @@
 }
 
 .node-circle.disponible {
-  background: var(--primary-color, #6a0dad);
+  background: var(--primary-color, #074F57);
   animation: pulse 3s ease-in-out infinite;
 }
 
@@ -176,7 +176,7 @@
 .path-step:hover .course-info-card {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,0.15));
-  border-color: var(--primary-light, #8a2be2);
+  border-color: var(--primary-light, #077187);
 }
 
 .course-header {
@@ -320,7 +320,7 @@
 }
 
 .action-btn.primary {
-  background: var(--primary-color, #6a0dad);
+  background: var(--primary-color, #074F57);
   color: white;
   flex: 1;
   justify-content: center;
@@ -328,9 +328,9 @@
 }
 
 .action-btn.primary:hover {
-  background: var(--primary-dark, #5a0a9a);
+  background: var(--primary-dark, #053a3b);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(106, 13, 173, 0.3));
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(7, 79, 87, 0.3));
 }
 
 .secondary-actions {
@@ -399,7 +399,7 @@
 .blocked-hint small {
   color: var(--text-secondary, #666);
   font-style: italic;
-  background: rgba(106, 13, 173, 0.1);
+  background: rgba(7, 113, 135, 0.1);
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-sm, 4px);
   font-size: 0.8rem;
@@ -460,7 +460,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background: linear-gradient(135deg, var(--primary-color, #6a0dad) 0%, var(--primary-light, #8a2be2) 100%);
+  background: linear-gradient(135deg, var(--primary-color, #074F57) 0%, var(--primary-light, #077187) 100%);
   color: white;
 }
 
@@ -549,14 +549,14 @@
 }
 
 .modal-btn.primary {
-  background: var(--primary-color, #6a0dad);
+  background: var(--primary-color, #074F57);
   color: white;
 }
 
 .modal-btn.primary:hover {
   background: var(--primary-dark, #5a0a9a);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md, 0 4px 12px rgba(106, 13, 173, 0.3));
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(7, 79, 87, 0.3));
 }
 
 .modal-btn.secondary {
@@ -599,10 +599,10 @@
 
 @keyframes pulse {
   0%, 100% {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 0 0 rgba(106, 13, 173, 0.7);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 0 0 rgba(7, 113, 135, 0.7);
   }
   50% {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 0 10px rgba(106, 13, 173, 0);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 0 10px rgba(7, 113, 135, 0);
   }
 }
 
@@ -730,7 +730,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: var(--primary-color, #6a0dad);
+  background: var(--primary-color, #074F57);
   transition: all 0.3s ease;
 }
 
@@ -743,7 +743,7 @@
 }
 
 .stat-item.disponibles::before {
-  background: var(--primary-color, #6a0dad);
+  background: var(--primary-color, #074F57);
 }
 
 .stat-item.bloqueados::before {
@@ -753,7 +753,7 @@
 .stat-item:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md, 0 8px 20px rgba(0,0,0,0.15));
-  border-color: var(--primary-light, #8a2be2);
+  border-color: var(--primary-light, #077187);
 }
 
 .stat-number {
@@ -780,10 +780,10 @@
 
 /* Resumen de progreso */
 .progress-summary {
-  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(7, 113, 135, 0.05) 0%, rgba(116, 165, 127, 0.05) 100%);
   border-radius: var(--radius-lg, 12px);
   padding: 1.5rem;
-  border: 2px solid var(--primary-light, #8a2be2);
+  border: 2px solid var(--primary-light, #077187);
   margin-bottom: 2rem;
 }
 
@@ -816,7 +816,7 @@
 .progress-percentage {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--primary-color, #6a0dad) !important;
+  color: var(--primary-color, #074F57) !important;
 }
 
 .progress-bar-large {
@@ -829,14 +829,14 @@
 
 .progress-fill-large {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-color, #6a0dad) 0%, var(--primary-light, #8a2be2) 100%);
+  background: linear-gradient(90deg, var(--primary-color, #074F57) 0%, var(--primary-light, #077187) 100%);
   border-radius: 6px;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Información de origen chat */
 .chat-origin-info {
-  background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(106, 13, 173, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(7, 113, 135, 0.05) 100%);
   border-radius: var(--radius-lg, 12px);
   padding: 1.5rem;
   border: 2px solid rgba(0, 123, 255, 0.2);
@@ -847,7 +847,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, var(--secondary-color, #007bff) 0%, var(--primary-color, #6a0dad) 100%);
+  background: linear-gradient(135deg, var(--secondary-color, #007bff) 0%, var(--primary-color, #074F57) 100%);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: var(--radius-lg, 12px);
@@ -894,12 +894,12 @@
 .route-tab:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15));
-  border-color: var(--primary-light, #8a2be2);
+  border-color: var(--primary-light, #077187);
 }
 
 .route-tab.active {
-  border-color: var(--primary-color, #6a0dad);
-  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  border-color: var(--primary-color, #074F57);
+  background: linear-gradient(135deg, rgba(7, 113, 135, 0.05) 0%, rgba(7, 113, 135, 0.05) 100%);
   box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.15));
 }
 
@@ -931,7 +931,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-color, #6a0dad) 0%, var(--primary-light, #8a2be2) 100%);
+  background: linear-gradient(90deg, var(--primary-color, #074F57) 0%, var(--primary-light, #077187) 100%);
   border-radius: 4px;
   transition: width 0.5s ease;
 }
@@ -939,7 +939,7 @@
 .progress-text {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--primary-color, #6a0dad);
+  color: var(--primary-color, #074F57);
   min-width: 40px;
   text-align: right;
 }
@@ -1010,7 +1010,7 @@
 .progress-percent {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--primary-color, #6a0dad);
+  color: var(--primary-color, #074F57);
 }
 
 /* Timeline Styles */
@@ -1220,7 +1220,7 @@
 
 .ruta-card.active {
   border-color: var(--primary-color);
-  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(7, 113, 135, 0.05) 0%, rgba(116, 165, 127, 0.05) 100%);
   box-shadow: var(--shadow-lg);
 }
 
@@ -1649,7 +1649,7 @@
 /* Ruta activa destacada */
 .stat-card.active-route {
   border-color: var(--primary-color);
-  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(7, 113, 135, 0.05) 0%, rgba(116, 165, 127, 0.05) 100%);
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
@@ -1662,9 +1662,9 @@
 
 /* Variables CSS */
 :root {
-  --primary-color: #6a0dad;
-  --primary-light: #8a2be2;
-  --primary-dark: #5a0a9a;
+  --primary-color: #074F57;
+  --primary-light: #077187;
+  --primary-dark: #053a3b;
   --secondary-color: #007bff;
   --success-color: #28a745;
   --warning-color: #ff9800;
@@ -1834,7 +1834,7 @@ body {
 
 .ruta-item.activa {
   border-color: var(--primary-color);
-  background: linear-gradient(135deg, rgba(106, 13, 173, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(7, 113, 135, 0.05) 0%, rgba(7, 113, 135, 0.05) 100%);
   box-shadow: var(--shadow-md);
 }
 

@@ -521,9 +521,9 @@ function Dashboard() {
               {userProfile?.name && <span className="user-name">{userProfile.name}</span>}
             </div>
 
-            {/* Logo LearnIA */}
+            {/* Logo SARVIAI */}
             <div className="logo-section">
-              <img src={logoImage} alt="LearnIA Logo" className="logo-img" />
+              <img src={logoImage} alt="SARVIAI Logo" className="logo-img" />
             </div>
           </div>
         </div>
@@ -878,7 +878,7 @@ function Dashboard() {
                       <p className="path-description">
                         {ruta.descripcion && ruta.descripcion.length > 140
                           ? `${ruta.descripcion.slice(0, 140)}…`
-                          : ruta.descripcion || 'Ruta generada por la IA LearnIA'}
+                          : ruta.descripcion || 'Ruta generada por la IA SARVIAI'}
                       </p>
                       <div className="path-meta">
                         <span>📚 {cursosCompletados}/{cursosRegulares.length} cursos completados</span>

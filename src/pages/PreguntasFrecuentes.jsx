@@ -10,8 +10,8 @@ const PreguntasFrecuentes = () => {
         // Preguntas Generales
         {
             category: 'general',
-            question: '¿Qué es LearnIA?',
-            answer: 'LearnIA es una plataforma inteligente que utiliza inteligencia artificial y web scraping para generar rutas de aprendizaje personalizadas. Automatizamos la curación de contenido educativo de múltiples plataformas como Coursera, edX, Udemy y Khan Academy para crear experiencias de aprendizaje únicas adaptadas a tus objetivos y nivel.'
+            question: '¿Qué es SARVIAI?',
+            answer: 'SARVIAI es una plataforma inteligente que utiliza inteligencia artificial y web scraping para generar rutas de aprendizaje personalizadas. Automatizamos la curación de contenido educativo de múltiples plataformas como Coursera, edX, Udemy y Khan Academy para crear experiencias de aprendizaje únicas adaptadas a tus objetivos y nivel.'
         },
         {
             category: 'general',
@@ -61,8 +61,8 @@ const PreguntasFrecuentes = () => {
         // Cuenta y Privacidad
         {
             category: 'cuenta',
-            question: '¿Cómo me registro en LearnIA?',
-            answer: 'El registro es simple: proporciona tu nombre, email y crea una contraseña segura. Después de verificar tu email, completa tu perfil con tus intereses y objetivos de aprendizaje para que la IA pueda generar mejores recomendaciones desde el primer día.'
+                question: '¿Cómo me registro en SARVIAI?',
+                answer: 'El registro es simple: proporciona tu nombre, email y crea una contraseña segura. Después de verificar tu email, completa tu perfil con tus intereses y objetivos de aprendizaje para que la IA pueda generar mejores recomendaciones desde el primer día.'
         },
         {
             category: 'cuenta',
@@ -123,7 +123,7 @@ const PreguntasFrecuentes = () => {
                             Preguntas <span className="brand-highlight">Frecuentes</span>
                         </h1>
                         <p className="hero-description">
-                            Encuentra respuestas rápidas a las preguntas más comunes sobre LearnIA, 
+                            Encuentra respuestas rápidas a las preguntas más comunes sobre SARVIAI, 
                             nuestra tecnología de IA y cómo funciona la plataforma.
                         </p>
                         
